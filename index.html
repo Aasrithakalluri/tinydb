@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A3 AutoSE Progress</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --surface: #ffffff; --text: #1d1f23; --muted: #5d6470; --border: #dcdfe4;
+    --accent: #3b5bdb; --done: #2b8a3e; --partial: #b7791f; --todo: #8a919c; --blocked: #c92a2a;
+    --done-bg: #e6f4ea; --partial-bg: #fdf3dc; --todo-bg: #eceef1; --blocked-bg: #fde8e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161a; --surface: #1d2026; --text: #e8eaee; --muted: #9aa2af; --border: #2e333c;
+      --accent: #8da2fb; --done: #6fcf8a; --partial: #e6b653; --todo: #8a919c; --blocked: #ff8787;
+      --done-bg: #17301f; --partial-bg: #35290f; --todo-bg: #262a32; --blocked-bg: #3a1a1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --surface: #1d2026; --text: #e8eaee; --muted: #9aa2af; --border: #2e333c;
+    --accent: #8da2fb; --done: #6fcf8a; --partial: #e6b653; --todo: #8a919c; --blocked: #ff8787;
+    --done-bg: #17301f; --partial-bg: #35290f; --todo-bg: #262a32; --blocked-bg: #3a1a1a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 36px 0 12px; }
+  h3 { font-size: 1rem; margin: 0; }
+  p { margin: 8px 0; }
+  a { color: var(--accent); }
+  code { font: 0.88em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--todo-bg);
+         padding: 1px 5px; border-radius: 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  button.theme { background: var(--surface); color: var(--text); border: 1px solid var(--border);
+                 border-radius: 8px; padding: 6px 12px; cursor: pointer; font: inherit; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 12px 0; }
+  .banner { border-left: 4px solid var(--blocked); background: var(--blocked-bg); }
+  .banner h3 { color: var(--blocked); margin-bottom: 6px; }
+  .note { border-left: 4px solid var(--partial); background: var(--partial-bg); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 0.9rem; margin: 8px 0 0; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+  .pill.done { color: var(--done); background: var(--done-bg); }
+  .pill.partial { color: var(--partial); background: var(--partial-bg); }
+  .pill.todo { color: var(--todo); background: var(--todo-bg); }
+  .pill.blocked { color: var(--blocked); background: var(--blocked-bg); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 12px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat b { display: block; font-size: 1.35rem; }
+  .stat span { color: var(--muted); font-size: 0.88rem; }
+  details.phase { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin: 10px 0; }
+  details.phase > summary { cursor: pointer; padding: 12px 16px; list-style: none; display: flex; align-items: center;
+                            gap: 12px; flex-wrap: wrap; }
+  details.phase > summary::-webkit-details-marker { display: none; }
+  details.phase > summary::before { content: "▸"; color: var(--muted); }
+  details.phase[open] > summary::before { content: "▾"; }
+  .phase-title { font-weight: 650; flex: 1 1 260px; }
+  .bar { flex: 0 0 140px; height: 8px; background: var(--todo-bg); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--done); width: 0; }
+  .count { color: var(--muted); font-size: 0.88rem; min-width: 52px; text-align: right; }
+  ul.items { list-style: none; margin: 0; padding: 4px 16px 14px; }
+  ul.items li { display: flex; gap: 10px; padding: 5px 0; align-items: flex-start; }
+  ul.items li.sub { padding-left: 28px; }
+  .mk { flex: 0 0 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.8rem; font-weight: 700; margin-top: 1px; }
+  .mk.x { background: var(--done-bg); color: var(--done); }
+  .mk.p { background: var(--partial-bg); color: var(--partial); }
+  .mk.o { background: var(--todo-bg); color: var(--todo); }
+  ol.findings { padding-left: 22px; } ol.findings li { margin: 8px 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+  .kv dt { color: var(--muted); } .kv dd { margin: 0; word-break: break-word; }
+  footer { color: var(--muted); font-size: 0.85rem; margin-top: 36px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div>
+      <h1>A3 AutoSE: progress tracker</h1>
+      <p class="sub">Architecting an agentic SDLC workflow on a tinydb fork. Snapshot of 2026-11-22. Same content as <code>progress.md</code>.</p>
+    </div>
+    <button class="theme" id="theme" type="button">Toggle theme</button>
+  </div>
+
+  <div class="legend">
+    <span><span class="pill done">done</span> verified</span>
+    <span><span class="pill partial">built</span> not yet exercised by a real run, or only partly</span>
+    <span><span class="pill todo">to do</span> not started</span>
+  </div>
+
+  <div class="card note">
+    <h3>Deadline note</h3>
+    <p>The original deadline was 21 Nov 23:59 IST. An extension to 23 Nov was arranged. Decision of 2026-11-22: quality over speed, no compromises on evidence.</p>
+  </div>
+
+  <h2>Where we are</h2>
+  <p><b>Phases 0 to 3 are done. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
+
+  <div class="stats">
+    <div class="stat"><b>≈ $0.49</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
+    <div class="stat"><b>≈ 2.4M / 175k</b><span>input / output tokens so far</span></div>
+    <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
+    <div class="stat"><b>13</b><span>ADRs written (D1 to D10, plus ADR-011, 012, 013)</span></div>
+  </div>
+
+  <div class="card banner">
+    <h3>Blocked on the maintainer</h3>
+    <p><b>1.</b> Answer issue #5's three questions: comment <code>/autose go 1?, 2?, 3?</code> on <a href="https://github.com/Aasrithakalluri/tinydb/issues/5">issue #5</a>.</p>
+    <p><b>2.</b> Decide the human-escalation policy (see open decisions below).</p>
+  </div>
+
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Issue</th><th>Type</th><th>Outcome</th><th>PR</th><th>Cost</th><th>Hidden tests</th></tr></thead>
+      <tbody>
+        <tr><td>#3 <code>count()</code></td><td>feature</td><td><span class="pill done">done, approved</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/10">#10</a></td><td>$0.058</td><td>3/3</td></tr>
+        <tr><td>#1 <code>!=</code> vs <code>~(==)</code></td><td>bug</td><td><span class="pill done">done, approved</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/15">#15</a></td><td>$0.070</td><td>3/3</td></tr>
+        <tr><td>#2 mutating search results</td><td>bug</td><td><span class="pill done">done, approved</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/14">#14</a></td><td>$0.086</td><td>3/3</td></tr>
+        <tr><td>#4 <code>multiply</code></td><td>feature</td><td><span class="pill done">done after lint fix</span><br><small>first try failed: pipeline bug</small></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/17">#17</a></td><td>$0.013 + $0.071</td><td>4/4</td></tr>
+        <tr><td>#5 "strange order", auto mode</td><td>vague</td><td><span class="pill partial">done, approved</span><br><small>baseline, PR closed</small></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/18">#18</a></td><td>$0.019 + $0.163</td><td><b>2/3</b><br><small>agent assumed "ascending id"</small></td></tr>
+        <tr><td>#5 "strange order", ask mode</td><td>vague</td><td><span class="pill blocked">paused, waiting for you</span></td><td>–</td><td>$0.008 so far</td><td>pending</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Open decisions</h2>
+  <div class="card">
+    <p><span class="pill todo">to do</span> <b>Escalation policy:</b> when must a run reach a human? Proposal: ambiguity that changes behaviour (a P1 question plus an ASSUMED item in an acceptance criterion), the reviewer rejecting the approach twice, and safety signals. It would become ADR-014 and a measured variant. Haiku marks even clear issues NOT READY, so a naive "any P1 question" threshold would stall most runs.</p>
+    <p><span class="pill todo">to do</span> <b>Hidden-test validity:</b> write a reference solution and an alternative valid fix per issue, and make issue 5's tests cover the plausible readings. Write the reading-specific tests for #5 <i>before</i> looking at the ask-mode PR.</p>
+  </div>
+
+  <h2>Phases</h2>
+  <div id="phases"></div>
+
+  <h2>Findings so far <small style="color:var(--muted);font-weight:400">(raw material for the report)</small></h2>
+  <div class="card">
+    <ol class="findings">
+      <li><b>Invalid workflow YAML</b> (<code>runner</code> context in job <code>env</code>) was found only on push, and fixed with actionlint.</li>
+      <li>The repo setting "Allow GitHub Actions to create pull requests" had to be enabled.</li>
+      <li><b>Restart bug (ADR-004 superseded by ADR-011):</b> restoring <code>state.json</code> did not restore the code. An empty commit was force-pushed and PR #10 briefly had 0 changes. A reasoned ADR was falsified by one real run.</li>
+      <li>The CI wait matched a gated <code>pull_request</code> run (<code>action_required</code>). It now uses the <code>workflow_dispatch</code> run.</li>
+      <li><b>Lint false rejection (ADR-012):</b> tagged criteria such as <code>FR-03-AC1 (failure):</code> were invisible to my regex, so a correct spec for #4 failed stage 1.</li>
+      <li><b>Vague issue:</b> with no human available, the Planner wrote "do not implement until Q-01 is resolved" and the Builder produced an empty diff. This led to assume mode (ADR-012) and ask mode (ADR-013).</li>
+      <li><b>Assume-mode guess approved by the reviewer</b> (#5): the reviewer does not see the spec, so it cannot challenge an ASSUMED interpretation. Hidden tests 2/3.</li>
+      <li><b>The design lint caught a real error:</b> the Planner named a test symbol that did not exist (#3, #5), and the retry fixed it.</li>
+      <li><b>Reviewer quality:</b> it ran the suite and its own experiments and checked constraints 4 and 5. For #2 it noticed that the ADR-3 wording in <code>ARCHITECTURE.md</code> is now stale.</li>
+      <li><b>Cost is small:</b> about $0.06 to $0.09 per clean run. The vague issue costs 2 to 3 times more.</li>
+    </ol>
+  </div>
+
+  <h2>Log</h2>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>What was done</th><th>Links</th></tr></thead>
+      <tbody>
+        <tr><td>2026-11-22</td><td>Phases 1 to 3 done. First complete run on #3 after 3 pipeline fixes (ADR-011).</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/10">PR #10</a></td></tr>
+        <tr><td>2026-11-22</td><td>Batch on #1, #2, #4, #5: two successes, two pipeline-caused failures. Fixes in ADR-012.</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/14">#14</a>, <a href="https://github.com/Aasrithakalluri/tinydb/pull/15">#15</a></td></tr>
+        <tr><td>2026-11-22</td><td>#4 and #5 re-run. ADR-013 ask gate built. #5 baseline saved to <code>results/variant_runs/issue5-auto/</code>. Ask-mode run paused, waiting for the maintainer.</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/17">#17</a>, <a href="https://github.com/Aasrithakalluri/tinydb/pull/18">#18</a>, <a href="https://github.com/Aasrithakalluri/tinydb/actions/runs/44997454477">run 44997454477</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Key values</h2>
+  <div class="card">
+    <dl class="kv">
+      <dt>Fork</dt><dd><a href="https://github.com/Aasrithakalluri/tinydb">github.com/Aasrithakalluri/tinydb</a></dd>
+      <dt>Pinned commit</dt><dd><code>edff96aeb2616402e9489d46e90a592c05565621</code> (default branch <code>master</code>)</dd>
+      <dt>Agent framework</dt><dd>Claude Agent SDK 0.2.187, single Python orchestrator (<code>workflow/orchestrator.py</code>)</dd>
+      <dt>Models</dt><dd>Planner and Builder: <code>claude-haiku-5-5</code>. Reviewer: <code>claude-sonnet-5-5</code></dd>
+      <dt>Spend limit</dt><dd>$5 (Anthropic). The orchestrator caps each run at $0.60.</dd>
+      <dt>Tokens used so far</dt><dd>≈ 2.4M in / 175k out (orchestrator-tracked, confirm in the console)</dd>
+    </dl>
+  </div>
+
+  <footer>Edit the <code>PHASES</code> data in this file, or <code>progress.md</code>, as work proceeds. Each item is <code>[state, text, isSub]</code> with state <code>x</code> (done), <code>p</code> (built, not yet exercised) or <code>o</code> (to do).</footer>
+</div>
+
+<script>
+const PHASES = [
+  ["Phase 0: Decisions", [
+    ["x", "Target repo: tinydb <code>edff96a</code>"],
+    ["x", "Agent SDK: Claude Agent SDK, single Python orchestrator (ADR-002)"],
+    ["x", "Models: Haiku for Planner and Builder, Sonnet for Reviewer (ADR-006)"],
+    ["x", "ADRs written: all ten (D1 to D10) plus ADR-011, 012, 013. Tested ADRs chosen."],
+    ["x", "A1 skill and A2 <code>ARCHITECTURE.md</code> located and in the repo"],
+    ["x", "Git repo and GitHub fork (<code>Aasrithakalluri/tinydb</code>)"]]],
+  ["Phase 1: Repository setup", [
+    ["x", "Fork pinned to <code>edff96aeb2616402e9489d46e90a592c05565621</code> (default branch <code>master</code>)"],
+    ["x", "Test suite runs in under a second locally (228 tests); CI runs on GitHub"],
+    ["x", "<code>ANTHROPIC_API_KEY</code> stored as a repository secret"],
+    ["x", "Hard spend limit of $5 set with the provider"],
+    ["x", "<code>master</code> protected (direct push rejected, verified); changes via PR"],
+    ["x", "<code>autose</code> label created"],
+    ["x", "5 issues opened (2 bugs, 2 features, 1 vague): #1 to #5"],
+    ["x", "Hidden acceptance tests (3 to 4 per issue) kept outside the repo in <code>~/a3_private/hidden_tests/</code>. They fail on the baseline (verified)."],
+    ["x", "Issue texts saved to <code>experiment/issues/</code>"],
+    ["o", "Copy hidden tests into <code>experiment/hidden_tests/</code> for submission, only after all runs are scored"]]],
+  ["Phase 2: Design before build", [
+    ["x", "Component view, planned sequence view, stage map in <code>architecture/views/</code>"],
+    ["x", "ADR-001 to ADR-010 (Nygard format) in <code>architecture/decisions/</code>"],
+    ["x", "Design committed before any agent code (PR #7 merged before PR #8 with the code)"],
+    ["x", "Superseded rule used: ADR-004 superseded by ADR-011 (found by a real run). ADR-012 refines ADR-007 and ADR-002. ADR-013 supersedes ADR-012's vague-issue rule."],
+    ["o", "Replace the planned sequence view with one drawn from a real run"],
+    ["o", "Update the component view for the ask gate (WAITING state)"]]],
+  ["Phase 3: Build the workflow", [
+    ["x", "<code>autose.yml</code> with label and <code>/autose</code> comment triggers; actionlint clean"],
+    ["x", "Orchestrator state machine, per-role tool policy, deterministic checks, prompts in <code>workflow/</code>"],
+    ["x", "Stages 1 to 6 executed for real, with artifacts spec, design, diff, test_report, pr, review"],
+    ["x", "Restart restores state and code, and reuses the open PR (ADR-011)"],
+    ["x", "A failing stage explains itself in its artifact and stops (exercised on #4 and #5)"],
+    ["x", "Workflow never merges; humans merge"],
+    ["x", "Run is followable: status comment, artifacts, PR, review comment"],
+    ["x", "Unit tests for the checks in <code>workflow/tests/test_checks.py</code> (5 pass)"],
+    ["x", "Ask-the-human gate (<code>/autose ask</code>, WAITING, <code>/autose go ...</code>), ADR-013. First real pause worked."],
+    ["p", "Trigger authorization: positive path used; a user without write access is untested"],
+    ["p", "Concurrency: one run per issue; two simultaneous triggers on the same issue not tested"],
+    ["p", "Back-edges (test fail to implement, redesign, review changes) not yet needed by any real run"],
+    ["p", "Budget cap ($0.60 per run) and timeouts: never hit"],
+    ["p", "Anti-rubber-stamp: \"approve without running tests is rejected\" is coded; needs the seeded PRs to measure"],
+    ["p", "Prompt-injection defences exist (untrusted tags, no network, no token); no adversarial issue has been run"],
+    ["o", "Watch for recurrence: reviewer once claimed it could not read <code>ARCHITECTURE.md</code> (prompt fixed)"]]],
+  ["Phase 4: Experiments", [
+    ["x", "Variants defined in <code>experiment/variants.md</code>: Exp 1 = ADR-001 (3 agents vs 1), Exp 2 = ADR-008 (independent Sonnet reviewer vs Haiku reviewer with implementer artifacts), Exp 3 = ADR-013 (assume vs ask, issue #5 only)"],
+    ["x", "Baseline (variant A) run once on every issue"],
+    ["x", "Hidden tests run against every finished PR (#10, #15, #14, #17, #18)"],
+    ["x", "Every run logged in <code>results/runs.md</code>"],
+    ["o", "Ask-mode run on #5: waiting for the maintainer's answers"],
+    ["o", "Implement the Exp 1 variant (single-agent mode flag in the orchestrator)"],
+    ["o", "Implement the Exp 2 variant (shared-context Haiku reviewer flag)"],
+    ["o", "Prepare 5 seeded PRs with known defects (plus 1 or 2 clean ones) in <code>experiment/seeded_prs/</code>"],
+    ["o", "Run Exp 2 on the seeded PRs (catch rate, false approve, false reject, cost)"],
+    ["o", "Run Exp 1 on the 5 issues, repeating each variant at least twice to show variance"],
+    ["o", "Validate the hidden tests (reference solution and an alternative valid fix per issue)"],
+    ["o", "<code>results/results.csv</code>; total tokens and cost from the console"],
+    ["o", "Update the design from results (supersede ADRs that turned out wrong)"],
+    ["o", "Capture one clean run for the sequence view and the demo"]]],
+  ["Phase 5: Results analysis", [
+    ["o", "Pass rate per stage (REQ, DESIGN, IMPLEMENT, TEST, RELEASE, REVIEW), counting retries and pipeline-caused failures separately"],
+    ["o", "Hidden-test results per issue and per variant"],
+    ["o", "What the reviewer caught and where it was wrong (including seeded PRs)"],
+    ["o", "Side-by-side comparison of the tested ADRs (negative results count equally)"]]],
+  ["Phase 6: Deliverables", [
+    ["o", "<b>report.pdf</b> (at most 8 pages plus appendices)"],
+    ["o", "Architecture (2 pp)", true], ["o", "Design decisions: table plus top 3 (2.5 pp)", true],
+    ["o", "Experiments (1.5 pp)", true], ["o", "Results (1 pp)", true],
+    ["o", "Hindsight (0.5 pp)", true], ["o", "Limitations and threats to validity (at least 3)", true],
+    ["o", "<b>Demo video</b> of at most 5 minutes: one full run from the issue page to the posted review"],
+    ["o", "README.md in final form: fork URL and commit, models, how to trigger, AI-use disclosure (currently <code>README_AUTOSE.md</code>)"],
+    ["o", "Repo layout matches the spec (architecture/, workflow/, experiment/, results/)"],
+    ["o", "Fork public; every link in <code>runs.md</code> opens"],
+    ["o", "No secrets in code, logs or prompts (check artifacts and logs)"],
+    ["o", "Workflow touches only our fork, never upstream; never merges"],
+    ["o", "<code>roll_number_a3_AutoSE.txt</code> containing only the GitHub repo link"],
+    ["o", "Submit"]]]
+];
+
+const MARK = { x: "✓", p: "~", o: "" };
+const root = document.getElementById("phases");
+PHASES.forEach(([title, items], idx) => {
+  const done = items.filter(i => i[0] === "x").length;
+  const partial = items.filter(i => i[0] === "p").length;
+  const total = items.length;
+  const pct = Math.round(100 * done / total);
+  const d = document.createElement("details");
+  d.className = "phase";
+  d.open = idx >= 3 && idx <= 4;
+  const status = done === total ? ["done", "done"] : (done + partial === 0 ? ["todo", "to do"] : ["partial", "in progress"]);
+  d.innerHTML =
+    `<summary><span class="phase-title">${title}</span>` +
+    `<span class="pill ${status[0]}">${status[1]}</span>` +
+    `<span class="bar" aria-hidden="true"><i style="width:${pct}%"></i></span>` +
+    `<span class="count">${done}/${total}</span></summary>` +
+    `<ul class="items">` + items.map(([s, text, sub]) =>
+      `<li class="${sub ? "sub" : ""}"><span class="mk ${s}" aria-label="${{x:"done",p:"built, not yet exercised",o:"to do"}[s]}">${MARK[s]}</span><span>${text}</span></li>`
+    ).join("") + `</ul>`;
+  root.appendChild(d);
+});
+
+// theme toggle (remembered when storage is available)
+const btn = document.getElementById("theme");
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  try { localStorage.setItem("a3-theme", t); } catch (e) {}
+}
+try { const t = localStorage.getItem("a3-theme"); if (t) setTheme(t); } catch (e) {}
+btn.addEventListener("click", () => {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+    (!document.documentElement.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+  setTheme(dark ? "light" : "dark");
+});
+</script>
+</body>
+</html>
