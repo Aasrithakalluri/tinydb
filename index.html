@@ -286,7 +286,8 @@ const PHASES = [
     ["x", "What the reviewer caught and where it was wrong (<code>results/analysis.md</code>): approved all 7 real PRs in round 1 (no evidence it catches anything there); on seeded PRs it caught 8/10 and missed the sibling-convention defect S4; it did not escalate contract reversals"],
     ["x", "Side-by-side comparison of the tested ADRs: Exp 1 (ADR-001), Exp 2 (ADR-008), ADR-014 test, ADR-013 (<code>results/analysis.md</code>); negative and null results are reported as such"]]],
   ["Phase 6: Deliverables", [
-    ["o", "<b>report.pdf</b> (at most 8 pages plus appendices)"],
+    ["o", "<b>Report inputs only the author can give</b>: (1) confirm which three decisions mattered most (draft: the orchestrator and restart state, ADR-002/004/011; reviewer independence, ADR-008/014; deterministic checks, ADR-007); (2) the Hindsight answer, which decision to change first and why; (3) which two tested ADRs to present side by side (draft: ADR-001 and ADR-008); (4) the console figures for tokens and cost, and (5) the roll number. Everything else in the report already exists in <code>results/</code> and <code>architecture/</code>."],
+    ["o", "<b>report.pdf</b> (at most 8 pages plus appendices). Tooling is available (pandoc, headless Chrome for the diagrams and the PDF); content is ready except the inputs above."],
     ["o", "Architecture (2 pp)", true], ["o", "Design decisions: table plus top 3 (2.5 pp)", true],
     ["o", "Experiments (1.5 pp)", true], ["o", "Results (1 pp)", true],
     ["o", "Hindsight (0.5 pp)", true], ["o", "Limitations and threats to validity (at least 3)", true],

@@ -108,6 +108,7 @@ Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Ant
 - [x] Side-by-side comparison of the tested ADRs (Exp 1, Exp 2, ADR-014, ADR-013) in `results/analysis.md`
 
 ## Phase 6 — Deliverables
+- [ ] **Report inputs only the author can give:** (1) which three decisions mattered most (draft: ADR-002/004/011, ADR-008/014, ADR-007); (2) Hindsight: which decision to change first and why; (3) which two tested ADRs to present (draft: ADR-001 and ADR-008); (4) console figures for tokens and cost; (5) roll number
 - [ ] **report.pdf** (≤ 8 pages + appendices): Architecture (2 pp) · Design decisions table + top 3 (2.5 pp) · Experiments (1.5 pp) · Results (1 pp) · Hindsight (0.5 pp) · Limitations (≥ 3)
 - [ ] **Demo video** ≤ 5 min: one full run from the issue page to the posted review
 - [x] **README.md** final (fork, commit, models, triggers, layout, results, honest limits, AI-use disclosure; the author must confirm and rewrite the ADRs in their own words)
