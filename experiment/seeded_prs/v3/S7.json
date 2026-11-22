@@ -1,0 +1,21 @@
+{
+ "id": "S7",
+ "set": "v3",
+ "issue": 5,
+ "defect": "unrequested-contract-reversal-with-rewritten-tests",
+ "expected_verdict": "changes",
+ "expected_issue_type": "approach",
+ "description": "A change that makes ids come back in ascending order (the issue-5 area) also makes `remove(doc_ids=...)` raise KeyError for missing ids. The documented and tested rule is 'silently skipped' (see #591, mirrors `get(doc_ids=...)`); the three tests that pin it (`test_remove_ids_missing`, `test_remove_ids_mixed`, `test_doc_id_missing_consistency`) are rewritten and the docstring is left stale. No issue asks for this.",
+ "how_to_find": "read the diff of existing tests and compare with the `remove` docstring and `get(doc_ids=...)`",
+ "branch": "seeded3/s7",
+ "base": "parent",
+ "built_on": "5710e7334cc10572ccd28c0c0fd4016cac319833",
+ "suite": "229 passed in 0.29s",
+ "hidden_tests_of_the_issue": "6 passed in 0.03s",
+ "defect_demonstration": "DEFECT remove(doc_ids=[99]) now raises KeyError 99",
+ "existing_tests_that_fail_before_rewrite": [
+  "test_doc_id_missing_consistency",
+  "test_remove_ids_missing",
+  "test_remove_ids_mixed"
+ ]
+}

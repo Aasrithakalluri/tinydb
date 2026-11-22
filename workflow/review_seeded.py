@@ -16,7 +16,7 @@ sys.path.insert(0, str(HERE))
 import checks  # noqa: E402
 
 BASE = "edff96aeb2616402e9489d46e90a592c05565621"
-SEEDS = ["S1", "S2", "S3", "S4", "S5", "C1", "C2"]
+SEEDS = ["S1", "S2", "S3", "S4", "S5", "C1", "C2"]   # v1/v2; v3 is S6, S7, C3 (give --seeds)
 
 
 def sh(cmd, cwd=None):
@@ -37,8 +37,8 @@ def raw_verdict(text: str) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", choices=["A", "B"], required=True)
-    ap.add_argument("--set", dest="seedset", choices=["v1", "v2"], default="v2", help="v1 = seeds built from my reference fixes (pilot), v2 = real pipeline PRs with one injected defect")
+    ap.add_argument("--variant", choices=["A", "A2", "B"], required=True, help="A = production reviewer prompt, A2 = ADR-014 prompt (compare with siblings), B = Haiku with the author's artifacts")
+    ap.add_argument("--set", dest="seedset", choices=["v1", "v2", "v3"], default="v2", help="v1 = pilot seeds from my reference fixes, v2 = real pipeline PRs with one injected defect, v3 = new seeds for ADR-014 (S6, S7, C3)")
     ap.add_argument("--seeds", default="all")
     ap.add_argument("--runs", type=int, default=1)
     ap.add_argument("--out", default="seeded-review-out")
@@ -55,7 +55,7 @@ def main():
         for sid in seeds:
             if spent >= a.budget:
                 print(f"budget of ${a.budget} reached; stopping"); return
-            label = json.loads((ROOT / "experiment/seeded_prs" / ("v2" if a.seedset == "v2" else ".") / f"{sid}.json").read_text())
+            label = json.loads((ROOT / "experiment/seeded_prs" / ("." if a.seedset == "v1" else a.seedset) / f"{sid}.json").read_text())
             n = label["issue"]
             tmp = Path(tempfile.mkdtemp(prefix=f"seed-{sid}-"))
             clone = tmp / "repo"
@@ -63,11 +63,11 @@ def main():
             sh(["git", "checkout", "-q", f"origin/{label['branch']}"], clone)
             base = "HEAD~1" if label.get("base") == "parent" else BASE
             diff = sh(["git", "diff", f"{base}..HEAD"], clone)
-            patch = ROOT / "experiment/seeded_prs" / ("v2" if a.seedset == "v2" else ".") / f"{sid}.patch"
+            patch = ROOT / "experiment/seeded_prs" / ("." if a.seedset == "v1" else a.seedset) / f"{sid}.patch"
             if diff.strip() != patch.read_text().strip():          # a stale or wrong branch would silently invalidate the experiment
                 raise SystemExit(f"seed {sid}: branch {label['branch']} does not match {patch.name}; re-run build and push before reviewing")
-            if a.variant == "A":
-                role, files = "reviewer", ["prompts/common.md", "prompts/reviewer.md"]
+            if a.variant in ("A", "A2"):
+                role, files = "reviewer", ["prompts/common.md", "prompts/reviewer.md" if a.variant == "A" else "prompts/reviewer_v2.md"]
                 prompt = (f"Review the pull request for this issue.\n\n{issue_text(n)}\n\n## Diff of the pull request\n```diff\n{diff[:30000]}\n```\n\n"
                           "Your working directory is a clean checkout at the pull request's latest commit.")
             else:

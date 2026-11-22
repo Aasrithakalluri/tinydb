@@ -1,0 +1,51 @@
+diff --git a/tests/test_seed_s6.py b/tests/test_seed_s6.py
+new file mode 100644
+index 0000000..9419f96
+--- /dev/null
++++ b/tests/test_seed_s6.py
+@@ -0,0 +1,12 @@
++from tinydb import Query
++
++
++def test_ne_matches_document_without_field():
++    assert (Query().nickname != 'bob')({'name': 'c'})
++    assert (Query().nickname != 'bob')({'nickname': 'al'})
++    assert not (Query().nickname != 'bob')({'nickname': 'bob'})
++
++
++def test_ne_is_negation_of_eq_for_top_level_fields():
++    doc = {'name': 'c'}
++    assert (Query().nickname != 'bob')(doc) == (~(Query().nickname == 'bob'))(doc)
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..0a7cd58 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -219,7 +219,8 @@ class Query(QueryInstance):
+             self,
+             test: Callable[[Any], bool],
+             hashval: tuple,
+-            allow_empty_path: bool = False
++            allow_empty_path: bool = False,
++            missing_result: bool = False
+     ) -> QueryInstance:
+         """
+         Generate a query based on a test function that first resolves the query
+@@ -241,7 +242,7 @@ class Query(QueryInstance):
+                     else:
+                         value = part(value)
+             except (KeyError, TypeError):
+-                return False
++                return missing_result
+             else:
+                 # Perform the specified test
+                 return test(value)
+@@ -274,7 +275,8 @@ class Query(QueryInstance):
+         """
+         return self._generate_test(
+             lambda value: value != rhs,
+-            ('!=', self._path, freeze(rhs))
++            ('==', self._path, freeze(rhs)),
++            missing_result=True
+         )
+ 
+     def __lt__(self, rhs: Any) -> QueryInstance:

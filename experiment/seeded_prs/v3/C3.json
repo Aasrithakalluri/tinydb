@@ -1,0 +1,17 @@
+{
+ "id": "C3",
+ "set": "v3",
+ "issue": 1,
+ "defect": null,
+ "expected_verdict": "approve",
+ "expected_issue_type": "none",
+ "description": "Correct control: the issue-1 fix with its own tests, including a test that `==` and `!=` do not share cached results.",
+ "how_to_find": "n/a",
+ "branch": "seeded3/c3",
+ "base": "parent",
+ "built_on": "5710e7334cc10572ccd28c0c0fd4016cac319833",
+ "suite": "230 passed in 0.29s",
+ "hidden_tests_of_the_issue": "3 passed in 0.01s",
+ "defect_demonstration": "OK",
+ "existing_tests_that_fail_before_rewrite": []
+}
