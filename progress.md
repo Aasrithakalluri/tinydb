@@ -4,30 +4,25 @@ Reference: [assignment.md](assignment.md). `[x]` done and verified · `[~]` buil
 
 > **Deadline note:** original deadline 21 Nov 23:59 IST; an extension to 23 Nov was arranged by the author. Quality over speed: no compromises on evidence (decision made 2026-11-22).
 
-## Where we are (snapshot, 2026-11-22)
+## Where we are (snapshot, 2026-11-22, end of day)
 
-**Phases 0–2 are done; Phase 3 is proven except the review/redesign back-edges, which the seeded PRs will exercise. The pipeline works end to end on all five issues.** Phase 4 (experiments) has started; Phases 5–6 (analysis, report, video, submission) have not.
+**Phases 0 to 5 are done**: pipeline built and verified (both back-edges exercised through the orchestrator, fault-injected and labelled), all experiments run and written up, analysis and final checks done, README final. **Excluding the report and the video: 73 of 77 items (95%) are done.**
 
 | Issue | Type | Outcome | PR | Cost | Hidden tests |
 |-------|------|---------|----|------|--------------|
-| #3 `count()` | feature | DONE, reviewer approved | [#10](https://github.com/Aasrithakalluri/tinydb/pull/10) | $0.058 | 3/3 |
-| #1 `!=` vs `~(==)` | bug | DONE, reviewer approved | [#15](https://github.com/Aasrithakalluri/tinydb/pull/15) | $0.070 | 3/3 |
-| #2 mutating search results | bug | DONE, reviewer approved | [#14](https://github.com/Aasrithakalluri/tinydb/pull/14) | $0.086 | 3/3 |
-| #4 `multiply` | feature | DONE after lint fix (first try failed: pipeline bug) | [#17](https://github.com/Aasrithakalluri/tinydb/pull/17) | $0.013 + $0.071 | 4/4 |
-| #5 "strange order" (vague), **auto** mode | vague | DONE, approved; baseline, PR closed | [#18](https://github.com/Aasrithakalluri/tinydb/pull/18) | $0.019 + $0.163 | **5/6** on the updated tests (agent assumed "ascending id") |
-| #5, **ask** mode | vague | DONE, approved (3 questions; answered `1a, 2a, 3a` by the assistant) | [#26](https://github.com/Aasrithakalluri/tinydb/pull/26) | $0.092 | 5/6 (same as auto) |
-| #28 injection test (extra) | security | DONE, attack resisted | [#31](https://github.com/Aasrithakalluri/tinydb/pull/31) | $0.075 | feature works |
-| #30 pipeline tests (extra) | limits | budget cap + fault-injected back-edge verified | [#32](https://github.com/Aasrithakalluri/tinydb/pull/32) | $0.016 + $0.082 | n/a |
+| #3 `count()` | feature | DONE, approved | [#10](https://github.com/Aasrithakalluri/tinydb/pull/10) | $0.058 | 3/3 |
+| #1 `!=` vs `~(==)` | bug | DONE, approved | [#15](https://github.com/Aasrithakalluri/tinydb/pull/15) | $0.070 | 3/3 |
+| #2 mutating search results | bug | DONE, approved (also rewrote the existing contract test) | [#14](https://github.com/Aasrithakalluri/tinydb/pull/14) | $0.086 | 3/3 |
+| #4 `multiply` | feature | DONE after the lint fix | [#17](https://github.com/Aasrithakalluri/tinydb/pull/17) | $0.013 + $0.071 | 4/4 |
+| #5 vague, auto | vague | DONE, baseline (PR closed) | [#18](https://github.com/Aasrithakalluri/tinydb/pull/18) | $0.019 + $0.163 | 5/6 (extra test) |
+| #5 vague, ask | vague | DONE, approved (answers chosen by the assistant) | [#26](https://github.com/Aasrithakalluri/tinydb/pull/26) | $0.092 | 5/6 (extra test) |
+| #28 injection test (extra) | security | attack resisted | [#31](https://github.com/Aasrithakalluri/tinydb/pull/31) | $0.075 | feature works |
+| #30 pipeline tests (extra) | limits | budget cap, fault-injected tests and back-edges verified | [#32](https://github.com/Aasrithakalluri/tinydb/pull/32) | $0.016 + $0.082 + $0.128 | n/a |
+| Experiment 1, 20 runs | experiment | all completed; first attempt invalid (my driver bug, $0.422) | – | $0.320 | 10/10 (3 agents) vs 9/10 (1 agent) excl. extra |
 
-Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pipeline ≈ $0.75, reviewer experiments ≈ $1.85 incl. ≈ $0.5 lost to my own design/tooling mistakes), ≈ 8M input / 500k output tokens
+Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Anthropic console is authoritative.
 
-**Waiting for a decision from the maintainer (you):**
-1. Decide the human-escalation policy (see "Open decisions").
-2. Choose how to continue Phase 4 (variants and seeded PRs).
-
-## Open decisions
-- [ ] Escalation policy: when must a run reach a human? Proposal: ambiguity that changes behaviour (P1 question + ASSUMED item in an acceptance criterion), reviewer rejects the approach twice, safety signals. Would become ADR-014 and a measured variant. (Haiku marks even clear issues NOT READY, so a naive "any P1 question" threshold would stall most runs.)
-- [ ] Hidden-test validity: write reference solutions and an alternative valid fix per issue, and make issue 5's tests cover the plausible readings. Write the reading-specific tests for #5 **before** looking at the ask-mode PR.
+**Left, and only the maintainer can do it** (besides the report and the video): read the real spend and tokens from the console; read the 14 ADRs and confirm (then each gets a "Reviewed by the author" line); the roll number for `roll_number_a3_AutoSE.txt`; Submit. Optional: decide an escalation policy (would become ADR-015).
 
 ---
 
