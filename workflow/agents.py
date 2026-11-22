@@ -14,7 +14,8 @@ HAIKU = os.environ.get("AUTOSE_MODEL_FAST", "claude-haiku-5-5")
 SONNET = os.environ.get("AUTOSE_MODEL_REVIEWER", "claude-sonnet-5-5")
 
 # role -> (model, built-in tools, max_turns, may_write_dirs, bash_allow)
-PY_TEST = re.compile(r"python3? -m (pytest|compileall)( [^;&|<>`$\n]*)?")
+# only these suffixes are allowed after the command: "2>&1" and a pipe into tail/head with a number (observed harmless in real runs, ADR-005 addendum)
+PY_TEST = re.compile(r"python3? -m (pytest|compileall)(?: [^;&|<>`$\n]*?)?(?: 2>&1)?(?: \| (?:tail|head)(?: -n)? ?-?\d+)?")
 PY_C = re.compile(r"python3? -c .+", re.S)
 PROFILES = {
     "planner": dict(model=HAIKU, tools=["Read", "Grep", "Glob"], max_turns=15, write=(), bash=()),

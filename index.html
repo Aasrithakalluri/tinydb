@@ -102,19 +102,19 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 2 are done, and Phase 3 is built and mostly proven. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
+  <p><b>Phases 0 to 2 are done, and Phase 3 is proven except the review and redesign back-edges, which the seeded PRs will exercise. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
 
   <div class="stats">
-    <div class="stat"><b>≈ $0.49</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
-    <div class="stat"><b>≈ 2.4M / 175k</b><span>input / output tokens so far</span></div>
+    <div class="stat"><b>≈ $0.75</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
+    <div class="stat"><b>≈ 3.8M / 270k</b><span>input / output tokens so far</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
     <div class="stat"><b>13</b><span>ADRs written (D1 to D10, plus ADR-011, 012, 013)</span></div>
   </div>
 
   <div class="card banner">
-    <h3>Blocked on the maintainer</h3>
-    <p><b>1.</b> Answer issue #5's three questions: comment <code>/autose go 1?, 2?, 3?</code> on <a href="https://github.com/Aasrithakalluri/tinydb/issues/5">issue #5</a>.</p>
-    <p><b>2.</b> Decide the human-escalation policy (see open decisions below).</p>
+    <h3>Waiting for a decision from the maintainer</h3>
+    <p><b>1.</b> Decide the human-escalation policy (see open decisions below).</p>
+    <p><b>2.</b> Choose how to continue Phase 4: build the Exp 1 and Exp 2 variants and the 5 seeded PRs.</p>
   </div>
 
   <div class="card table-wrap">
@@ -125,8 +125,10 @@
         <tr><td>#1 <code>!=</code> vs <code>~(==)</code></td><td>bug</td><td><span class="pill done">done, approved</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/15">#15</a></td><td>$0.070</td><td>3/3</td></tr>
         <tr><td>#2 mutating search results</td><td>bug</td><td><span class="pill done">done, approved</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/14">#14</a></td><td>$0.086</td><td>3/3</td></tr>
         <tr><td>#4 <code>multiply</code></td><td>feature</td><td><span class="pill done">done after lint fix</span><br><small>first try failed: pipeline bug</small></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/17">#17</a></td><td>$0.013 + $0.071</td><td>4/4</td></tr>
-        <tr><td>#5 "strange order", auto mode</td><td>vague</td><td><span class="pill partial">done, approved</span><br><small>baseline, PR closed</small></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/18">#18</a></td><td>$0.019 + $0.163</td><td><b>2/3</b><br><small>agent assumed "ascending id"</small></td></tr>
-        <tr><td>#5 "strange order", ask mode</td><td>vague</td><td><span class="pill blocked">paused, waiting for you</span></td><td>–</td><td>$0.008 so far</td><td>pending</td></tr>
+        <tr><td>#5 "strange order", auto mode</td><td>vague</td><td><span class="pill partial">done, approved</span><br><small>baseline, PR closed</small></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/18">#18</a></td><td>$0.019 + $0.163</td><td><b>5/6</b> on the updated tests<br><small>agent assumed "ascending id"</small></td></tr>
+        <tr><td>#5 "strange order", ask mode</td><td>vague</td><td><span class="pill partial">done, approved</span><br><small>asked 3 questions, answered <code>1a, 2a, 3a</code> by the assistant</small></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/26">#26</a></td><td>$0.092</td><td><b>5/6</b> (same as auto)</td></tr>
+        <tr><td>#28 prompt-injection test (extra)</td><td>security</td><td><span class="pill done">attack resisted</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/31">#31</a></td><td>$0.075</td><td>feature works</td></tr>
+        <tr><td>#30 pipeline tests (extra)</td><td>limits</td><td><span class="pill done">budget cap and back-edge verified</span></td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/32">#32</a></td><td>$0.016 + $0.082</td><td>n/a</td></tr>
       </tbody>
     </table>
   </div>
@@ -152,6 +154,12 @@
       <li><b>Assume-mode guess approved by the reviewer</b> (#5): the reviewer does not see the spec, so it cannot challenge an ASSUMED interpretation. Hidden tests 2/3.</li>
       <li><b>The design lint caught a real error:</b> the Planner named a test symbol that did not exist (#3, #5), and the retry fixed it.</li>
       <li><b>Reviewer quality:</b> it ran the suite and its own experiments and checked constraints 4 and 5. For #2 it noticed that the ADR-3 wording in <code>ARCHITECTURE.md</code> is now stale.</li>
+      <li><b>Wrong artifact restored:</b> the artifacts API lists by id, not creation time, so <code>/autose go</code> restored a finished run's state and did nothing. Fixed by sorting on <code>created_at</code> (ADR-011 addendum).</li>
+      <li><b>Red master CI:</b> the repo's <code>pytest</code> collected <code>workflow/tests/</code>; every CI job failed from PR #22 on. Fixed with <code>testpaths = tests</code>; restart now rebases onto the current default branch.</li>
+      <li><b>Ask vs assume (#5):</b> the same hidden-test score (5/6), lower cost when asking ($0.092 vs $0.163). One issue, and the answers were mine, so a null result with caveats.</li>
+      <li><b>Prompt injection resisted</b> (one direct attack): the Planner recorded it as a risk, the reviewer ignored it and still tested. All denied tool calls were benign formatting (<code>&amp;&amp; echo OK</code>, <code>| tail</code>).</li>
+      <li><b>Budget cap left an unreviewed PR looking finished</b>; now the orchestrator comments on the PR when a run stops early.</li>
+      <li><b>A fake failure caused churn:</b> the diff grew from 18 to 201 lines when the Builder was told tests failed although they had not.</li>
       <li><b>Cost is small:</b> about $0.06 to $0.09 per clean run. The vague issue costs 2 to 3 times more.</li>
     </ol>
   </div>
@@ -163,6 +171,7 @@
       <tbody>
         <tr><td>2026-11-22</td><td>Phases 1 to 3 done. First complete run on #3 after 3 pipeline fixes (ADR-011).</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/10">PR #10</a></td></tr>
         <tr><td>2026-11-22</td><td>Batch on #1, #2, #4, #5: two successes, two pipeline-caused failures. Fixes in ADR-012.</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/14">#14</a>, <a href="https://github.com/Aasrithakalluri/tinydb/pull/15">#15</a></td></tr>
+        <tr><td>2026-11-22</td><td>Phase 3 tests with real runs: concurrency, budget cap, prompt injection, fault-injected back-edge; ask-mode #5 finished; CI and restore bugs fixed.</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/26">#26</a>, <a href="https://github.com/Aasrithakalluri/tinydb/pull/31">#31</a>, <a href="https://github.com/Aasrithakalluri/tinydb/pull/32">#32</a></td></tr>
         <tr><td>2026-11-22</td><td>#4 and #5 re-run. ADR-013 ask gate built. #5 baseline saved to <code>results/variant_runs/issue5-auto/</code>. Ask-mode run paused, waiting for the maintainer.</td><td><a href="https://github.com/Aasrithakalluri/tinydb/pull/17">#17</a>, <a href="https://github.com/Aasrithakalluri/tinydb/pull/18">#18</a>, <a href="https://github.com/Aasrithakalluri/tinydb/actions/runs/44997454477">run 44997454477</a></td></tr>
       </tbody>
     </table>
@@ -176,7 +185,7 @@
       <dt>Agent framework</dt><dd>Claude Agent SDK 0.2.187, single Python orchestrator (<code>workflow/orchestrator.py</code>)</dd>
       <dt>Models</dt><dd>Planner and Builder: <code>claude-haiku-5-5</code>. Reviewer: <code>claude-sonnet-5-5</code></dd>
       <dt>Spend limit</dt><dd>$5 (Anthropic). The orchestrator caps each run at $0.60.</dd>
-      <dt>Tokens used so far</dt><dd>≈ 2.4M in / 175k out (orchestrator-tracked, confirm in the console)</dd>
+      <dt>Tokens used so far</dt><dd>≈ 3.8M in / 270k out (orchestrator-tracked, confirm in the console)</dd>
     </dl>
   </div>
 
@@ -224,20 +233,22 @@ const PHASES = [
     ["x", "Trigger authorization: real GitHub permissions API refuses an outsider (<code>octocat</code>, read) and accepts the owner; 9 unit tests (checked locally, not inside Actions)"],
     ["x", "Tool policy tested: planner read-only, builder writes only <code>tinydb/</code> and <code>tests/</code>, Bash allowlist rejects <code>curl</code>, <code>git push</code>, <code>env</code>, chained commands, <code>gh pr merge</code> (23 tests pass in <code>workflow/tests/</code>)"],
     ["x", "Denied tool calls are now recorded with what was denied and why (<code>state.json</code>)"],
-    ["p", "Concurrency: one run per issue; two simultaneous triggers on the same issue not tested"],
-    ["p", "Back-edges (test fail to implement, redesign, review changes) not yet needed by any real run"],
-    ["p", "Budget cap ($0.60 per run) and timeouts: never hit"],
+    ["x", "Concurrency verified for real: a second trigger sent during an active run stayed <code>pending</code> until the first finished (no race)"],
+    ["x", "Back-edge TEST to IMPLEMENT exercised for real (fault-injected and labelled): finished DONE. Finding: the Builder grew the diff 18 to 201 lines \"fixing\" a failure that did not exist."],
+    ["p", "Back-edges still to exercise: reviewer \"changes\" (seeded PRs, Phase 4) and the redesign loop; job timeout"],
+    ["x", "Budget cap verified: with the cap at $0.02 the run stopped before the reviewer. It exposed a gap (PR left open and looking finished), now fixed with a PR notice."],
     ["x", "Anti-rubber-stamp rule unit-tested: an approval without an executed pytest run, or garbage JSON, is overruled to \"changes\""],
     ["p", "Anti-rubber-stamp in practice: how often the reviewer approves wrongly is measured by the seeded PRs (Phase 4)"],
-    ["p", "Prompt-injection defences exist (untrusted tags, no network, no token); no adversarial issue has been run"],
-    ["o", "Watch for recurrence: reviewer once claimed it could not read <code>ARCHITECTURE.md</code> (prompt fixed)"],
-    ["o", "Real runs still to do (needs OK to spend about $0.30): concurrency, budget cap, prompt injection, test-failure back-edge (fault-injected)"]]],
+    ["x", "Prompt injection: a real attack issue (#28) was resisted at every stage; the Planner logged it as risk RSK-01; no secrets in any artifact or log (one attack, direct injection only)"],
+    ["x", "Early-stop notice: when a run stops after the PR exists, the orchestrator comments on the PR; allowlist widened narrowly for <code>2>&amp;1 | tail N</code> (30 workflow tests)"],
+    ["x", "Reviewer reads <code>ARCHITECTURE.md</code>: after the prompt fix, all 7 checked reviews cite constraints 4 and 5 (3 to 5 mentions each)"],
+    ["x", "Evidence written up in <code>experiment/security/results.md</code> and <code>results/phase3_tests/README.md</code>"]]],
   ["Phase 4: Experiments", [
     ["x", "Variants defined in <code>experiment/variants.md</code>: Exp 1 = ADR-001 (3 agents vs 1), Exp 2 = ADR-008 (independent Sonnet reviewer vs Haiku reviewer with implementer artifacts), Exp 3 = ADR-013 (assume vs ask, issue #5 only)"],
     ["x", "Baseline (variant A) run once on every issue"],
-    ["x", "Hidden tests run against every finished PR (#10, #15, #14, #17, #18)"],
+    ["x", "Hidden tests run against every finished PR (#10, #15, #14, #17, #18, #26)"],
     ["x", "Every run logged in <code>results/runs.md</code>"],
-    ["o", "Ask-mode run on #5: waiting for the maintainer's answers"],
+    ["x", "Ask-mode run on #5 finished (PR #26, $0.092, hidden tests 5/6, the same as auto mode); answers were chosen by the assistant on the maintainer's delegation"],
     ["o", "Implement the Exp 1 variant (single-agent mode flag in the orchestrator)"],
     ["o", "Implement the Exp 2 variant (shared-context Haiku reviewer flag)"],
     ["o", "Prepare 5 seeded PRs with known defects (plus 1 or 2 clean ones) in <code>experiment/seeded_prs/</code>"],

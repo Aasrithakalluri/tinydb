@@ -6,7 +6,7 @@ Reference: [assignment.md](assignment.md). `[x]` done and verified · `[~]` buil
 
 ## Where we are (snapshot, 2026-11-22)
 
-**Phases 0–2 are done and Phase 3 is built and mostly proven. The pipeline works end to end on all five issues.** Phase 4 (experiments) has started; Phases 5–6 (analysis, report, video, submission) have not.
+**Phases 0–2 are done; Phase 3 is proven except the review/redesign back-edges, which the seeded PRs will exercise. The pipeline works end to end on all five issues.** Phase 4 (experiments) has started; Phases 5–6 (analysis, report, video, submission) have not.
 
 | Issue | Type | Outcome | PR | Cost | Hidden tests |
 |-------|------|---------|----|------|--------------|
@@ -14,14 +14,16 @@ Reference: [assignment.md](assignment.md). `[x]` done and verified · `[~]` buil
 | #1 `!=` vs `~(==)` | bug | DONE, reviewer approved | [#15](https://github.com/Aasrithakalluri/tinydb/pull/15) | $0.070 | 3/3 |
 | #2 mutating search results | bug | DONE, reviewer approved | [#14](https://github.com/Aasrithakalluri/tinydb/pull/14) | $0.086 | 3/3 |
 | #4 `multiply` | feature | DONE after lint fix (first try failed: pipeline bug) | [#17](https://github.com/Aasrithakalluri/tinydb/pull/17) | $0.013 + $0.071 | 4/4 |
-| #5 "strange order" (vague), **auto** mode | vague | DONE, approved; baseline, PR closed | [#18](https://github.com/Aasrithakalluri/tinydb/pull/18) | $0.019 + $0.163 | **2/3** (agent assumed "ascending id") |
-| #5, **ask** mode | vague | **PAUSED, waiting for the maintainer's `/autose go ...` on the issue** | – | $0.008 so far | pending |
+| #5 "strange order" (vague), **auto** mode | vague | DONE, approved; baseline, PR closed | [#18](https://github.com/Aasrithakalluri/tinydb/pull/18) | $0.019 + $0.163 | **5/6** on the updated tests (agent assumed "ascending id") |
+| #5, **ask** mode | vague | DONE, approved (3 questions; answered `1a, 2a, 3a` by the assistant) | [#26](https://github.com/Aasrithakalluri/tinydb/pull/26) | $0.092 | 5/6 (same as auto) |
+| #28 injection test (extra) | security | DONE, attack resisted | [#31](https://github.com/Aasrithakalluri/tinydb/pull/31) | $0.075 | feature works |
+| #30 pipeline tests (extra) | limits | budget cap + fault-injected back-edge verified | [#32](https://github.com/Aasrithakalluri/tinydb/pull/32) | $0.016 + $0.082 | n/a |
 
-Spend so far (orchestrator-tracked, approximate): **≈ $0.49 of the $5 cap**, ≈ 2.4M input / 175k output tokens. The Anthropic console is the authoritative number; read it at the end.
+Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, ≈ 3.8M input / 270k output tokens. The Anthropic console is the authoritative number; read it at the end.
 
-**Blocked on the maintainer (you):**
-1. Answer issue #5's three questions: comment `/autose go 1?, 2?, 3?` on https://github.com/Aasrithakalluri/tinydb/issues/5
-2. Decide the human-escalation policy (see "Open decisions").
+**Waiting for a decision from the maintainer (you):**
+1. Decide the human-escalation policy (see "Open decisions").
+2. Choose how to continue Phase 4 (variants and seeded PRs).
 
 ## Open decisions
 - [ ] Escalation policy: when must a run reach a human? Proposal: ambiguity that changes behaviour (P1 question + ASSUMED item in an acceptance criterion), reviewer rejects the approach twice, safety signals. Would become ADR-014 and a measured variant. (Haiku marks even clear issues NOT READY, so a naive "any P1 question" threshold would stall most runs.)
@@ -71,21 +73,22 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.49 of the $5 cap**, �
 - [x] Trigger authorization: real permissions API refuses an outsider (`octocat`) and accepts the owner; unit-tested (checked locally, not inside Actions)
 - [x] Tool policy tested (23 tests in `workflow/tests/`): read-only planner, builder writes only `tinydb/`+`tests/`, Bash allowlist rejects curl/git push/env/chaining/gh
 - [x] Denied tool calls recorded in `state.json` with what and why
-- [~] Concurrency: one run per issue; two simultaneous triggers on the same issue not tested
-- [~] Back-edges: test-fail → implement, redesign, and review "changes" → implement/design have not been exercised in a real run (no run needed them yet)
-- [~] Budget cap ($0.60/run) and timeouts: never hit
+- [x] Concurrency verified for real: a second trigger during an active run stayed `pending` until the first finished
+- [x] Back-edge TEST → IMPLEMENT exercised for real (fault-injected, labelled); finding: Builder grew the diff 18 → 201 lines "fixing" a failure that did not exist
+- [~] Still to exercise: reviewer "changes" back-edge (seeded PRs), redesign loop, job timeout
+- [x] Budget cap verified (cap $0.02 → stopped before the reviewer); gap found and fixed: PR notice when a run stops early
 - [x] Anti-rubber-stamp rule unit-tested (approve without a pytest run, or garbage JSON, is overruled)
 - [~] Anti-rubber-stamp in practice: measured by the seeded PRs (Phase 4)
-- [~] Prompt-injection defences exist (untrusted tags, no network, no token); no adversarial issue has been run
-- [ ] Real runs still to do (needs OK to spend ≈ $0.30): concurrency, budget cap, prompt injection, test-failure back-edge (fault-injected)
-- [ ] Re-check: reviewer once claimed it could not read ARCHITECTURE.md; prompt fixed, later reviews cite constraints 4 and 5 correctly (watch for recurrence)
+- [x] Prompt injection: real attack issue #28 resisted at every stage (`experiment/security/results.md`); one direct attack only
+- [x] Allowlist widened narrowly for `2>&1 | tail N` (benign friction), 30 workflow tests
+- [x] Reviewer reads ARCHITECTURE.md: after the prompt fix all 7 checked reviews cite the constraints (3–5 mentions each)
 
 ## Phase 4 — Experiments
 - [x] Variants defined in `experiment/variants.md`: Exp 1 = ADR-001 (3 agents vs 1 for stages 1–4), Exp 2 = ADR-008 (independent Sonnet reviewer vs Haiku reviewer that sees implementer artifacts), Exp 3 = ADR-013 (assume vs ask, issue #5 only)
 - [x] Baseline (variant A) run once on every issue
 - [x] Hidden tests run against every finished PR (#10, #15, #14, #17, #18)
 - [x] Every run logged in `results/runs.md` (needs rows for the later runs: #4 and #5 reruns, ask-mode run)
-- [ ] Ask-mode run on #5: waiting for the maintainer's answers
+- [x] Ask-mode run on #5 finished (PR #26, $0.092, hidden 5/6 = same as auto; answers chosen by the assistant on delegation)
 - [ ] Implement the Exp 1 variant (single-agent mode flag in the orchestrator)
 - [ ] Implement the Exp 2 variant (shared-context Haiku reviewer flag)
 - [ ] Prepare **5 seeded PRs** with known defects (+ ideally 1–2 clean ones) → `experiment/seeded_prs/`
@@ -125,6 +128,10 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.49 of the $5 cap**, �
 7. **Assume-mode guess approved by the reviewer** (#5): the reviewer does not see the spec, so it cannot challenge an ASSUMED interpretation. Hidden tests 2/3.
 8. **Design lint caught a real error:** the Planner named a test symbol that did not exist (#3, #5); the retry fixed it.
 9. **Reviewer quality signals:** it ran the suite and its own experiments, checked constraints 4 and 5, and for #2 noticed that the ADR-3 wording in `ARCHITECTURE.md` is now stale.
+11. **Wrong artifact restored** (API lists by id, not time) and **red master CI** (`pytest` collected workflow tests): both fixed, ADR-011 addenda.
+12. **Ask vs assume (#5):** same score (5/6), asking cheaper ($0.092 vs $0.163); null result, answers chosen by the assistant.
+13. **Prompt injection resisted** (one direct attack); denied calls were benign formatting.
+14. **Budget cap left an unreviewed PR looking finished** → PR notice added. **A fake failure made the Builder inflate the diff** 18 → 201 lines.
 10. **Cost is small:** ≈ $0.06–0.09 per clean run; the vague issue costs 2–3× more.
 
 ## Notes / Log
@@ -140,4 +147,4 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.49 of the $5 cap**, �
 - Agent framework: Claude Agent SDK 0.2.187, single Python orchestrator (`workflow/orchestrator.py`)
 - Models: Planner/Builder `claude-haiku-5-5`, Reviewer `claude-sonnet-5-5`
 - Spend limit: $5 (Anthropic); orchestrator cap $0.60 per run
-- Total tokens used so far: ≈ 2.4M in / 175k out (orchestrator-tracked; confirm in the console)
+- Total tokens used so far: ≈ 3.8M in / 270k out (orchestrator-tracked; confirm in the console)

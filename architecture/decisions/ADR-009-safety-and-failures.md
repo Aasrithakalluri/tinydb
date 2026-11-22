@@ -29,3 +29,8 @@ $5 total spend, Actions timeouts, loops that can spin, and issue/comment text wr
 + Predictable worst-case cost per run (~$0.60) and bounded loops.
 − Hard caps can stop a run that would have succeeded with one more turn.
 − Python `-c` in allowlist is a residual escape hatch (documented).
+
+## Addendum 2026-11-22: evidence from real runs
+- **Budget cap works.** With the cap set to $0.02 the run stopped before the reviewer started (spent $0.016) and wrote the reason into `review.md`. It exposed a gap: the PR stayed open and looked finished. The orchestrator now comments on the PR when a run stops after the PR exists.
+- **Prompt injection resisted (one attack).** See `experiment/security/results.md`. The evidence is for one direct injection in one run; indirect injection and weaker models are untested.
+- **Fault injection is a test tool, not a feature:** the repo variable `AUTOSE_INJECT` is normally unset; every injected run is labelled in `results/runs.md`.
