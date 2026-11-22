@@ -268,6 +268,7 @@ const PHASES = [
     ["x", "Hidden tests validated with a reference fix and an alternative fix per issue (<code>experiment/validation/</code>). Finding: issue #2 conflicts with a documented contract and an existing test."],
     ["x", "<code>results/results.csv</code> from the orchestrator's own final states (<code>results/aggregate.py</code>)"],
     ["o", "Total tokens and cost from the Anthropic console (the maintainer reads the console at the end; our numbers are orchestrator-tracked)"],
+    ["x", "ADRs written from the author's own answers: a question-and-answer interview (2026-11-22) gave the reasons behind ADR-001 to 010 and 013, the lessons of ADR-011, 012 and 014, and the view on the Experiment 2 result; each ADR has a \"Decided by\" line and a section with exactly the reasons the author selected"],
     ["x", "Design updated from results: ADR index with chosen / rejected / reason / status for all 14 ADRs and a table of what each experiment changed (<code>architecture/decisions/README.md</code>); ADR-001 marked untested, ADR-009 gets the credit-exhaustion addendum; ADR-004 was superseded earlier"],
     ["x", "Clean run for the sequence view (issue #3, run 44995345522) and for the demo: the demo can walk through the finished run on issue #1 (run 44996285044: issue, status comment, artifacts, PR, review) without any new spend"]]],
   ["Phase 5: Results analysis", [
@@ -286,6 +287,7 @@ const PHASES = [
     ["x", "Fork is public; all 39 run, PR and issue links in the results documents resolve"],
     ["x", "No secrets: scanned the working tree, the whole git history (all branches) and 29 workflow run logs for key and token patterns; 0 matches"],
     ["x", "Touches only our fork and never merges: 0 issues or PRs by us in the upstream repo, no merge call in the pipeline code, all AutoSE PRs left open, least-privilege permissions per workflow"],
+    ["o", "The author reads all 14 ADRs (<code>architecture/decisions/</code>) and confirms; only then each ADR gets a \"Reviewed by the author\" line. Nothing is claimed before that."],
     ["o", "<code>roll_number_a3_AutoSE.txt</code> containing only the GitHub repo link"],
     ["o", "Submit"]]]
 ];
