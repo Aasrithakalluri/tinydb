@@ -267,7 +267,7 @@ const PHASES = [
     ["x", "Hidden tests validated with a reference fix and an alternative fix per issue (<code>experiment/validation/</code>). Finding: issue #2 conflicts with a documented contract and an existing test."],
     ["x", "<code>results/results.csv</code> from the orchestrator's own final states (<code>results/aggregate.py</code>)"],
     ["o", "Total tokens and cost from the Anthropic console (the maintainer reads the console at the end; our numbers are orchestrator-tracked)"],
-    ["o", "Update the design from results (supersede ADRs that turned out wrong)"],
+    ["x", "Design updated from results: ADR index with chosen / rejected / reason / status for all 14 ADRs and a table of what each experiment changed (<code>architecture/decisions/README.md</code>); ADR-001 marked untested, ADR-009 gets the credit-exhaustion addendum; ADR-004 was superseded earlier"],
     ["o", "Capture one clean run for the sequence view and the demo"]]],
   ["Phase 5: Results analysis", [
     ["x", "Pass rate per stage, counting retries and pipeline-caused failures separately (<code>results/stage_pass_rates.md</code>): spec 5/5, design 4/5, build 5/5, tests 5/5, CI 5/5, review 5/5 first try; 11 failed attempts, none caused by the agents' capability (10 my pipeline/setup defects, 1 deliberate test)"],
