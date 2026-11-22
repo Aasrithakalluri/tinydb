@@ -1,0 +1,51 @@
+{
+  "state": "DONE",
+  "stage_tries": 0,
+  "test_retries": 1,
+  "redesigns": 0,
+  "review_rounds": 0,
+  "cost_usd": 0.02083643,
+  "input_tokens": 422993,
+  "output_tokens": 22829,
+  "calls": [
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.0126,
+      "turns": 17,
+      "in": 283179,
+      "out": 13278,
+      "stop": "success",
+      "denied": 1
+    },
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.0083,
+      "turns": 12,
+      "in": 139814,
+      "out": 9551,
+      "stop": "success",
+      "denied": 0
+    }
+  ],
+  "feedback": "",
+  "pr": null,
+  "head_sha": null,
+  "base_sha": "ff13702a724ae96bffad7ba7548f849b52e9b010",
+  "log": [
+    "12:09:34 single done: 17 turns, $0.013, stop=success, denied tool calls=1",
+    "12:09:35 single agent: checks failed, retrying: No test references FR-02-AC3. Name a test test_fr_02_ac3_<what> or mention the ID in its docstring.",
+    "12:10:19 single done: 12 turns, $0.008, stop=success, denied tool calls=0",
+    "12:10:20 single agent: spec, design, build, scope and tests all pass"
+  ],
+  "comment_id": null,
+  "denied_calls": [
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': 'ls tests && python -m pytest -q 2>&1 | tail -3 && grep -n \"all\\\\|order\" tests/test_tinydb.py | head -30', 'description': 'List tests, run suite bas",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    }
+  ]
+}

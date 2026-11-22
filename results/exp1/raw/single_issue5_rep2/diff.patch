@@ -1,0 +1,153 @@
+diff --git a/tests/test_document_order.py b/tests/test_document_order.py
+new file mode 100644
+index 0000000..3dc36d9
+--- /dev/null
++++ b/tests/test_document_order.py
+@@ -0,0 +1,102 @@
++from tinydb import TinyDB, JSONStorage, where
++from tinydb.storages import MemoryStorage
++from tinydb.table import Document
++
++
++def _ids(docs):
++    return [doc.doc_id for doc in docs]
++
++
++def test_fr_01_ac1_all_sorted_after_explicit_ids(db: TinyDB):
++    db.truncate()
++    db.insert(Document({'v': 'c'}, doc_id=3))
++    db.insert(Document({'v': 'a'}, doc_id=1))
++    db.insert(Document({'v': 'b'}, doc_id=2))
++
++    assert _ids(db.all()) == [1, 2, 3]
++
++
++def test_fr_01_ac2_empty_table_all_returns_empty(db: TinyDB):
++    db.truncate()
++
++    assert db.all() == []
++
++
++def test_fr_02_ac1_search_sorted_by_id(db: TinyDB):
++    db.truncate()
++    db.insert(Document({'group': 'x'}, doc_id=10))
++    db.insert(Document({'group': 'x'}, doc_id=2))
++    db.insert(Document({'group': 'y'}, doc_id=5))
++
++    assert _ids(db.search(where('group') == 'x')) == [2, 10]
++
++
++def test_fr_02_ac2_repeated_cached_search_same_order(db: TinyDB):
++    db.truncate()
++    db.insert(Document({'group': 'x'}, doc_id=7))
++    db.insert(Document({'group': 'x'}, doc_id=4))
++
++    first = _ids(db.search(where('group') == 'x'))
++    second = _ids(db.search(where('group') == 'x'))
++
++    assert first == [4, 7]
++    assert second == first
++
++
++def test_fr_02_ac3_search_no_match_returns_empty(db: TinyDB):
++    db.truncate()
++    db.insert(Document({'group': 'x'}, doc_id=3))
++
++    assert db.search(where('group') == 'missing') == []
++
++
++def test_fr_03_ac1_update_keeps_id_order(db: TinyDB):
++    db.truncate()
++    db.insert(Document({'v': 1}, doc_id=1))
++    db.insert(Document({'v': 2}, doc_id=2))
++    db.insert(Document({'v': 3}, doc_id=3))
++
++    db.update({'v': 99}, doc_ids=[1])
++
++    assert _ids(db.all()) == [1, 2, 3]
++    assert db.get(doc_id=1)['v'] == 99
++
++
++def test_fr_03_ac2_reopen_json_keeps_id_order(tmp_path):
++    path = tmp_path / 'order.json'
++
++    db = TinyDB(path, storage=JSONStorage)
++    db.insert(Document({'v': 'c'}, doc_id=3))
++    db.insert(Document({'v': 'a'}, doc_id=1))
++    db.insert(Document({'v': 'b'}, doc_id=2))
++    db.close()
++
++    reopened = TinyDB(path, storage=JSONStorage)
++    try:
++        assert _ids(reopened.all()) == [1, 2, 3]
++    finally:
++        reopened.close()
++
++
++def test_fr_03_ac3_sort_keys_json_numeric_id_order(tmp_path):
++    path = tmp_path / 'sorted.json'
++
++    db = TinyDB(path, storage=JSONStorage, sort_keys=True)
++    db.insert(Document({'v': 'a'}, doc_id=1))
++    db.insert(Document({'v': 'b'}, doc_id=2))
++    db.insert(Document({'v': 'c'}, doc_id=10))
++    db.close()
++
++    reopened = TinyDB(path, storage=JSONStorage, sort_keys=True)
++    try:
++        assert _ids(reopened.all()) == [1, 2, 10]
++    finally:
++        reopened.close()
++
++
++def test_fr_03_ac3_memory_storage_numeric_id_order():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert(Document({'v': 'c'}, doc_id=10))
++    db.insert(Document({'v': 'b'}, doc_id=2))
++
++    assert _ids(db.all()) == [2, 10]
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..65e8958 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -271,7 +271,7 @@ class Table:
+         # to the document class and document ID class.
+         docs = [
+             self.document_class(doc, self.document_id_class(doc_id))
+-            for doc_id, doc in self._read_table().items()
++            for doc_id, doc in self._read_table_sorted()
+             if cond(doc)
+         ]
+ 
+@@ -736,8 +736,8 @@ class Table:
+         :returns: an iterator over all documents.
+         """
+ 
+-        # Iterate all documents and their IDs
+-        for doc_id, doc in self._read_table().items():
++        # Iterate all documents and their IDs, in ascending document ID order
++        for doc_id, doc in self._read_table_sorted():
+             # Convert documents to the document class
+             yield self.document_class(doc, self.document_id_class(doc_id))
+ 
+@@ -776,6 +776,20 @@ class Table:
+ 
+         return next_id
+ 
++    def _read_table_sorted(self) -> list[tuple[str, Mapping]]:
++        """
++        Return the raw (doc_id, document) pairs of the table sorted by ID.
++
++        The stored order depends on the history of the table (explicit IDs
++        are appended, and storages may reorder keys), so results are sorted
++        by the document ID to keep their order predictable.
++        """
++
++        return sorted(
++            self._read_table().items(),
++            key=lambda item: self.document_id_class(item[0])
++        )
++
+     def _read_table(self) -> dict[str, Mapping]:
+         """
+         Read the table data from the underlying storage.

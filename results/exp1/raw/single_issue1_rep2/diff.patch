@@ -1,0 +1,82 @@
+diff --git a/tests/test_queries.py b/tests/test_queries.py
+index e939eb4..7eaf05c 100644
+--- a/tests/test_queries.py
++++ b/tests/test_queries.py
+@@ -527,3 +527,54 @@ def test_get_item():
+ 
+     assert query({'test': 1})
+     assert not query({'test': 0})
++
++
++def test_fr_01_ac1_missing_field_not_equal():
++    # Document without the field is "not equal" to 'bob'
++    query = where('nickname') != 'bob'
++    assert query({'name': 'a'})
++    assert not query({'name': 'a', 'nickname': 'bob'})
++
++
++def test_fr_01_ac2_missing_nested_field_not_equal():
++    # Path cannot be resolved (parent is not a dict) -> treated as not equal
++    query = where('a')['b'] != 1
++    assert query({'a': 5})
++    assert query({})
++    assert not query({'a': {'b': 1}})
++
++
++def test_fr_01_ac3_present_field_equal_not_matched():
++    # Field present and equal -> not matched; present and different -> matched
++    query = where('n') != 0
++    assert not query({'n': 0})
++    assert query({'n': 'bob'})
++    assert query({'n': None})
++
++
++def test_fr_01_ac4_search_returns_missing_fields(tmp_path):
++    from tinydb import TinyDB
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'nickname': 'bob'})
++    db.insert({'name': 'b', 'nickname': 'al'})
++    db.insert({'name': 'c'})
++    names = sorted(d['name'] for d in db.search(where('nickname') != 'bob'))
++    assert names == ['b', 'c']
++
++
++def test_fr_02_ac1_ne_matches_negated_eq_for_missing_field():
++    # != and ~(==) agree for a document without the field
++    doc = {'name': 'c'}
++    assert (where('nickname') != 'bob')(doc) == (~(where('nickname') == 'bob'))(doc)
++
++
++def test_fr_02_ac2_ne_cache_not_shared_with_eq(tmp_path):
++    # Cached == results must not be reused for != (different hash)
++    from tinydb import TinyDB
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'nickname': 'bob'})
++    db.insert({'name': 'c'})
++    assert [d['name'] for d in db.search(where('nickname') == 'bob')] == ['a']
++    assert sorted(d['name'] for d in db.search(where('nickname') != 'bob')) == ['c']
++    assert (where('nickname') != 'bob').is_cacheable()
++    assert hash(where('nickname') != 'bob') != hash(where('nickname') == 'bob')
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..285cf31 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -268,14 +268,14 @@ class Query(QueryInstance):
+         """
+         Test a dict value for inequality.
+ 
++        Documents that do not have the queried field are considered not equal,
++        so this is the negation of ``==``:
++
+         >>> Query().f1 != 42
+ 
+         :param rhs: The value to compare against
+         """
+-        return self._generate_test(
+-            lambda value: value != rhs,
+-            ('!=', self._path, freeze(rhs))
+-        )
++        return ~(self == rhs)
+ 
+     def __lt__(self, rhs: Any) -> QueryInstance:
+         """

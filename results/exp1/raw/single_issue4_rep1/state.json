@@ -1,0 +1,39 @@
+{
+  "state": "DONE",
+  "stage_tries": 0,
+  "test_retries": 0,
+  "redesigns": 0,
+  "review_rounds": 0,
+  "cost_usd": 0.00652721,
+  "input_tokens": 126964,
+  "output_tokens": 7146,
+  "calls": [
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.0065,
+      "turns": 8,
+      "in": 126964,
+      "out": 7146,
+      "stop": "success",
+      "denied": 1
+    }
+  ],
+  "feedback": "",
+  "pr": null,
+  "head_sha": null,
+  "base_sha": "ff13702a724ae96bffad7ba7548f849b52e9b010",
+  "log": [
+    "11:53:33 single done: 8 turns, $0.007, stop=success, denied tool calls=1",
+    "11:53:33 single agent: spec, design, build, scope and tests all pass"
+  ],
+  "comment_id": null,
+  "denied_calls": [
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': \"cat >> tests/test_operations.py <<'EOF'\\n\\n\\ndef test_fr_01_ac1_int_factor(db):\\n    db.update(multiply('int', 3), where('char') == 'a')\\n    asser",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+diff --git a/tests/test_operations.py b/tests/test_operations.py
+index 3a6f814..5355a22 100644
+--- a/tests/test_operations.py
++++ b/tests/test_operations.py
+@@ -1,5 +1,8 @@
+-from tinydb import where
+-from tinydb.operations import delete, increment, decrement, add, subtract, set
++import pytest
++
++from tinydb import TinyDB, where
++from tinydb.operations import delete, increment, decrement, add, subtract, set, multiply
++from tinydb.storages import MemoryStorage
+ 
+ 
+ def test_delete(db):
+@@ -35,3 +38,38 @@ def test_increment(db):
+ def test_decrement(db):
+     db.update(decrement('int'), where('char') == 'a')
+     assert db.get(where('char') == 'a')['int'] == 0
++
++
++def _price_db(price):
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'category': 'books', 'price': price})
++    return db
++
++
++def test_fr_01_ac1_multiply_float_factor():
++    db = _price_db(10)
++    db.update(multiply('price', 1.1), where('category') == 'books')
++    assert db.get(where('category') == 'books')['price'] == pytest.approx(11.0)
++
++
++def test_fr_01_ac2_factor_zero_and_one_boundary():
++    db = _price_db(7)
++    db.update(multiply('price', 1), where('category') == 'books')
++    assert db.get(where('category') == 'books')['price'] == 7
++
++    db.update(multiply('price', 0), where('category') == 'books')
++    assert db.get(where('category') == 'books')['price'] == 0
++
++
++def test_fr_01_ac3_non_numeric_field_raises_and_keeps_value():
++    db = _price_db('ten')
++    with pytest.raises(TypeError):
++        db.update(multiply('price', 1.5), where('category') == 'books')
++    assert db.get(where('category') == 'books')['price'] == 'ten'
++
++
++def test_fr_01_ac4_missing_field_raises_and_keeps_document():
++    db = _price_db(10)
++    with pytest.raises(KeyError):
++        db.update(multiply('cost', 2), where('category') == 'books')
++    assert db.get(where('category') == 'books') == {'category': 'books', 'price': 10}
+diff --git a/tinydb/operations.py b/tinydb/operations.py
+index 3f6c6ab..a4863b1 100644
+--- a/tinydb/operations.py
++++ b/tinydb/operations.py
+@@ -45,6 +45,16 @@ def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], Non
+     return transform
+ 
+ 
++def multiply(field: str, n: Union[int, float]) -> Callable[[MutableMapping], None]:
++    """
++    Multiply a given field in the document by ``n``.
++    """
++    def transform(doc: MutableMapping):
++        doc[field] *= n
++
++    return transform
++
++
+ def set(field: str, val: Any) -> Callable[[MutableMapping], None]:
+     """
+     Set a given field to ``val``.

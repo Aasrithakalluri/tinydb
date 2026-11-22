@@ -1,0 +1,139 @@
+diff --git a/tests/test_queries.py b/tests/test_queries.py
+index e939eb4..1706269 100644
+--- a/tests/test_queries.py
++++ b/tests/test_queries.py
+@@ -527,3 +527,84 @@ def test_get_item():
+ 
+     assert query({'test': 1})
+     assert not query({'test': 0})
++
++
++def _ne_table_db():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a', 'nickname': 'bob'})
++    db.insert({'name': 'b', 'nickname': 'al'})
++    db.insert({'name': 'c'})
++    return db
++
++
++def test_fr_01_ac1_ne_search_includes_missing_field():
++    db = _ne_table_db()
++
++    names = sorted(d['name'] for d in db.search(where('nickname') != 'bob'))
++    assert names == ['b', 'c']
++
++
++def test_fr_01_ac2_ne_missing_field_matches():
++    query = where('nickname') != 'bob'
++
++    assert query({'name': 'c'}) is True
++
++
++def test_fr_01_ac3_ne_equal_field_does_not_match():
++    query = where('nickname') != 'bob'
++
++    assert query({'nickname': 'bob'}) is False
++
++
++def test_fr_01_ac4_ne_equals_negated_eq_search():
++    db = _ne_table_db()
++
++    ne_names = sorted(d['name'] for d in db.search(where('nickname') != 'bob'))
++    not_eq_names = sorted(
++        d['name'] for d in db.search(~(where('nickname') == 'bob')))
++
++    assert ne_names == ['b', 'c']
++    assert ne_names == not_eq_names
++
++
++def test_fr_02_ac1_ne_nested_missing_parent_matches():
++    doc = {'name': 'd'}
++    query = where('profile')['nick'] != 'bob'
++
++    assert query(doc) is True
++    assert query(doc) == (not (where('profile')['nick'] == 'bob')(doc))
++
++
++def test_fr_02_ac2_ne_non_mapping_intermediate_matches():
++    doc = {'profile': 5}
++    query = where('profile')['nick'] != 'bob'
++
++    assert query(doc) is True
++    assert query(doc) == (not (where('profile')['nick'] == 'bob')(doc))
++
++
++def test_fr_02_ac3_ne_nested_present_equal_does_not_match():
++    query = where('profile')['nick'] != 'bob'
++
++    assert query({'profile': {'nick': 'bob'}}) is False
++
++
++def test_fr_03_ac1_ne_present_different_value_matches():
++    query = where('nickname') != 'bob'
++
++    assert query({'nickname': 'al'}) is True
++
++
++def test_fr_03_ac2_ne_present_none_value_matches():
++    query = where('nickname') != 'bob'
++
++    assert query({'nickname': None}) is True
++
++
++def test_fr_03_ac3_ne_list_value_equal_does_not_match():
++    query = where('tags') != [0, 1]
++
++    assert query({'tags': [0, 1]}) is False
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..f3fc47f 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -219,7 +219,8 @@ class Query(QueryInstance):
+             self,
+             test: Callable[[Any], bool],
+             hashval: tuple,
+-            allow_empty_path: bool = False
++            allow_empty_path: bool = False,
++            default: bool = False
+     ) -> QueryInstance:
+         """
+         Generate a query based on a test function that first resolves the query
+@@ -227,6 +228,7 @@ class Query(QueryInstance):
+ 
+         :param test: The test the query executes.
+         :param hashval: The hash of the query.
++        :param default: The result returned if the path cannot be resolved.
+         :return: A :class:`~tinydb.queries.QueryInstance` object
+         """
+         if not self._path and not allow_empty_path:
+@@ -241,7 +243,7 @@ class Query(QueryInstance):
+                     else:
+                         value = part(value)
+             except (KeyError, TypeError):
+-                return False
++                return default
+             else:
+                 # Perform the specified test
+                 return test(value)
+@@ -268,13 +270,17 @@ class Query(QueryInstance):
+         """
+         Test a dict value for inequality.
+ 
++        Documents where the path cannot be resolved (e.g. the field is missing)
++        are considered unequal and match.
++
+         >>> Query().f1 != 42
+ 
+         :param rhs: The value to compare against
+         """
+         return self._generate_test(
+             lambda value: value != rhs,
+-            ('!=', self._path, freeze(rhs))
++            ('!=', self._path, freeze(rhs)),
++            default=True
+         )
+ 
+     def __lt__(self, rhs: Any) -> QueryInstance:

@@ -1,0 +1,82 @@
+diff --git a/tests/test_queries.py b/tests/test_queries.py
+index e939eb4..275d88d 100644
+--- a/tests/test_queries.py
++++ b/tests/test_queries.py
+@@ -527,3 +527,61 @@ def test_get_item():
+ 
+     assert query({'test': 1})
+     assert not query({'test': 0})
++
++
++def test_fr_01_ac1_ne_search_returns_missing_and_other_values():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a', 'nickname': 'bob'})
++    db.insert({'name': 'b', 'nickname': 'al'})
++    db.insert({'name': 'c'})
++
++    result = db.search(where('nickname') != 'bob')
++    assert [doc['name'] for doc in result] == ['b', 'c']
++
++
++def test_fr_01_ac2_ne_missing_field_is_true():
++    assert (Query().nickname != 'bob')({'name': 'c'}) is True
++
++
++def test_fr_01_ac3_ne_equal_value_is_false():
++    assert (Query().nickname != 'bob')({'nickname': 'bob'}) is False
++
++
++def test_fr_01_ac4_ne_none_value_is_true():
++    assert (Query().nickname != 'bob')({'nickname': None}) is True
++
++
++def test_fr_02_ac1_ne_is_negation_of_eq():
++    q = where('nickname')
++    for doc in [{'nickname': 'bob'}, {'nickname': 'al'}, {'name': 'c'}]:
++        assert (q != 'bob')(doc) == (~(q == 'bob'))(doc)
++
++
++def test_fr_02_ac2_ne_nested_non_dict_intermediate_is_negation_of_eq():
++    # Q-02 option (a): a non-dict intermediate behaves like a missing key.
++    q = where('profile').nickname
++    doc = {'profile': 'text'}
++    assert (q != 'bob')(doc) == (~(q == 'bob'))(doc)
++    assert (q != 'bob')(doc) is True
++    assert (~(q == 'bob'))(doc) is True
++
++
++def test_fr_02_ac3_ne_list_value_unchanged():
++    # The criterion text is garbled; the invariant is != == ~(==), both False here.
++    assert (Query().value != [0, 1])({'value': [0, 1]}) is False
++    assert (~(Query().value == [0, 1]))({'value': [0, 1]}) is False
++
++
++def test_fr_03_ac1_eq_missing_field_is_false():
++    assert (Query().nickname == 'bob')({'name': 'c'}) is False
++
++
++def test_fr_03_ac2_not_eq_missing_field_is_true():
++    assert (~(Query().nickname == 'bob'))({'name': 'c'}) is True
++
++
++def test_fr_03_ac3_eq_matching_field_is_true():
++    assert (Query().nickname == 'bob')({'nickname': 'bob'}) is True
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..c527e57 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -272,10 +272,7 @@ class Query(QueryInstance):
+ 
+         :param rhs: The value to compare against
+         """
+-        return self._generate_test(
+-            lambda value: value != rhs,
+-            ('!=', self._path, freeze(rhs))
+-        )
++        return ~(self == rhs)
+ 
+     def __lt__(self, rhs: Any) -> QueryInstance:
+         """

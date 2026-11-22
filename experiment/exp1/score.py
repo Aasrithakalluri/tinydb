@@ -40,9 +40,11 @@ for root in args:
         r = run(["git", "worktree", "add", "-q", "--detach", str(w), st["base_sha"] or "HEAD"], GITREPO)
         if r.returncode:
             raise SystemExit(f"cannot check out base commit {st['base_sha']} of {run_dir.name} in {GITREPO}: {r.stderr.strip()}")
-        patch = run_dir / "diff.patch"; applied = False
+        patch = (run_dir / "diff.patch").resolve(); applied = False      # absolute: git apply runs inside the worktree
         if patch.exists() and patch.read_text().strip():
-            applied = run(["git", "apply", str(patch)], w).returncode == 0
+            ap = run(["git", "apply", str(patch)], w); applied = ap.returncode == 0
+            if not applied:
+                raise SystemExit(f"cannot apply {patch} onto {st['base_sha']}: {ap.stderr.strip()[:300]}")
         hp, hf, hnames = pytest(w, HIDDEN / f"test_issue{n}_hidden.py") if applied else (0, 0, [])
         sp, sf, _ = pytest(w, w / "tests") if applied else (0, 0, [])
         extra_failed = sum(1 for x in hnames if x.startswith("test_extra"))
@@ -66,4 +68,5 @@ for mode, rs in sorted(by.items()):
     print(f"\n== {mode}: {n} runs | completed {sum(r['completed'] for r in rs)}/{n} | all hidden tests pass {sum(r['all_hidden_pass'] for r in rs)}/{n} "
           f"(excluding the 'extra' test {sum(r['all_hidden_pass_excluding_extra'] for r in rs)}/{n})")
     print(f"   retries per run: spec {avg('spec_retries'):.2f} design {avg('design_retries'):.2f} implement {avg('implement_retries'):.2f} tests {avg('test_retries'):.2f}")
+    if all(r["diff_applied"] == 0 for r in rs): raise SystemExit("no diff was applied in any run: refusing to report scores")
     print(f"   per run: ${avg('cost_usd'):.4f}, {avg('agent_calls'):.1f} agent calls, {avg('turns'):.0f} turns, {avg('input_tokens')/1000:.0f}k in / {avg('output_tokens')/1000:.1f}k out tokens; total ${sum(r['cost_usd'] for r in rs):.3f}")

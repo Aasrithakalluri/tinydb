@@ -1,0 +1,266 @@
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..4ac7bdb 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -1,3 +1,4 @@
++import json
+ import re
+ from collections.abc import Mapping
+ 
+@@ -730,9 +731,8 @@ def test_query_cache():
+ 
+ 
+ def test_query_cache_documents_are_shared_with_cache():
+-    """search() returns a fresh list each call, but its documents are the
+-    same objects the cache holds (see the docstring): the list itself can
+-    be mutated freely, the documents inside it cannot."""
++    """search() returns independent deep copies: mutating the returned list
++    or any document in it (top-level or nested) does not reach the cache."""
+     db = TinyDB(storage=MemoryStorage)
+     db.insert({'name': 'Alice', 'tags': ['a', 'b']})
+ 
+@@ -746,11 +746,189 @@ def test_query_cache_documents_are_shared_with_cache():
+     results2 = db.search(query)
+     assert results2 == [{'name': 'Alice', 'tags': ['a', 'b']}]
+ 
+-    # But a document inside it is the cached object, so mutating a
+-    # top-level key or a nested value both reach the cache.
++    # Mutating a nested value of a returned document doesn't either.
+     results2[0]['tags'].append('c')
+     results3 = db.search(query)
+-    assert results3[0]['tags'] == ['a', 'b', 'c']
++    assert results3 == [{'name': 'Alice', 'tags': ['a', 'b']}]
++
++
++def test_search_miss_result_mutation_is_isolated():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    # First call is a cache miss
++    result = db.search(query)
++    result[0]['name'] = 'CHANGED'
++    result[0]['tags'].append('oops')
++
++    assert db.search(query) == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_search_hit_result_mutation_is_isolated():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    db.search(query)  # populate the cache
++    result = db.search(query)  # cache hit
++    result[0]['tags'].append('oops')
++
++    assert db.search(query) == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_search_mutation_does_not_change_storage(tmp_path):
++    path = tmp_path / 'db.json'
++    db = TinyDB(str(path))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    result = db.search(query)
++    result[0]['tags'].append('oops')
++
++    with open(path) as f:
++        data = json.load(f)
++    assert data['_default'] == {'1': {'name': 'a', 'tags': ['x']}}
++    assert db.all() == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_fr_01_ac1_miss_mutation_top_level_and_list(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    r = db.search(query)  # first call: cache miss
++    r[0]['name'] = 'CHANGED'
++    r[0]['tags'].append('oops')
++
++    assert db.search(query) == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_fr_01_ac2_miss_mutation_nested_dict(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'meta': {'k': ['v']}})
++    query = where('meta').exists()
++
++    r = db.search(query)  # first call: cache miss
++    r[0]['meta']['k'].append('z')
++
++    assert db.search(query)[0]['meta']['k'] == ['v']
++
++
++def test_fr_01_ac3_miss_mutation_one_of_two_results(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'n': 1})
++    db.insert({'name': 'a', 'n': 2})
++    query = where('name') == 'a'
++
++    r = db.search(query)  # first call: cache miss, two matches
++    r[0]['n'] = 99
++
++    assert db.search(query) == [{'name': 'a', 'n': 1}, {'name': 'a', 'n': 2}]
++
++
++def test_fr_01_ac4_miss_no_match_append(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a'})
++    query = where('name') == 'zzz'
++
++    r = db.search(query)  # first call: cache miss, no matches
++    assert r == []
++    r.append({'x': 1})
++
++    assert db.search(query) == []
++
++
++def test_fr_02_ac1_hit_mutation_then_next_hit(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    r = db.search(query)  # miss
++    r[0]['name'] = 'CHANGED'
++    r[0]['tags'].append('oops')
++
++    r3 = db.search(query)  # cache hit
++    assert r3 == [{'name': 'a', 'tags': ['x']}]
++    r3[0]['tags'].append('oops')
++
++    assert db.search(query) == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_fr_02_ac2_hit_list_append_keeps_length(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a'})
++    db.insert({'name': 'b'})
++    query = where('name') == 'a'
++
++    r = db.search(query)
++    r.append({'name': 'fake'})
++
++    result = db.search(query)
++    assert result == [{'name': 'a'}]
++    assert len(result) == 1
++
++
++def test_fr_02_ac3_hit_mutation_then_insert_returns_stored_values(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    r1 = db.search(query)  # miss
++    r1[0]['name'] = 'CHANGED'
++    r2 = db.search(query)  # hit
++    r2[0]['tags'].append('oops')
++
++    db.insert({'name': 'a', 'tags': ['y']})
++    result = db.search(query)
++
++    assert result == [{'name': 'a', 'tags': ['x']}, {'name': 'a', 'tags': ['y']}]
++    text = repr(result)
++    assert 'CHANGED' not in text
++    assert 'oops' not in text
++
++
++def test_fr_03_ac1_file_unchanged_after_mutation(tmp_path):
++    path = tmp_path / 'db.json'
++    db = TinyDB(str(path))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    r = db.search(query)
++    r[0]['tags'].append('oops')
++
++    with open(path) as f:
++        data = json.load(f)
++    assert data['_default'] == {'1': {'name': 'a', 'tags': ['x']}}
++
++
++def test_fr_03_ac2_db_all_unchanged_after_mutation(tmp_path):
++    db = TinyDB(str(tmp_path / 'db.json'))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query = where('name') == 'a'
++
++    r = db.search(query)
++    r[0]['tags'].append('oops')
++
++    assert db.all() == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_fr_03_ac3_no_match_append_does_not_add_to_storage(tmp_path):
++    path = tmp_path / 'db.json'
++    db = TinyDB(str(path))
++    db.insert({'name': 'a', 'tags': ['x']})
++    query_no_match = where('name') == 'zzz'
++
++    before_all = db.all()
++    with open(path) as f:
++        before_count = len(json.load(f)['_default'])
++
++    r = db.search(query_no_match)
++    r.append({'name': 'b'})
++
++    assert db.all() == before_all
++    with open(path) as f:
++        assert len(json.load(f)['_default']) == before_count
+ 
+ 
+ def test_tinydb_is_iterable(db: TinyDB):
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..5811440 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -3,6 +3,7 @@ This module implements tables, the central place for accessing and manipulating
+ data in TinyDB.
+ """
+ 
++import copy
+ from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
+ from typing import (
+     NoReturn,
+@@ -251,10 +252,9 @@ class Table:
+         Search for all documents matching a 'where' cond.
+ 
+         Note: a repeated search with the same ``cond`` is served from an
+-        internal cache. The returned list is a fresh copy, but its
+-        documents are the same objects held by the cache -- treat them as
+-        read-only, since mutating one (a key or a nested value) corrupts
+-        what a later identical search returns.
++        internal cache. The returned documents are deep copies, so
++        mutating them (a key or a nested value) does not change the cache
++        or the stored data.
+ 
+         :param cond: the condition to check against
+         :returns: list of matching documents
+@@ -264,7 +264,7 @@ class Table:
+         # query
+         cached_results = self._query_cache.get(cond)
+         if cached_results is not None:
+-            return cached_results[:]
++            return copy.deepcopy(cached_results)
+ 
+         # Perform the search by applying the query to all documents.
+         # Then, only if the document matches the query, convert it
+@@ -291,10 +291,13 @@ class Table:
+         is_cacheable: Callable[[], bool] = getattr(cond, 'is_cacheable',
+                                                    lambda: True)
+         if is_cacheable():
+-            # Update the query cache
+-            self._query_cache[cond] = docs[:]
++            # Update the query cache with a copy, so that the returned
++            # documents can be mutated without affecting the cache
++            self._query_cache[cond] = copy.deepcopy(docs)
+ 
+-        return docs
++        # Return a copy, as the documents may share nested objects with
++        # the storage
++        return copy.deepcopy(docs)
+ 
+     @overload
+     def get(self) -> NoReturn: ...

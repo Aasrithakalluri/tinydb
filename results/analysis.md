@@ -39,12 +39,15 @@ The hidden tests were validated with two independent fixes per issue (`experimen
 4. **Real PR #14 (approved):** the reviewer approved a PR that inverts an existing contract test; the issue did ask for the new behaviour, so this is a judgement call, not a clear error.
 5. The "approval without a test run is overruled" rule never fired: every review ran the suite.
 
+## 3b. Experiment 1 per variant (hidden tests)
+See `results/exp1/README.md` and `results/exp1/results.csv`: three agents 10/10 and one agent 9/10 runs pass the hidden tests excluding the `extra` test (8/10 and 7/10 including it).
+
 ## 4. Side-by-side comparison of the tested decisions
 | Decision tested | Variants | Result | What changed in the design |
 |---|---|---|---|
 | **ADR-008 reviewer independence** (Exp 2, 14 reviews each) | A independent Sonnet vs B Haiku with spec, design and test report | A caught 8/10, 0/4 false rejections, $0.551; B caught 10/10, 0/4 false rejections, $0.046. **Hypothesis not supported.** The gap is one defect class where the issue is silent but the author's spec is explicit. | Independence kept (assignment rule); ADR-014 proposed |
 | **ADR-014 reviewer prompt** (pre-registered) | A vs A2 | A2 fixes S4 and labels S7 `approach`; false-rejects C2 2/2; old prompt already caught S6 and S7 | Stays Proposed; production prompt unchanged |
 | **ADR-013 ask vs assume** (issue #5 only) | auto vs ask | both 5/6 on hidden tests; $0.163 vs $0.092 | ask-mode kept as an option (`/autose ask`) |
-| **ADR-001 one agent vs three** (Exp 1) | single vs 3-agent for stages 1 to 4 | *not run yet* | – |
+| **ADR-001 one agent vs three** (Exp 1, 20 runs) | single vs 3-agent for stages 1 to 4 | both 10/10 completed; hidden tests 9/10 vs 10/10 excluding the `extra` test (the one difference: a deliberate non-fix of a contract-conflict issue); $0.0118 vs $0.0202 per run | no design change; the split costs about 70% more, with no measured quality gain |
 
 Negative or null results: Exp 2 (independence did not help detection), ADR-013 (no gain in correctness), ADR-014 (a cost for the gain). They are reported as measured.

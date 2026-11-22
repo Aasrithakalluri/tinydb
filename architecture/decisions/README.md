@@ -4,7 +4,7 @@
 
 | ADR | Decision | Chosen | Main rejected option | Main reason | Status |
 |---|---|---|---|---|---|
-| 001 | D1 Splitting the work | 3 agents (Planner stages 1-2, Builder 3-4, Reviewer 6); release is plain code | one agent for everything; one agent per stage | tool permissions and reviewer independence follow the split; planning is read-only | Accepted, **untested** (Exp 1 could not run: credit exhausted) |
+| 001 | D1 Splitting the work | 3 agents (Planner stages 1-2, Builder 3-4, Reviewer 6); release is plain code | one agent for everything; one agent per stage | tool permissions and reviewer independence follow the split; planning is read-only | Accepted; tested in Exp 1: no quality difference, about 70% more cost per run |
 | 002 | D2 Control flow | one Python orchestrator, an explicit state machine | separate Actions jobs triggering each other; an LLM orchestrator | bounded loops and counters, deterministic routing, one concurrency group | Accepted; refined by 012, 013 |
 | 003 | D3 Hand-offs | files (artifacts) plus repo access, never transcripts | full transcripts; agent-written summaries | keeps the reviewer independent and prompts small | Accepted |
 | 004 | D4 State | artifacts + issue status comment + branch; resume at the first unpassed stage | commit state to the branch; PR comments; cache | visible to humans, survives a cancelled run | **Superseded by 011** (restoring `state.json` did not restore the code) |
@@ -28,7 +28,7 @@
 | Budget test | the orchestrator comments on the PR when a run stops after it was opened |
 | Injection test | none needed (resisted); allowlist widened narrowly because of benign friction |
 | Exp 2 (reviewer independence) | independence kept; ADR-014 proposed; not adopted |
-| Exp 1 | not run |
+| Exp 1 (one agent vs three) | no design change; the split costs about 70% more per run for stages 1-4 with no measured quality gain; exposed a check gap (a listed change need not be applied, an unresolved conflict is reported DONE) |
 
 ## The three decisions that mattered most (notes for the report)
 1. **ADR-002 + 004/011: a deterministic orchestrator with explicit state.** Every hard failure of the real runs was in the plumbing (state, restart, CI, restore), not in the agents; this is also where the design was wrong first.

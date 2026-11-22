@@ -1,0 +1,116 @@
+diff --git a/tests/test_operations.py b/tests/test_operations.py
+index 3a6f814..48f404e 100644
+--- a/tests/test_operations.py
++++ b/tests/test_operations.py
+@@ -1,5 +1,7 @@
++import pytest  # type: ignore
++
+ from tinydb import where
+-from tinydb.operations import delete, increment, decrement, add, subtract, set
++from tinydb.operations import delete, increment, decrement, add, subtract, multiply, set
+ 
+ 
+ def test_delete(db):
+@@ -35,3 +37,81 @@ def test_increment(db):
+ def test_decrement(db):
+     db.update(decrement('int'), where('char') == 'a')
+     assert db.get(where('char') == 'a')['int'] == 0
++
++
++def test_fr_01_ac1_multiply_float_factor_matching_only(db):
++    db.drop_tables()
++    db.insert({'category': 'books', 'price': 10})
++    db.insert({'category': 'toys', 'price': 10})
++
++    db.update(multiply('price', 1.1), where('category') == 'books')
++
++    assert db.get(where('category') == 'books')['price'] == pytest.approx(11.0)
++    assert db.get(where('category') == 'toys')['price'] == 10
++
++
++def test_fr_01_ac2_multiply_int_factor(db):
++    db.drop_tables()
++    db.insert({'name': 'p', 'price': 5})
++
++    db.update(multiply('price', 2), where('name') == 'p')
++
++    assert db.get(where('name') == 'p')['price'] == 10
++
++
++def test_fr_01_ac3_multiply_identity_factor(db):
++    db.drop_tables()
++    db.insert({'name': 'p', 'price': 7})
++
++    db.update(multiply('price', 1), where('name') == 'p')
++
++    assert db.get(where('name') == 'p')['price'] == 7
++
++
++def test_fr_01_ac4_multiply_empty_match(db):
++    db.drop_tables()
++    db.insert({'category': 'books', 'price': 10})
++    before = db.all()
++
++    db.update(multiply('price', 1.1), where('category') == 'none')
++
++    assert db.all() == before
++
++
++def test_fr_02_ac1_multiply_missing_field(db):
++    db.drop_tables()
++    db.insert({'name': 'x'})
++
++    with pytest.raises(KeyError):
++        db.update(multiply('price', 1.1), where('name') == 'x')
++
++    assert db.get(where('name') == 'x') == {'name': 'x'}
++
++
++def test_fr_02_ac2_multiply_zero_value(db):
++    db.drop_tables()
++    db.insert({'name': 'z', 'price': 0})
++
++    db.update(multiply('price', 1.1), where('name') == 'z')
++
++    assert db.get(where('name') == 'z')['price'] == 0
++
++
++def test_fr_03_ac1_multiply_non_numeric_str(db):
++    db.drop_tables()
++    db.insert({'name': 't', 'price': 'ten'})
++
++    with pytest.raises(TypeError):
++        db.update(multiply('price', 1.1), where('name') == 't')
++
++    assert db.get(where('name') == 't')['price'] == 'ten'
++
++
++def test_fr_03_ac2_multiply_none_value(db):
++    db.drop_tables()
++    db.insert({'name': 'n', 'price': None})
++
++    with pytest.raises(TypeError):
++        db.update(multiply('price', 2), where('name') == 'n')
++
++    assert db.get(where('name') == 'n')['price'] is None
+diff --git a/tinydb/operations.py b/tinydb/operations.py
+index 3f6c6ab..8e5750c 100644
+--- a/tinydb/operations.py
++++ b/tinydb/operations.py
+@@ -45,6 +45,16 @@ def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], Non
+     return transform
+ 
+ 
++def multiply(field: str, factor: Union[int, float]) -> Callable[[MutableMapping], None]:
++    """
++    Multiply a given field in the document by ``factor``.
++    """
++    def transform(doc: MutableMapping):
++        doc[field] *= factor
++
++    return transform
++
++
+ def set(field: str, val: Any) -> Callable[[MutableMapping], None]:
+     """
+     Set a given field to ``val``.

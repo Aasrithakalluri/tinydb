@@ -1,0 +1,90 @@
+diff --git a/tests/test_count.py b/tests/test_count.py
+new file mode 100644
+index 0000000..8519197
+--- /dev/null
++++ b/tests/test_count.py
+@@ -0,0 +1,59 @@
++from tinydb import TinyDB, where
++from tinydb.storages import MemoryStorage
++
++
++def test_fr_01_ac1_count_without_argument_returns_total():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a'})
++    db.insert({'name': 'b'})
++    db.insert({'name': 'c', 'id': 5})
++
++    assert db.count() == 3
++
++
++def test_fr_01_ac2_count_empty_table_returns_zero():
++    db = TinyDB(storage=MemoryStorage)
++
++    assert db.count() == 0
++
++
++def test_fr_01_ac3_count_without_argument_after_remove():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a'})
++    db.insert({'name': 'b'})
++    db.remove(where('name') == 'a')
++
++    assert db.count() == 1
++
++
++def test_fr_01_ac4_count_explicit_none_returns_total():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a'})
++    db.insert({'name': 'b'})
++
++    assert db.table(db.default_table_name).count(None) == 2
++
++
++def test_fr_02_ac1_count_with_query_counts_matches():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a', 'n': 1})
++    db.insert({'name': 'b', 'n': 2})
++    db.insert({'name': 'c', 'n': 2})
++
++    assert db.count(where('n') == 2) == 2
++
++
++def test_fr_02_ac2_count_with_query_no_match_returns_zero():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a'})
++
++    assert db.count(where('name') == 'zzz') == 0
++
++
++def test_fr_02_ac3_count_with_query_missing_field_is_not_total():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'name': 'a'})
++    db.insert({'name': 'b', 'id': 7})
++
++    assert db.count(where('id').exists()) == 1
++    assert db.count() == 2
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..59277fa 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -706,13 +706,18 @@ class Table:
+         # Reset document ID counter
+         self._next_id = None
+ 
+-    def count(self, cond: QueryLike) -> int:
++    def count(self, cond: Optional[QueryLike] = None) -> int:
+         """
+         Count the documents matching a query.
+ 
+-        :param cond: the condition use
++        If no query is given, count all documents in the table.
++
++        :param cond: the condition use (optional)
+         """
+ 
++        if cond is None:
++            return len(self)
++
+         return len(self.search(cond))
+ 
+     def clear_cache(self) -> None:

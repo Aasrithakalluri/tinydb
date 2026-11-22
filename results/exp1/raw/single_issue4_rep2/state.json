@@ -1,0 +1,45 @@
+{
+  "state": "DONE",
+  "stage_tries": 0,
+  "test_retries": 0,
+  "redesigns": 0,
+  "review_rounds": 0,
+  "cost_usd": 0.00699847,
+  "input_tokens": 197677,
+  "output_tokens": 6563,
+  "calls": [
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.007,
+      "turns": 12,
+      "in": 197677,
+      "out": 6563,
+      "stop": "success",
+      "denied": 2
+    }
+  ],
+  "feedback": "",
+  "pr": null,
+  "head_sha": null,
+  "base_sha": "ff13702a724ae96bffad7ba7548f849b52e9b010",
+  "log": [
+    "12:06:35 single done: 12 turns, $0.007, stop=success, denied tool calls=2",
+    "12:06:35 single agent: spec, design, build, scope and tests all pass"
+  ],
+  "comment_id": null,
+  "denied_calls": [
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': 'python -m pytest -q 2>&1 | tail -n 3 && python -m compileall -q tinydb tests && echo COMPILED', 'description': 'Re-run full test suite and compile ",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    },
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': 'python -m compileall -q tinydb tests && echo COMPILED', 'description': 'Byte-compile package and tests'}",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    }
+  ]
+}

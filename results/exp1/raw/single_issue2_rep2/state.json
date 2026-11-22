@@ -1,0 +1,39 @@
+{
+  "state": "DONE",
+  "stage_tries": 0,
+  "test_retries": 0,
+  "redesigns": 0,
+  "review_rounds": 0,
+  "cost_usd": 0.017334065,
+  "input_tokens": 354986,
+  "output_tokens": 21600,
+  "calls": [
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.0173,
+      "turns": 21,
+      "in": 354986,
+      "out": 21600,
+      "stop": "success",
+      "denied": 1
+    }
+  ],
+  "feedback": "",
+  "pr": null,
+  "head_sha": null,
+  "base_sha": "ff13702a724ae96bffad7ba7548f849b52e9b010",
+  "log": [
+    "12:02:28 single done: 21 turns, $0.017, stop=success, denied tool calls=1",
+    "12:02:29 single agent: spec, design, build, scope and tests all pass"
+  ],
+  "comment_id": null,
+  "denied_calls": [
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': 'python -m pytest -q 2>&1 | tail -n 3 && python -m compileall -q tinydb tests && echo COMPILED_OK', 'description': 'Re-run full test suite and compi",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    }
+  ]
+}

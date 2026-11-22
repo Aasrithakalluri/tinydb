@@ -1,0 +1,138 @@
+diff --git a/tests/test_ordering.py b/tests/test_ordering.py
+new file mode 100644
+index 0000000..8553867
+--- /dev/null
++++ b/tests/test_ordering.py
+@@ -0,0 +1,91 @@
++from pathlib import Path
++
++from tinydb import TinyDB, JSONStorage
++from tinydb.storages import MemoryStorage
++from tinydb.table import Document
++
++
++def _ids(docs):
++    return [doc.doc_id for doc in docs]
++
++
++# FR-01: all() and search() return documents in ascending document ID order,
++# whatever order they were inserted in.
++
++def test_fr_01_ac1_explicit_ids_out_of_order():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert(Document({'v': 'c'}, 3))
++    db.insert(Document({'v': 'a'}, 1))
++    db.insert(Document({'v': 'b'}, 2))
++
++    assert _ids(db.all()) == [1, 2, 3]
++
++
++def test_fr_01_ac2_empty_table_returns_empty_list():
++    db = TinyDB(storage=MemoryStorage)
++
++    assert db.all() == []
++    assert db.search(lambda doc: True) == []
++
++
++def test_fr_01_ac3_search_single_match_in_id_order():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert(Document({'group': 'x'}, 5))
++    db.insert(Document({'group': 'y'}, 2))
++    db.insert(Document({'group': 'x'}, 4))
++
++    result = db.search(lambda doc: doc['group'] == 'x')
++    assert _ids(result) == [4, 5]
++
++    only = db.search(lambda doc: doc['group'] == 'y')
++    assert _ids(only) == [2]
++
++
++# FR-02: updating a document keeps its position in the order, and a new
++# document without an explicit ID is placed after the highest existing ID.
++
++def test_fr_02_ac1_update_keeps_order_and_ids():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple([{'n': 1}, {'n': 2}, {'n': 3}])
++
++    db.update({'n': 20}, doc_ids=[1])
++
++    assert _ids(db.all()) == [1, 2, 3]
++    assert [doc['n'] for doc in db.all()] == [20, 2, 3]
++
++
++def test_fr_02_ac2_remove_then_insert_goes_last():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple([{'n': 1}, {'n': 2}, {'n': 3}])
++
++    db.remove(doc_ids=[1])
++    new_id = db.insert({'n': 4})
++
++    assert new_id == 4
++    assert _ids(db.all()) == [2, 3, 4]
++
++
++# FR-03: the order is the same after the database is closed and reopened.
++
++def test_fr_03_ac1_order_survives_reopen_numeric(tmp_path: Path):
++    path = tmp_path / 'ordered.json'
++    db = TinyDB(path, storage=JSONStorage)
++    db.insert(Document({'v': 'ten'}, 10))
++    db.insert(Document({'v': 'two'}, 2))
++    db.insert(Document({'v': 'one'}, 1))
++    db.close()
++
++    reopened = TinyDB(path, storage=JSONStorage)
++    # Numeric ordering: 10 must come after 2, not before it as a string would.
++    assert _ids(reopened.all()) == [1, 2, 10]
++    reopened.close()
++
++
++def test_fr_03_ac2_empty_reopened_database_returns_empty(tmp_path: Path):
++    path = tmp_path / 'empty.json'
++    db = TinyDB(path, storage=JSONStorage)
++    db.close()
++
++    reopened = TinyDB(path, storage=JSONStorage)
++    assert reopened.all() == []
++    reopened.close()
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..a03c59f 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -271,7 +271,7 @@ class Table:
+         # to the document class and document ID class.
+         docs = [
+             self.document_class(doc, self.document_id_class(doc_id))
+-            for doc_id, doc in self._read_table().items()
++            for doc_id, doc in self._sorted_table_items()
+             if cond(doc)
+         ]
+ 
+@@ -736,11 +736,25 @@ class Table:
+         :returns: an iterator over all documents.
+         """
+ 
+-        # Iterate all documents and their IDs
+-        for doc_id, doc in self._read_table().items():
++        # Iterate all documents and their IDs, in ascending ID order
++        for doc_id, doc in self._sorted_table_items():
+             # Convert documents to the document class
+             yield self.document_class(doc, self.document_id_class(doc_id))
+ 
++    def _sorted_table_items(self) -> list[tuple[str, Mapping]]:
++        """
++        Return the raw ``(doc_id, document)`` pairs of the table, ordered by
++        document ID.
++
++        The order does not depend on insertion or update history, nor on
++        whether the database was reopened.
++        """
++
++        return sorted(
++            self._read_table().items(),
++            key=lambda item: self.document_id_class(item[0])
++        )
++
+     def _get_next_id(self):
+         """
+         Return the ID for a newly inserted document.

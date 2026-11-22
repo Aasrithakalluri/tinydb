@@ -1,0 +1,45 @@
+{
+  "state": "DONE",
+  "stage_tries": 0,
+  "test_retries": 0,
+  "redesigns": 0,
+  "review_rounds": 0,
+  "cost_usd": 0.01093708,
+  "input_tokens": 264473,
+  "output_tokens": 11753,
+  "calls": [
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.0109,
+      "turns": 11,
+      "in": 264473,
+      "out": 11753,
+      "stop": "success",
+      "denied": 2
+    }
+  ],
+  "feedback": "",
+  "pr": null,
+  "head_sha": null,
+  "base_sha": "ff13702a724ae96bffad7ba7548f849b52e9b010",
+  "log": [
+    "11:59:07 single done: 11 turns, $0.011, stop=success, denied tool calls=2",
+    "11:59:08 single agent: spec, design, build, scope and tests all pass"
+  ],
+  "comment_id": null,
+  "denied_calls": [
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': 'grep -rn \"!=\\\\|\\'!=\\'\\\\|ne\" tests/test_queries.py | head -30; grep -rn \"\\'!=\\'\" tests tinydb | head; python -m pytest -q 2>&1 | tail -3', 'descript",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    },
+    {
+      "role": "single",
+      "tool": "Bash",
+      "input": "{'command': 'cat >> tests/test_queries.py <<\\'EOF\\'\\n\\n\\ndef test_fr_01_ac1_missing_field_not_equal():\\n    # Document without the field is \"not equal\" to \\'bob",
+      "why": "Only 'python -m pytest ...', 'python -m compileall ...' and 'python -c ...' are allowed."
+    }
+  ]
+}
