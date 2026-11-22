@@ -291,9 +291,16 @@ class Run:
         A fresh checkout is plain master; re-apply the last diff.patch on the recorded base commit."""
         patch = self.art / "diff.patch"
         if self.st["state"] in ("IMPLEMENT", "TEST", "RELEASE", "REVIEW") and self.st.get("base_sha") and patch.exists() and patch.read_text().strip():
-            sh(["git", "checkout", "-q", "-B", self.branch, self.st["base_sha"]], cwd=self.repo)
+            cur = sh(["git", "rev-parse", "HEAD"], cwd=self.repo).strip()      # fresh checkout = current default branch
+            base = self.st["base_sha"]
+            if cur != base:                                                    # rebase onto the current default branch if the patch still applies
+                probe = subprocess.run(["git", "apply", "--check", str(patch)], cwd=self.repo, capture_output=True, text=True)
+                if probe.returncode == 0:
+                    base = cur
+            sh(["git", "checkout", "-q", "-B", self.branch, base], cwd=self.repo)
             sh(["git", "apply", "--index", str(patch)], cwd=self.repo)
-            self.log("restart: restored the working tree from diff.patch")
+            self.st["base_sha"] = base
+            self.log(f"restart: restored the working tree from diff.patch on {base[:8]}" + (" (rebased onto the current default branch)" if base == cur and cur != self.st.get("head_base") else ""))
 
     # ---------------------------------------------------------------- stage 5
     def commit(self, msg: str) -> str:
