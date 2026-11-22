@@ -10,7 +10,7 @@
  "base": "parent",
  "context": "v2-C2",
  "derived_from": "autose/issue-4",
- "suite": "240 passed in 0.30s",
+ "suite": "240 passed in 0.29s",
  "hidden_tests": "4 passed in 0.01s",
  "hidden_failed": [],
  "tests_removed_because_they_expose_the_defect": []

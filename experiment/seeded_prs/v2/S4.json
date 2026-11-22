@@ -10,7 +10,7 @@
  "base": "parent",
  "context": "v2-S4",
  "derived_from": "autose/issue-4",
- "suite": "239 passed in 0.19s",
+ "suite": "239 passed in 0.18s",
  "hidden_tests": "1 failed, 3 passed in 0.01s",
  "hidden_failed": [
   "test_multiply_missing_field_raises_like_add"

@@ -10,7 +10,7 @@
  "base": "parent",
  "context": "v2-S3",
  "derived_from": "autose/issue-3",
- "suite": "248 passed in 0.31s",
+ "suite": "248 passed in 0.30s",
  "hidden_tests": "1 failed, 2 passed in 0.01s",
  "hidden_failed": [
   "test_count_all_after_inserts_and_removes"
