@@ -2,6 +2,7 @@
 
 - **Decision area:** D10 Triggers
 - **Status:** Accepted
+- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
 
 ## Context
 Anyone can open issues or comment on a public fork. Starting the pipeline spends money and opens PRs, so it must be restricted. Duplicate triggers (label added twice, comment spam) must not run in parallel on the same branch.

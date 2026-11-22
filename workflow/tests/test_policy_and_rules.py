@@ -111,3 +111,13 @@ def test_wrong_label_or_comment_is_ignored(monkeypatch):
     ev = _label_event(); ev["label"]["name"] = "bug"
     assert o.authorize(ev) is None
     assert o.authorize(_comment_event("please /autose this")) is None
+
+
+def test_agent_timeout_stops_a_hanging_session(monkeypatch, tmp_path):
+    """ADR-009: a stuck agent is aborted by the per-call timeout and reported as such."""
+    async def hang(**kwargs):
+        await asyncio.sleep(30)
+        yield None
+    monkeypatch.setattr(agents, "query", lambda **kw: hang(**kw))
+    res = asyncio.run(agents._run("planner", "sys", "prompt", tmp_path, budget_usd=0.1, timeout=1))
+    assert res.stop_reason == "timeout" and res.cost_usd == 0.0

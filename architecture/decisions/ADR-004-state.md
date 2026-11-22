@@ -2,6 +2,7 @@
 
 - **Decision area:** D4 State
 - **Status:** Superseded by ADR-011 (restart rule was wrong: restoring state.json alone does not restore the code)
+- **Decided by:** the assistant proposed it; accepted (PR #7); superseded by ADR-011 after real runs falsified the restart rule.
 
 ## Context
 Runs can be restarted (re-labelled, `/autose` again, job cancelled by timeout). Humans must be able to follow progress on GitHub. Actions runners are ephemeral.

@@ -2,6 +2,7 @@
 
 - **Decision area:** D3 Hand-offs
 - **Status:** Accepted
+- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
 
 ## Context
 Agents have limited context and small budgets. What an agent sees also determines its bias: an implementer's reasoning primes a reviewer to agree.

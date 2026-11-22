@@ -2,6 +2,7 @@
 
 - **Decision area:** D4 State (supersedes ADR-004)
 - **Status:** Accepted
+- **Decided by:** the assistant, after real runs showed ADR-004 was wrong; reported to and accepted by the author.
 
 ## Context
 ADR-004 said a restarted run "downloads the latest artifact and resumes at the first stage whose check has not passed". The first real runs on issue #3 (Actions runs 44994878885, 44995093783, 44995270382) showed three things that were wrong:

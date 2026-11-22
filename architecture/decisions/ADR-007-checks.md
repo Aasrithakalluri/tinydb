@@ -2,6 +2,7 @@
 
 - **Decision area:** D7 Checks
 - **Status:** Accepted
+- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
 
 ## Context
 A stage's own agent is a poor judge of its output. Checks must be cheap, reproducible and hard to talk around.

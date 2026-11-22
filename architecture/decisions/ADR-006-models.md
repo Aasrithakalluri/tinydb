@@ -2,6 +2,7 @@
 
 - **Decision area:** D6 Models
 - **Status:** Accepted
+- **Decided by:** **the author.** Their answer was "Haiku for the others and Sonnet for the reviewer".
 
 ## Context
 Hard spend cap of $5 across setup, debugging, five issues and experiments. Roles differ in what failure costs: a weak Builder costs retries (bounded by the orchestrator); a weak Reviewer lets bad code reach the human.

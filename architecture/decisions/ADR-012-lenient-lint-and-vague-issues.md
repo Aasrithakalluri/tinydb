@@ -2,6 +2,7 @@
 
 - **Decision area:** D7 Checks and D2 Control flow (refines ADR-007 and ADR-002; neither is superseded)
 - **Status:** Accepted for AC parsing. The rule "vague issues proceed on assumptions" is superseded by ADR-013 as the only behaviour: it remains the default in auto mode, and ask mode is added.
+- **Decided by:** the assistant, after the runs on issues #4 and #5; reported to the author. Its vague-issue rule is superseded by ADR-013.
 
 ## Context
 The first batch of runs on issues #1, #2, #4, #5 (runs 44996285044, 44996288135, 44996291011, 44996293511) produced two failures that were caused by the pipeline, not by the model:
