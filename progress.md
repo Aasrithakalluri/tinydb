@@ -6,7 +6,7 @@ Reference: [assignment.md](assignment.md). `[x]` done and verified · `[~]` buil
 
 ## Where we are (snapshot, 2026-11-22)
 
-**Phases 0–3 are done. The pipeline works end to end on all five issues.** Phase 4 (experiments) has started; Phases 5–6 (analysis, report, video, submission) have not.
+**Phases 0–2 are done and Phase 3 is built and mostly proven. The pipeline works end to end on all five issues.** Phase 4 (experiments) has started; Phases 5–6 (analysis, report, video, submission) have not.
 
 | Issue | Type | Outcome | PR | Cost | Hidden tests |
 |-------|------|---------|----|------|--------------|
@@ -47,15 +47,16 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.49 of the $5 cap**, �
 - [x] 5 issues opened (2 bugs, 2 features, 1 vague) — #1 … #5
 - [x] Hidden acceptance tests (3–4 per issue) written, kept outside the repo in `~/a3_private/hidden_tests/`; **they fail on the baseline** (verified)
 - [x] Issue texts saved to `experiment/issues/`
-- [ ] Copy hidden tests into `experiment/hidden_tests/` for submission (only after all runs are scored)
+- [x] Hidden-test integrity: SHA-256 manifest in `experiment/hidden_tests/` (tests stay private while agents run)
+- [ ] Copy the hidden tests into `experiment/hidden_tests/` (only after the last run is scored)
 
 ## Phase 2 — Design before build
 - [x] Component view, sequence view (planned), stage map → `architecture/views/`
 - [x] ADR-001 … ADR-010 (Nygard format) → `architecture/decisions/`
 - [x] Design committed before any agent code (PR #7 merged before PR #8 with the code)
 - [x] Superseded-rule used: ADR-004 → superseded by ADR-011 (found by a real run); ADR-012 refines ADR-007/ADR-002; ADR-013 supersedes ADR-012's vague-issue rule
-- [ ] Replace the planned sequence view with one drawn from a real run (use run 44995345522 or the ask-mode run)
-- [ ] Update component view for the ask gate (WAITING state)
+- [x] Sequence view replaced by one drawn from the real run on #3
+- [x] Component view updated with the ask gate and a full state diagram
 
 ## Phase 3 — Build the workflow
 - [x] `.github/workflows/autose.yml` (labeled + `/autose` comment triggers); lint clean with actionlint
@@ -67,12 +68,16 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.49 of the $5 cap**, �
 - [x] Run followable: status comment, artifacts, PR, review comment
 - [x] Unit tests for the checks → `workflow/tests/test_checks.py` (5 pass)
 - [x] Ask-the-human gate (`/autose ask` → WAITING → `/autose go ...`), ADR-013; first real pause worked
-- [~] Trigger authorization: positive path used; the negative path (a user without write access) is untested
+- [x] Trigger authorization: real permissions API refuses an outsider (`octocat`) and accepts the owner; unit-tested (checked locally, not inside Actions)
+- [x] Tool policy tested (23 tests in `workflow/tests/`): read-only planner, builder writes only `tinydb/`+`tests/`, Bash allowlist rejects curl/git push/env/chaining/gh
+- [x] Denied tool calls recorded in `state.json` with what and why
 - [~] Concurrency: one run per issue; two simultaneous triggers on the same issue not tested
 - [~] Back-edges: test-fail → implement, redesign, and review "changes" → implement/design have not been exercised in a real run (no run needed them yet)
 - [~] Budget cap ($0.60/run) and timeouts: never hit
-- [~] Anti-rubber-stamp: "approve without running tests is rejected" is coded; needs the seeded PRs to measure
+- [x] Anti-rubber-stamp rule unit-tested (approve without a pytest run, or garbage JSON, is overruled)
+- [~] Anti-rubber-stamp in practice: measured by the seeded PRs (Phase 4)
 - [~] Prompt-injection defences exist (untrusted tags, no network, no token); no adversarial issue has been run
+- [ ] Real runs still to do (needs OK to spend ≈ $0.30): concurrency, budget cap, prompt injection, test-failure back-edge (fault-injected)
 - [ ] Re-check: reviewer once claimed it could not read ARCHITECTURE.md; prompt fixed, later reviews cite constraints 4 and 5 correctly (watch for recurrence)
 
 ## Phase 4 — Experiments
