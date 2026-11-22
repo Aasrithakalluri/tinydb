@@ -1,7 +1,7 @@
 # ADR-001: Three agents (Planner, Builder, Reviewer); release is plain code
 
 - **Decision area:** D1 Splitting the work
-- **Status:** Accepted, **untested**: the planned Experiment 1 (single agent vs three agents for stages 1 to 4) could not run because the API credit was exhausted (`results/runs.md`, run 45010442196, no valid data). The split is supported only indirectly: the tool policy and the independent reviewer depend on it, and 5 of 5 final runs passed the stage checks with it. Nothing in the evidence shows it is better than one agent.
+- **Status:** Accepted. Tested in Experiment 1 (`results/exp1/README.md`): no quality difference attributable to the split (10/10 vs 9/10 runs pass the hidden tests excluding the `extra` test; the one difference is a deliberate non-fix of a contract-conflict issue), and the three-agent split costs about 70% more per run for stages 1 to 4 ($0.0202 vs $0.0118). The reasons for the split (read-only Planner, independent Reviewer, code and tests in one context) are not what this experiment measures. No design change.
 - **Decided by:** **the author** (answer "1A", and the reasons below from the design interview of 2026-11-22). The wording was written by the assistant from those answers.
 
 ## Context
@@ -28,3 +28,6 @@ Recorded from the author's answers in the design interview of 2026-11-22; each p
 + Planner → Builder handoff is a natural check point (`design.md` lint).
 − Planner and Builder do not share memory: any detail missing from `design.md` is lost. Mitigated by design lint and by letting the Builder read the repo.
 − Haiku carries both planning and coding; weaker planning may surface as test/design loops (measured in Results).
+
+## Result of Experiment 1 (2026-11-22)
+Single agent vs three agents for stages 1 to 4, 20 runs, same model and checks: both variants completed 10/10 runs; hidden tests passed 10/10 (three agents) vs 9/10 (single agent) excluding the `extra` test; cost per run $0.0202 vs $0.0118. The one difference was a single-agent run that recognised a conflict with a documented contract and did not change the code (it wrote `xfail` tests), which the pipeline reported as DONE without telling the maintainer; this exposed a gap in the checks (a listed change need not be applied). Details: `results/exp1/README.md`.

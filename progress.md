@@ -99,7 +99,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] New seeds built and verified (S6 hash tag copied from a sibling, S7 unrequested reversal of the documented remove(doc_ids) rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written (`reviewer_v2.md`, variant A2); success criterion pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` before any run
 - [x] ADR-014 test run and the pre-registered rule applied: A2 caught S4/S6/S7 6/6 and labelled S7 `approach`, but rejected the correct control C2 twice → ADR-014 stays **Proposed**, production prompt unchanged. The old prompt already caught S6/S7 (seeds do not discriminate); steps 6 and 7 are confounded. 18 reviews, $0.733 (`results/adr014_test/`)
 - [~] Exercise the reviewer-"changes" and redesign back-edges through the orchestrator (fault-injected, labelled): **blocked by API credit** (re-try run 45011637296, $0)
-- [~] Run Exp 1 on the 5 issues: credit works now; run 45015554876 ($0.422) INVALID because of my driver bug (artifacts inside the repo); fixed; re-run in progress. (earlier note: **blocked**: Anthropic returned "Credit balance is too low" (run 45010442196, no valid data). Needs the maintainer to check the console / add credit. Optional: two ADRs are already tested (ADR-008 via Exp 2, ADR-013/014).
+- [x] Exp 1 run and scored (`results/exp1/`): 20 runs, all completed; hidden tests 10/10 (3 agents) vs 9/10 (1 agent) excl. extra; $0.0202 vs $0.0118 per run; the one difference is a deliberate non-fix of issue #2 reported DONE; no design change. First attempt invalid (my driver bug), logged.
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [x] `results/results.csv` (from final states, `results/aggregate.py`)
 - [ ] Total tokens and cost from the Anthropic console (maintainer reads it at the end)
@@ -108,9 +108,9 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 
 ## Phase 5 — Results analysis
 - [x] Pass rate per stage, retries and pipeline-caused failures separately (`results/stage_pass_rates.md`): 5/5, 4/5, 5/5, 5/5, 5/5, 5/5 first try; 11 failed attempts, none caused by agent capability
-- [~] Hidden-test results per issue done (`results/analysis.md`); the Experiment 1 variant is missing
+- [x] Hidden-test results per issue and per variant (`results/analysis.md`, `results/exp1/results.csv`)
 - [x] What the reviewer caught and where it was wrong (`results/analysis.md`)
-- [~] Side-by-side comparison done for Exp 2, ADR-014 and ADR-013 (`results/analysis.md`); ADR-001 (Exp 1) not run
+- [x] Side-by-side comparison of the tested ADRs (Exp 1, Exp 2, ADR-014, ADR-013) in `results/analysis.md`
 
 ## Phase 6 — Deliverables
 - [ ] **report.pdf** (≤ 8 pages + appendices): Architecture (2 pp) · Design decisions table + top 3 (2.5 pp) · Experiments (1.5 pp) · Results (1 pp) · Hindsight (0.5 pp) · Limitations (≥ 3)
@@ -145,6 +145,8 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 17. **Two confounds in my own experiment design** (variant B given artifacts of different code; v2 mutations that made the PR's own suite fail) found and removed before the main result; pilot kept.
 18. **ADR-014 result:** the compare-with-siblings prompt fixed S4 and routed the contract reversal (S7) to `approach`, but falsely rejected a correct control; the old prompt already caught the new seeds, so they did not discriminate. Stays Proposed (pre-registered rule).
 19. **API credit ran out earlier than our tracker predicted** ("Credit balance is too low" on 18 of 20 Exp 1 runs); either the credit was below $5 or our estimate undercounts. The console is authoritative; no result invented.
+20. **Exp 1:** single agent vs three agents: no quality difference attributable to the split, the split costs about 70% more per run; the single agent's one failure was a deliberate non-fix of the contract-conflict issue that the pipeline reported as DONE (checks do not require a listed change to be applied; xfail hides it).
+21. **Two of my own tool bugs in one experiment** (artifacts inside the repo; relative patch path in the scorer) cost $0.42 and a wrong 0/0; both fixed and guarded.
 10. **Cost is small:** ≈ $0.06–0.09 per clean run; the vague issue costs 2–3× more.
 
 ## Notes / Log

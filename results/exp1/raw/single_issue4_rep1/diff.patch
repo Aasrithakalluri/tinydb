@@ -1,0 +1,60 @@
+diff --git a/tests/test_operations.py b/tests/test_operations.py
+index 3a6f814..4269967 100644
+--- a/tests/test_operations.py
++++ b/tests/test_operations.py
+@@ -1,5 +1,7 @@
+ from tinydb import where
+-from tinydb.operations import delete, increment, decrement, add, subtract, set
++import pytest  # type: ignore
++
++from tinydb.operations import delete, increment, decrement, add, subtract, set, multiply
+ 
+ 
+ def test_delete(db):
+@@ -35,3 +37,25 @@ def test_increment(db):
+ def test_decrement(db):
+     db.update(decrement('int'), where('char') == 'a')
+     assert db.get(where('char') == 'a')['int'] == 0
++
++
++def test_fr_01_ac1_int_factor(db):
++    db.update(multiply('int', 3), where('char') == 'a')
++    assert db.get(where('char') == 'a')['int'] == 3
++
++
++def test_fr_01_ac2_float_factor(db):
++    db.update(multiply('int', 1.1), where('char') == 'a')
++    assert db.get(where('char') == 'a')['int'] == pytest.approx(1.1)
++
++
++def test_fr_01_ac3_zero_factor(db):
++    db.update(multiply('int', 0), where('char') == 'a')
++    assert db.get(where('char') == 'a')['int'] == 0
++
++
++def test_fr_01_ac4_missing_field():
++    doc = {'char': 'a'}
++    with pytest.raises(KeyError):
++        multiply('int', 2)(doc)
++    assert doc == {'char': 'a'}
+diff --git a/tinydb/operations.py b/tinydb/operations.py
+index 3f6c6ab..a4863b1 100644
+--- a/tinydb/operations.py
++++ b/tinydb/operations.py
+@@ -45,6 +45,16 @@ def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], Non
+     return transform
+ 
+ 
++def multiply(field: str, n: Union[int, float]) -> Callable[[MutableMapping], None]:
++    """
++    Multiply a given field in the document by ``n``.
++    """
++    def transform(doc: MutableMapping):
++        doc[field] *= n
++
++    return transform
++
++
+ def set(field: str, val: Any) -> Callable[[MutableMapping], None]:
+     """
+     Set a given field to ``val``.

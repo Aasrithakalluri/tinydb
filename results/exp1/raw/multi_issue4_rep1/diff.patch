@@ -1,0 +1,113 @@
+diff --git a/tests/test_operations.py b/tests/test_operations.py
+index 3a6f814..8e613ba 100644
+--- a/tests/test_operations.py
++++ b/tests/test_operations.py
+@@ -1,5 +1,7 @@
++import pytest  # type: ignore
++
+ from tinydb import where
+-from tinydb.operations import delete, increment, decrement, add, subtract, set
++from tinydb.operations import delete, increment, decrement, add, subtract, set, multiply
+ 
+ 
+ def test_delete(db):
+@@ -35,3 +37,71 @@ def test_increment(db):
+ def test_decrement(db):
+     db.update(decrement('int'), where('char') == 'a')
+     assert db.get(where('char') == 'a')['int'] == 0
++
++
++def test_fr_01_ac1_multiply_matching_document_only(db):
++    db.truncate()
++    db.insert({'price': 10, 'category': 'books'})
++    db.insert({'price': 5, 'category': 'toys'})
++    db.update(multiply('price', 1.1), where('category') == 'books')
++    assert db.get(where('category') == 'books')['price'] == pytest.approx(11.0)
++    assert db.get(where('category') == 'toys')['price'] == 5
++
++
++def test_fr_01_ac2_multiply_identity_factor(db):
++    db.truncate()
++    db.insert({'price': 10})
++    db.update(multiply('price', 1), where('price') == 10)
++    assert db.all()[0]['price'] == 10
++
++
++def test_fr_01_ac3_multiply_zero_factor(db):
++    db.truncate()
++    db.insert({'price': 10})
++    db.update(multiply('price', 0), where('price') == 10)
++    assert db.all()[0]['price'] == 0
++
++
++def test_fr_01_ac4_multiply_negative_factor(db):
++    db.truncate()
++    db.insert({'price': 10})
++    db.update(multiply('price', -2), where('price') == 10)
++    assert db.all()[0]['price'] == -20
++
++
++def test_fr_01_ac5_multiply_no_match_is_noop(db):
++    db.truncate()
++    db.insert({'price': 10, 'category': 'books'})
++    db.update(multiply('price', 2), where('category') == 'games')
++    assert db.all() == [{'price': 10, 'category': 'books'}]
++
++
++def test_fr_02_ac1_multiply_missing_field_raises(db):
++    db.truncate()
++    db.insert({'category': 'books'})
++    with pytest.raises(KeyError):
++        db.update(multiply('price', 1.1), where('category') == 'books')
++
++
++def test_fr_02_ac2_multiply_unmatched_document_without_field(db):
++    db.truncate()
++    db.insert({'category': 'books', 'price': 10})
++    db.insert({'category': 'toys'})
++    db.update(multiply('price', 1.1), where('category') == 'books')
++    assert db.get(where('category') == 'toys') == {'category': 'toys'}
++
++
++def test_fr_03_ac1_multiply_non_numeric_int_factor_raises(db):
++    db.truncate()
++    db.insert({'price': 'abc'})
++    with pytest.raises(TypeError):
++        db.update(multiply('price', 2), where('price') == 'abc')
++    assert db.all()[0]['price'] == 'abc'
++
++
++def test_fr_03_ac2_multiply_non_numeric_float_factor_raises(db):
++    db.truncate()
++    db.insert({'price': 'abc'})
++    with pytest.raises(TypeError):
++        db.update(multiply('price', 1.1), where('price') == 'abc')
++    assert db.all()[0]['price'] == 'abc'
+diff --git a/tinydb/operations.py b/tinydb/operations.py
+index 3f6c6ab..657d3c0 100644
+--- a/tinydb/operations.py
++++ b/tinydb/operations.py
+@@ -45,6 +45,23 @@ def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], Non
+     return transform
+ 
+ 
++def multiply(field: str, factor: Union[int, float]) -> Callable[[MutableMapping], None]:
++    """
++    Multiply a given field in the document by ``factor``.
++
++    Raises ``TypeError`` if the field's value is not an int or float.
++    """
++    def transform(doc: MutableMapping):
++        value = doc[field]
++        if not isinstance(value, (int, float)):
++            raise TypeError(
++                f"Cannot multiply non-numeric value of field {field!r}"
++            )
++        doc[field] = value * factor
++
++    return transform
++
++
+ def set(field: str, val: Any) -> Callable[[MutableMapping], None]:
+     """
+     Set a given field to ``val``.

@@ -102,19 +102,19 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three): tooling is ready but its run hit "Credit balance is too low", so it has no data. Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
+  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three) is done and scored (20 runs). Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
 
   <div class="stats">
-    <div class="stat"><b>≈ $2.6</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
-    <div class="stat"><b>≈ 8M / 500k</b><span>input / output tokens so far</span></div>
+    <div class="stat"><b>≈ $3.3</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
+    <div class="stat"><b>≈ 9M / 550k</b><span>input / output tokens so far</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
     <div class="stat"><b>14</b><span>ADRs written (D1 to D10, plus ADR-011 to 014)</span></div>
   </div>
 
   <div class="card banner">
-    <h3>Needs the maintainer now (blocked by API credit)</h3>
+    <h3>Needs the maintainer</h3>
     <p><b>1.</b> Decide the human-escalation policy (see open decisions below).</p>
-    <p><b>2.</b> <b>Add API credit (or tell me to skip).</b> The API still returns "Credit balance is too low" (re-tried: run 45011637296, $0). With about $1 added, three things run: Experiment 1 (up to $0.50), the back-edge test (about $0.15) and, if wanted, nothing else. Please also read the real spend from the Anthropic console.</p>
+    <p><b>2.</b> Read the real spend and tokens from the Anthropic console (our numbers are orchestrator-tracked, about $3.3), and read the 14 ADRs to confirm them.</p>
   </div>
 
   <div class="card table-wrap">
@@ -265,7 +265,7 @@ const PHASES = [
     ["x", "Exp 2 on seeds v2 scored: independent Sonnet caught 8/10 (missed S4 twice), Haiku with the author's artifacts 10/10, no false rejections; $0.551 vs $0.046. Hypothesis NOT supported (negative result). A tooling bug invalidated S3 in the first dispatch; re-run with a runner guard. Leads to ADR-014 (Proposed)."],
     ["x", "New seeds for ADR-014 built and verified (S6 hash tag copied from a sibling operator, S7 unrequested reversal of the documented <code>remove(doc_ids)</code> rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written; success criterion pre-registered before any run"],
     ["x", "ADR-014 test run, pre-registered rule applied: the compare-with-siblings prompt caught S4, S6, S7 (6/6) and routed S7 to <code>approach</code>, but rejected the correct control C2 twice, so ADR-014 stays <b>Proposed</b> and production is unchanged. The old prompt already caught S6 and S7 (the new seeds do not discriminate)."],
-    ["p", "Run Exp 1 on the 5 issues: credit now works. The first full run (45015554876, $0.422) was <b>invalid because of my own driver bug</b> (artifacts written inside the repo, so every run failed the scope check on its own files); fixed and tested, <b>re-run in progress</b>, cap $0.45."],
+    ["x", "Experiment 1 (single agent vs three agents, stages 1 to 4) run and scored: 20 runs, all completed; hidden tests 10/10 (three agents) vs 9/10 (one agent) excluding the extra test, $0.0202 vs $0.0118 per run. The one difference is a deliberate non-fix of the contract-conflict issue (#2) that the pipeline reported as DONE. No design change: the split costs about 70% more with no measured quality gain (<code>results/exp1/README.md</code>). A first attempt was invalid because of my driver bug and is logged."],
     ["x", "Hidden tests validated with a reference fix and an alternative fix per issue (<code>experiment/validation/</code>). Finding: issue #2 conflicts with a documented contract and an existing test."],
     ["x", "<code>results/results.csv</code> from the orchestrator's own final states (<code>results/aggregate.py</code>)"],
     ["o", "Total tokens and cost from the Anthropic console (the maintainer reads the console at the end; our numbers are orchestrator-tracked)"],
@@ -274,9 +274,9 @@ const PHASES = [
     ["x", "Clean run for the sequence view (issue #3, run 44995345522) and for the demo: the demo can walk through the finished run on issue #1 (run 44996285044: issue, status comment, artifacts, PR, review) without any new spend"]]],
   ["Phase 5: Results analysis", [
     ["x", "Pass rate per stage, counting retries and pipeline-caused failures separately (<code>results/stage_pass_rates.md</code>): spec 5/5, design 4/5, build 5/5, tests 5/5, CI 5/5, review 5/5 first try; 11 failed attempts, none caused by the agents' capability (10 my pipeline/setup defects, 1 deliberate test)"],
-    ["p", "Hidden-test results per issue and per variant: per issue done (<code>results/analysis.md</code>); the Experiment 1 variant is still missing"],
+    ["x", "Hidden-test results per issue and per variant (<code>results/analysis.md</code>, <code>results/exp1/results.csv</code>)"],
     ["x", "What the reviewer caught and where it was wrong (<code>results/analysis.md</code>): approved all 7 real PRs in round 1 (no evidence it catches anything there); on seeded PRs it caught 8/10 and missed the sibling-convention defect S4; it did not escalate contract reversals"],
-    ["p", "Side-by-side comparison of the tested ADRs: Exp 2, ADR-014 and ADR-013 done, ADR-001 (Exp 1) still to run"]]],
+    ["x", "Side-by-side comparison of the tested ADRs: Exp 1 (ADR-001), Exp 2 (ADR-008), ADR-014 test, ADR-013 (<code>results/analysis.md</code>); negative and null results are reported as such"],
   ["Phase 6: Deliverables", [
     ["o", "<b>report.pdf</b> (at most 8 pages plus appendices)"],
     ["o", "Architecture (2 pp)", true], ["o", "Design decisions: table plus top 3 (2.5 pp)", true],

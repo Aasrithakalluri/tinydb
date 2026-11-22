@@ -1,0 +1,103 @@
+diff --git a/tests/test_count.py b/tests/test_count.py
+new file mode 100644
+index 0000000..3995ad4
+--- /dev/null
++++ b/tests/test_count.py
+@@ -0,0 +1,72 @@
++from tinydb import TinyDB, where
++from tinydb.storages import MemoryStorage
++
++
++def make_db():
++    return TinyDB(storage=MemoryStorage)
++
++
++def test_fr_01_ac1_counts_all_documents():
++    db = make_db()
++    db.insert_multiple([{'int': 1}, {'int': 2}, {'char': 'a'}])
++
++    assert db.count() == 3
++
++
++def test_fr_01_ac2_empty_table_returns_zero():
++    db = make_db()
++
++    assert db.count() == 0
++
++
++def test_fr_01_ac3_docs_without_id_field_are_counted():
++    db = make_db()
++    db.insert({'name': 'no id here'})
++    db.insert({})
++
++    assert db.count() == 2
++
++
++def test_fr_01_ac4_explicit_none_counts_all_documents():
++    db = make_db()
++    db.insert_multiple([{'int': 1}, {'int': 2}])
++
++    assert db.count(None) == 2
++
++
++def test_fr_02_ac1_query_count_unchanged():
++    db = make_db()
++    db.insert_multiple([{'int': 1}, {'int': 1}, {'int': 2}])
++
++    assert db.count(where('int') == 1) == 2
++
++
++def test_fr_02_ac2_query_matching_nothing_returns_zero():
++    db = make_db()
++    db.insert({'int': 1})
++
++    assert db.count(where('int') == 99) == 0
++
++
++def test_fr_03_ac1_count_reflects_insert_and_remove():
++    db = make_db()
++    db.insert({'int': 1})
++    assert db.count() == 1
++
++    doc_id = db.insert({'int': 2})
++    assert db.count() == 2
++
++    db.remove(doc_ids=[doc_id])
++    assert db.count() == 1
++
++
++def test_fr_03_ac2_count_after_cached_query_is_not_stale():
++    db = make_db()
++    db.insert({'int': 1})
++    # Populate the query cache first, then write, then count everything.
++    assert db.count(where('int') == 1) == 1
++
++    db.insert({'int': 1})
++
++    assert db.count() == 2
++    assert db.count(where('int') == 1) == 2
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..52c4606 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -706,13 +706,18 @@ class Table:
+         # Reset document ID counter
+         self._next_id = None
+ 
+-    def count(self, cond: QueryLike) -> int:
++    def count(self, cond: Optional[QueryLike] = None) -> int:
+         """
+         Count the documents matching a query.
+ 
+-        :param cond: the condition use
++        If no query is given, count all documents in the table.
++
++        :param cond: the condition to use (optional)
+         """
+ 
++        if cond is None:
++            return len(self)
++
+         return len(self.search(cond))
+ 
+     def clear_cache(self) -> None:

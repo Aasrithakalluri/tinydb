@@ -1,0 +1,223 @@
+diff --git a/tests/test_storages.py b/tests/test_storages.py
+index 6e433a1..d4d5f59 100644
+--- a/tests/test_storages.py
++++ b/tests/test_storages.py
+@@ -285,3 +285,63 @@ def test_json_invalid_mode_warning(tmpdir):
+     path = str(tmpdir.join('test.db'))
+     with pytest.warns(UserWarning, match='Using an `access_mode` other than'):
+         JSONStorage(path, access_mode='w')
++
++
++def _doc_ids(docs):
++    return [doc.doc_id for doc in docs]
++
++
++def test_fr_03_ac1_json_reopen_default_order(tmpdir):
++    from tinydb import TinyDB
++
++    path = str(tmpdir.join('test.db'))
++    db = TinyDB(path)
++    db.insert_multiple({'v': i} for i in range(1, 13))
++    db.close()
++
++    db = TinyDB(path)
++    assert _doc_ids(db.all()) == list(range(1, 13))
++    assert _doc_ids(db.search(where('v') >= 2)) == list(range(2, 13))
++    db.close()
++
++
++def test_fr_03_ac2_json_reopen_sort_keys_order(tmpdir):
++    from tinydb import TinyDB
++
++    path = str(tmpdir.join('test.db'))
++    db = TinyDB(path, storage=JSONStorage, sort_keys=True)
++    db.insert_multiple({'v': i} for i in range(1, 13))
++    db.close()
++
++    db = TinyDB(path, storage=JSONStorage, sort_keys=True)
++    ids = _doc_ids(db.all())
++    assert ids == list(range(1, 13))
++    assert ids != [1, 10, 11, 12, 2, 3, 4, 5, 6, 7, 8, 9]
++    db.close()
++
++
++def test_fr_03_ac3_json_empty_file_all(tmpdir):
++    from tinydb import TinyDB
++
++    path = str(tmpdir.join('test.db'))
++    touch(path, create_dirs=False)
++
++    db = TinyDB(path)
++    assert db.all() == []
++    db.close()
++
++
++def test_fr_03_ac4_json_reopen_after_update_and_remove(tmpdir):
++    from tinydb import TinyDB
++
++    path = str(tmpdir.join('test.db'))
++    db = TinyDB(path)
++    db.insert_multiple({'v': i} for i in range(1, 6))
++    db.update({'tag': 'x'}, doc_ids=[2])
++    db.remove(doc_ids=[3])
++    before = _doc_ids(db.all())
++    db.close()
++
++    db = TinyDB(path)
++    assert _doc_ids(db.all()) == before
++    db.close()
+diff --git a/tests/test_tables.py b/tests/test_tables.py
+index a94005e..ca41b1d 100644
+--- a/tests/test_tables.py
++++ b/tests/test_tables.py
+@@ -197,3 +197,105 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
+     assert len(table) == 1
+     assert table.all() == [{'a': 1}]
+     db.close()
++
++
++def _ids(docs):
++    return [doc.doc_id for doc in docs]
++
++
++def test_fr_01_ac1_all_and_iter_insertion_order():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(3))
++
++    assert _ids(db.all()) == [1, 2, 3]
++    assert _ids(list(db)) == [1, 2, 3]
++
++
++def test_fr_01_ac2_all_numeric_not_string_order():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(12))
++
++    assert _ids(db.all()) == list(range(1, 13))
++
++
++def test_fr_01_ac3_order_after_remove_and_insert():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(3))
++    db.remove(doc_ids=[2])
++    db.insert({'v': 99})
++
++    assert _ids(db.all()) == [1, 3, 4]
++
++
++def test_fr_01_ac4_order_after_update_keeps_first():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(3))
++    db.update({'v': 9}, doc_ids=[1])
++
++    ids = _ids(db.all())
++    assert ids == [1, 2, 3]
++    assert ids[0] == 1
++
++
++def test_fr_01_ac5_all_empty_table():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++
++    assert db.all() == []
++
++
++def test_fr_02_ac1_search_ascending_numeric_ids():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(1, 13))
++
++    assert _ids(db.search(where('v') >= 2)) == list(range(2, 13))
++
++
++def test_fr_02_ac2_repeated_search_identical():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(1, 13))
++
++    first = _ids(db.search(where('v') >= 2))
++    second = _ids(db.search(where('v') >= 2))
++    assert first == second
++
++
++def test_fr_02_ac3_search_after_update_field():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(1, 6))
++    db.update({'tag': 'x'}, doc_ids=[2, 5])
++
++    assert _ids(db.search(where('tag') == 'x')) == [2, 5]
++
++
++def test_fr_02_ac4_search_no_match_empty():
++    from tinydb import TinyDB
++    from tinydb.storages import MemoryStorage
++
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple({'v': i} for i in range(1, 4))
++
++    assert db.search(where('v') == 999) == []
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..d5e1a8a 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -271,7 +271,7 @@ class Table:
+         # to the document class and document ID class.
+         docs = [
+             self.document_class(doc, self.document_id_class(doc_id))
+-            for doc_id, doc in self._read_table().items()
++            for doc_id, doc in self._sorted_doc_items()
+             if cond(doc)
+         ]
+ 
+@@ -737,10 +737,30 @@ class Table:
+         """
+ 
+         # Iterate all documents and their IDs
+-        for doc_id, doc in self._read_table().items():
++        for doc_id, doc in self._sorted_doc_items():
+             # Convert documents to the document class
+             yield self.document_class(doc, self.document_id_class(doc_id))
+ 
++    def _sorted_doc_items(self) -> list[tuple[str, Mapping]]:
++        """
++        Return the raw ``(doc_id, document)`` pairs of this table, sorted by
++        numeric document ID.
++
++        Storages such as ``JSONStorage`` write keys with ``sort_keys=True``,
++        so a reopened table may list its IDs in string order (1, 10, 11, 2).
++        Sorting here keeps the order consistent across iteration and search.
++        Keys that cannot be converted to ``document_id_class`` fall back to
++        their raw value.
++        """
++
++        def sort_key(item: tuple[str, Mapping]):
++            try:
++                return (0, self.document_id_class(item[0]), '')
++            except (TypeError, ValueError):
++                return (1, 0, str(item[0]))
++
++        return sorted(self._read_table().items(), key=sort_key)
++
+     def _get_next_id(self):
+         """
+         Return the ID for a newly inserted document.

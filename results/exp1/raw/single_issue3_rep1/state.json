@@ -1,0 +1,32 @@
+{
+  "state": "DONE",
+  "stage_tries": 0,
+  "test_retries": 0,
+  "redesigns": 0,
+  "review_rounds": 0,
+  "cost_usd": 0.010501074999999999,
+  "input_tokens": 151731,
+  "output_tokens": 13371,
+  "calls": [
+    {
+      "role": "single",
+      "state": "SINGLE",
+      "cost": 0.0105,
+      "turns": 7,
+      "in": 151731,
+      "out": 13371,
+      "stop": "success",
+      "denied": 0
+    }
+  ],
+  "feedback": "",
+  "pr": null,
+  "head_sha": null,
+  "base_sha": "ff13702a724ae96bffad7ba7548f849b52e9b010",
+  "log": [
+    "11:51:20 single done: 7 turns, $0.011, stop=success, denied tool calls=0",
+    "11:51:20 single agent: spec, design, build, scope and tests all pass"
+  ],
+  "comment_id": null,
+  "denied_calls": []
+}

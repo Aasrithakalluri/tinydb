@@ -1,0 +1,97 @@
+diff --git a/tests/test_tables.py b/tests/test_tables.py
+index a94005e..a468a49 100644
+--- a/tests/test_tables.py
++++ b/tests/test_tables.py
+@@ -197,3 +197,68 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
+     assert len(table) == 1
+     assert table.all() == [{'a': 1}]
+     db.close()
++
++
++def test_fr_01_ac1_count_without_arguments(db):
++    table = db.table('count_fr01_ac1')
++    table.insert_multiple({'x': i} for i in range(3))
++
++    assert table.count() == 3
++
++
++def test_fr_01_ac2_count_empty_table(db):
++    table = db.table('count_fr01_ac2')
++
++    assert table.count() == 0
++
++
++def test_fr_01_ac3_count_after_remove(db):
++    table = db.table('count_fr01_ac3')
++    table.insert_multiple({'x': i} for i in range(5))
++    table.remove(doc_ids=[1, 2])
++
++    assert table.count() == 3
++
++
++def test_fr_01_ac4_count_no_type_error(db):
++    table = db.table('count_fr01_ac4')
++    table.insert_multiple({'x': i} for i in range(3))
++
++    # Must not raise TypeError for a missing required argument
++    result = table.count()
++    assert isinstance(result, int)
++
++
++def test_fr_01_ac5_count_none_argument(db):
++    table = db.table('count_fr01_ac5')
++    table.insert_multiple({'x': i} for i in range(3))
++
++    assert table.count(None) == 3
++
++
++def test_fr_02_ac1_count_with_condition(db):
++    table = db.table('count_fr02_ac1')
++    table.insert_multiple([{'x': 1}, {'x': 2}, {'x': 1}])
++
++    assert table.count(where('x') == 1) == 2
++
++
++def test_fr_02_ac2_count_condition_no_match(db):
++    table = db.table('count_fr02_ac2')
++    table.insert_multiple({'x': i} for i in range(3))
++
++    assert table.count(where('x') == 99) == 0
++
++
++def test_fr_02_ac3_count_condition_matches_all(db):
++    table = db.table('count_fr02_ac3')
++    table.insert_multiple({'x': i} for i in range(3))
++
++    assert table.count(where('x') >= 0) == len(table)
++
++
++def test_fr_02_ac4_count_exists_skips_missing_field(db):
++    table = db.table('count_fr02_ac4')
++    table.insert_multiple([{'x': 1}, {'x': 2}, {'y': 3}])
++
++    assert table.count(where('x').exists()) == 2
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..0df50c3 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -706,13 +706,18 @@ class Table:
+         # Reset document ID counter
+         self._next_id = None
+ 
+-    def count(self, cond: QueryLike) -> int:
++    def count(self, cond: Optional[QueryLike] = None) -> int:
+         """
+         Count the documents matching a query.
+ 
++        If no condition is given, count all documents in the table.
++
+         :param cond: the condition use
+         """
+ 
++        if cond is None:
++            return len(self)
++
+         return len(self.search(cond))
+ 
+     def clear_cache(self) -> None:

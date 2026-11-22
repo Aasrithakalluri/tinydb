@@ -1,0 +1,203 @@
+diff --git a/tests/test_search_copies.py b/tests/test_search_copies.py
+new file mode 100644
+index 0000000..45dec57
+--- /dev/null
++++ b/tests/test_search_copies.py
+@@ -0,0 +1,104 @@
++from tinydb import where
++from tinydb.operations import set as set_field
++
++
++def _setup(db):
++    table = db.table('copies')
++    table.insert({'name': 'a', 'tags': ['x']})
++    return table
++
++
++def test_fr_01_ac1_repeat_search_after_mutation_returns_stored_data(db):
++    table = _setup(db)
++    query = where('name') == 'a'
++
++    first = table.search(query)  # miss: fills the cache
++    assert table.search(query) == [{'name': 'a', 'tags': ['x']}]  # hit
++
++    rows = table.search(query)  # hit
++    rows[0]['name'] = 'CHANGED'
++    rows[0]['tags'].append('oops')
++
++    assert table.search(query) == [{'name': 'a', 'tags': ['x']}]
++    assert first[0]['name'] == 'a'
++
++
++def test_fr_01_ac2_no_match_result_mutation_not_cached(db):
++    table = _setup(db)
++    query = where('name') == 'missing'
++
++    assert table.search(query) == []  # cached as an empty result
++    rows = table.search(query)
++    rows.append({'name': 'fake'})
++
++    assert table.search(query) == []
++
++
++def test_fr_01_ac3_cache_hits_return_independent_objects(db):
++    table = _setup(db)
++    query = where('name') == 'a'
++
++    table.search(query)
++    one = table.search(query)
++    two = table.search(query)
++
++    assert one is not two
++    assert one[0] is not two[0]
++    assert one[0]['tags'] is not two[0]['tags']
++
++
++def test_fr_02_ac1_uncached_result_mutation_does_not_affect_next_search(db):
++    table = _setup(db)
++    query = where('name') == 'a'
++
++    rows = table.search(query)  # first search, not yet cached
++    rows[0]['tags'].append('oops')
++    rows[0]['name'] = 'CHANGED'
++
++    assert table.search(query) == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_fr_02_ac2_result_mutation_does_not_change_storage(db):
++    table = _setup(db)
++    query = where('name') == 'a'
++
++    rows = table.search(query)
++    rows[0]['tags'].append('oops')
++
++    stored = table._storage.read()['copies']
++    assert list(stored.values()) == [{'name': 'a', 'tags': ['x']}]
++
++
++def test_fr_02_ac3_uncacheable_query_result_mutation_is_isolated(db):
++    table = _setup(db)
++    query = where('name').map(str.upper) == 'A'
++
++    assert not query.is_cacheable()
++    rows = table.search(query)
++    rows[0]['tags'].append('oops')
++
++    assert table.search(query) == [{'name': 'a', 'tags': ['x']}]
++    assert len(table._query_cache) == 0
++
++
++def test_fr_03_ac1_update_after_mutation_shows_updated_stored_value(db):
++    table = _setup(db)
++    query = where('name') == 'a'
++
++    rows = table.search(query)
++    rows[0]['name'] = 'CHANGED'
++    table.update(set_field('name', 'b'), query)
++
++    assert table.search(where('name') == 'b') == [{'name': 'b', 'tags': ['x']}]
++    assert table.search(query) == []
++
++
++def test_fr_03_ac2_remove_after_mutation_returns_empty_result(db):
++    table = _setup(db)
++    query = where('name') == 'a'
++
++    rows = table.search(query)
++    rows[0]['tags'].append('oops')
++    table.remove(query)
++
++    assert table.search(query) == []
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..49eb212 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -730,9 +730,10 @@ def test_query_cache():
+ 
+ 
+ def test_query_cache_documents_are_shared_with_cache():
+-    """search() returns a fresh list each call, but its documents are the
+-    same objects the cache holds (see the docstring): the list itself can
+-    be mutated freely, the documents inside it cannot."""
++    """search() returns a fresh list each call, and its documents are deep
++    copies, so neither the list nor the documents inside it can reach the
++    cache. (This test previously asserted that documents were shared with
++    the cache; that behaviour caused the reported stale-result bug.)"""
+     db = TinyDB(storage=MemoryStorage)
+     db.insert({'name': 'Alice', 'tags': ['a', 'b']})
+ 
+@@ -746,11 +747,11 @@ def test_query_cache_documents_are_shared_with_cache():
+     results2 = db.search(query)
+     assert results2 == [{'name': 'Alice', 'tags': ['a', 'b']}]
+ 
+-    # But a document inside it is the cached object, so mutating a
+-    # top-level key or a nested value both reach the cache.
++    # A document inside it is a copy, so mutating a nested value does not
++    # reach the cache either.
+     results2[0]['tags'].append('c')
+     results3 = db.search(query)
+-    assert results3[0]['tags'] == ['a', 'b', 'c']
++    assert results3[0]['tags'] == ['a', 'b']
+ 
+ 
+ def test_tinydb_is_iterable(db: TinyDB):
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..60192bf 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -3,6 +3,7 @@ This module implements tables, the central place for accessing and manipulating
+ data in TinyDB.
+ """
+ 
++import copy
+ from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
+ from typing import (
+     NoReturn,
+@@ -251,26 +252,27 @@ class Table:
+         Search for all documents matching a 'where' cond.
+ 
+         Note: a repeated search with the same ``cond`` is served from an
+-        internal cache. The returned list is a fresh copy, but its
+-        documents are the same objects held by the cache -- treat them as
+-        read-only, since mutating one (a key or a nested value) corrupts
+-        what a later identical search returns.
++        internal cache. Every returned document is a deep copy, so changing
++        a returned document (a key or a nested value) does not affect
++        what later searches return.
+ 
+         :param cond: the condition to check against
+         :returns: list of matching documents
+         """
+ 
+         # First, we check the query cache to see if it has results for this
+-        # query
++        # query. We hand out a copy so the caller cannot alter the cache.
+         cached_results = self._query_cache.get(cond)
+         if cached_results is not None:
+-            return cached_results[:]
++            return copy.deepcopy(cached_results)
+ 
+         # Perform the search by applying the query to all documents.
+         # Then, only if the document matches the query, convert it
+-        # to the document class and document ID class.
++        # to the document class and document ID class. The document is
++        # deep-copied so that nested values are not shared with the storage.
+         docs = [
+-            self.document_class(doc, self.document_id_class(doc_id))
++            self.document_class(copy.deepcopy(doc),
++                                self.document_id_class(doc_id))
+             for doc_id, doc in self._read_table().items()
+             if cond(doc)
+         ]
+@@ -291,8 +293,9 @@ class Table:
+         is_cacheable: Callable[[], bool] = getattr(cond, 'is_cacheable',
+                                                    lambda: True)
+         if is_cacheable():
+-            # Update the query cache
+-            self._query_cache[cond] = docs[:]
++            # Update the query cache. The cache keeps its own copy, so the
++            # documents returned below are not shared with it.
++            self._query_cache[cond] = copy.deepcopy(docs)
+ 
+         return docs
+ 
