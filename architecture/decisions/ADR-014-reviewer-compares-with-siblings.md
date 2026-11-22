@@ -29,3 +29,6 @@ Pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` (committed befor
 - A2 caught S4, S6 and S7 in all six reviews and labelled the documented-rule reversal (S7) `approach`; it approved C1 and C3, and **rejected C2 twice** because `multiply` has stricter type validation than its siblings (defensible given the issue's "same style as the other operations", but it counts as a false rejection under the rule fixed in advance).
 - The old prompt already caught S6 and S7 (verdict level), so the new seeds did not discriminate the prompts. The measurable gain is S4 (design seed) and the `approach` routing of S7.
 - Steps 6 and 7 were tested together and cannot be separated. Not tuned further on C2 to avoid fitting the prompt to a single test case. Next test, if budget allows: step 7 alone on fresh seeds.
+
+## The author's decision on next steps
+Recorded from the author's answers of 2026-11-22: retry this change later with its two prompt steps split (compare with the closest analogue; treat a reversal of documented behaviour as an `approach` finding), on fresh seeds. Until then the production prompt is unchanged.

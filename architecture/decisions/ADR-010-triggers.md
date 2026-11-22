@@ -2,7 +2,7 @@
 
 - **Decision area:** D10 Triggers
 - **Status:** Accepted
-- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
+- **Decided by:** the assistant proposed the mechanism (PR #7); **the reasons below are the author's**, selected in the interview of 2026-11-22.
 
 ## Context
 Anyone can open issues or comment on a public fork. Starting the pipeline spends money and opens PRs, so it must be restricted. Duplicate triggers (label added twice, comment spam) must not run in parallel on the same branch.
@@ -12,6 +12,14 @@ Anyone can open issues or comment on a public fork. Starting the pipeline spends
 - **Authorization:** the job's first step checks the triggering actor (`github.event.sender` / comment author) has `write` or `admin` permission via the collaborators-permission API; otherwise it exits without using any secret or tool.
 - **Concurrency:** `concurrency: group: autose-issue-${{ number }}, cancel-in-progress: false` so a second trigger queues behind the first rather than cancelling or racing; a queued run first reads `state.json` and exits as no-op if the issue is already DONE.
 - **Fork safety:** the workflow only triggers on the fork's own events, never on pull requests from other repositories, so secrets are available and untrusted PR code is not executed with them.
+
+
+## Why (the author's reasons)
+Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+- **Only maintainers may spend money and open pull requests.** Anyone can comment on a public repository, so the triggering user's permission is checked before anything else.
+- **Two runs on one issue must not race.** A second trigger waits instead of running in parallel or cancelling a run that may be pushing.
+- **Labels and comments are how maintainers work.** It matches the assignment's trigger and needs no extra tool.
+- **Secrets and fork safety.** Only events of the fork itself start a run, never pull requests from other repositories.
 
 ## Alternatives considered
 - **`workflow_dispatch` only:** safest, but not label/comment driven as required.
