@@ -271,7 +271,7 @@ class Table:
         # to the document class and document ID class.
         docs = [
             self.document_class(doc, self.document_id_class(doc_id))
-            for doc_id, doc in self._read_table().items()
+            for doc_id, doc in self._iter_sorted_items(self._read_table())
             if cond(doc)
         ]
 
@@ -737,9 +737,31 @@ class Table:
         """
 
         # Iterate all documents and their IDs
-        for doc_id, doc in self._read_table().items():
+        for doc_id, doc in self._iter_sorted_items(self._read_table()):
             # Convert documents to the document class
             yield self.document_class(doc, self.document_id_class(doc_id))
+
+    def _iter_sorted_items(self, table: Mapping) -> list[tuple[str, Mapping]]:
+        """
+        Return the (raw ID, document) pairs of a table sorted by document ID.
+
+        Storages such as the JSON storage with ``sort_keys`` reorder the
+        string keys lexically (1, 10, 11, 2, ...), so the stored order cannot
+        be relied upon. Sorting by the numeric document ID restores insertion
+        order for auto-assigned IDs. If the IDs cannot be compared after
+        conversion, the stored order is kept.
+
+        :param table: the raw table data as returned by ``_read_table``
+        """
+
+        items = list(table.items())
+
+        try:
+            return sorted(
+                items, key=lambda item: self.document_id_class(item[0])
+            )
+        except (TypeError, ValueError):
+            return items
 
     def _get_next_id(self):
         """

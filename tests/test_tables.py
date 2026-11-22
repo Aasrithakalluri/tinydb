@@ -197,3 +197,68 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
     assert len(table) == 1
     assert table.all() == [{'a': 1}]
     db.close()
+
+
+def test_fr_01_ac1_order_kept_after_update(db):
+    db.truncate()
+    db.insert_multiple([{'v': 1}, {'v': 2}, {'v': 3}])
+
+    db.update({'v': 9}, doc_ids=[1])
+
+    assert [doc.doc_id for doc in db.all()] == [1, 2, 3]
+
+
+def test_fr_01_ac2_order_kept_after_remove(db):
+    db.truncate()
+    db.insert_multiple([{'v': 1}, {'v': 2}, {'v': 3}])
+
+    db.remove(doc_ids=[2])
+
+    assert [doc.doc_id for doc in db.all()] == [1, 3]
+
+
+def test_fr_01_ac3_numeric_not_lexical_order(db):
+    db.truncate()
+    db.insert_multiple({'v': i} for i in range(1, 13))
+
+    assert [doc.doc_id for doc in db.all()] == list(range(1, 13))
+
+
+def test_fr_01_ac4_empty_table_returns_empty_list(db):
+    db.truncate()
+    assert db.all() == []
+
+    db.insert_multiple([{'v': 1}, {'v': 2}])
+    db.remove(doc_ids=[1, 2])
+
+    assert db.all() == []
+
+
+def test_fr_02_ac1_search_in_doc_id_order(db):
+    db.truncate()
+    db.insert({'k': 'x'})
+    db.insert({'k': 'y'})
+    db.insert({'k': 'x'})
+
+    assert [doc.doc_id for doc in db.search(where('k') == 'x')] == [1, 3]
+
+
+def test_fr_02_ac2_repeated_search_same_order_as_all(db):
+    db.truncate()
+    db.insert_multiple([{'k': 'x'}, {'k': 'y'}, {'k': 'x'}])
+    query = where('k') == 'x'
+
+    first = [doc.doc_id for doc in db.search(query)]
+    db.update({'k': 'x', 'v': 2}, doc_ids=[1])
+    second = [doc.doc_id for doc in db.search(query)]
+
+    all_ids = [doc.doc_id for doc in db.all() if doc.get('k') == 'x']
+    assert second == first
+    assert second == all_ids
+
+
+def test_fr_02_ac3_search_without_matches_returns_empty_list(db):
+    db.truncate()
+    db.insert_multiple([{'k': 'x'}, {'k': 'y'}])
+
+    assert db.search(where('k') == 'z') == []

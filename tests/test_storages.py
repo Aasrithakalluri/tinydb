@@ -285,3 +285,61 @@ def test_json_invalid_mode_warning(tmpdir):
     path = str(tmpdir.join('test.db'))
     with pytest.warns(UserWarning, match='Using an `access_mode` other than'):
         JSONStorage(path, access_mode='w')
+
+
+def test_fr_03_ac1_json_order_after_reopen_default_options(tmpdir):
+    path = str(tmpdir.join('test.db'))
+    db = TinyDB(path)
+    db.insert_multiple({'v': i} for i in range(1, 13))
+    db.close()
+
+    db = TinyDB(path)
+    assert [doc.doc_id for doc in db.all()] == list(range(1, 13))
+    db.close()
+
+
+def test_fr_03_ac1_json_order_after_reopen_sort_keys(tmpdir):
+    path = str(tmpdir.join('test.db'))
+    db = TinyDB(path, sort_keys=True)
+    db.insert_multiple({'v': i} for i in range(1, 13))
+    db.close()
+
+    db = TinyDB(path, sort_keys=True)
+    assert [doc.doc_id for doc in db.all()] == list(range(1, 13))
+    db.close()
+
+
+def test_fr_03_ac2_json_same_sequence_after_update_remove_reopen(tmpdir):
+    path = str(tmpdir.join('test.db'))
+    db = TinyDB(path)
+    db.insert_multiple({'v': i} for i in range(1, 13))
+    db.update({'v': 99}, doc_ids=[1])
+    db.remove(doc_ids=[5])
+    before = [doc.doc_id for doc in db.all()]
+    db.close()
+
+    db = TinyDB(path)
+    after = [doc.doc_id for doc in db.all()]
+    db.close()
+
+    assert before == [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12]
+    assert after == before
+
+
+def test_fr_03_ac3_json_reopen_empty_file_returns_empty_list(tmpdir):
+    path = str(tmpdir.join('test.db'))
+    open(path, 'w').close()
+
+    db = TinyDB(path)
+    assert db.all() == []
+    db.close()
+
+
+def test_fr_03_ac3_json_reopen_without_table_returns_empty_list(tmpdir):
+    path = str(tmpdir.join('test.db'))
+    db = TinyDB(path)
+    db.close()
+
+    db = TinyDB(path)
+    assert db.all() == []
+    db.close()
