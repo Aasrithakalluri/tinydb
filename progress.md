@@ -56,6 +56,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] Component view, sequence view (planned), stage map → `architecture/views/`
 - [x] ADR-001 … ADR-010 (Nygard format) → `architecture/decisions/`
 - [x] Design committed before any agent code (PR #7 merged before PR #8 with the code)
+- [x] ADRs written from the author's own interview answers (2026-11-22): reasons for ADR-001 to 010 and 013, lessons of 011, 012, 014, view on Exp 2; each ADR has "Decided by" and the author's reasons
 - [x] Superseded-rule used: ADR-004 → superseded by ADR-011 (found by a real run); ADR-012 refines ADR-007/ADR-002; ADR-013 supersedes ADR-012's vague-issue rule
 - [x] Sequence view replaced by one drawn from the real run on #3
 - [x] Component view updated with the ask gate and a full state diagram
@@ -119,6 +120,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] Fork is public; all 39 links in the results docs resolve
 - [x] No secrets: working tree, full git history and 29 workflow logs scanned, 0 matches
 - [x] Only our fork touched (0 upstream issues/PRs by us), no merge call in the code, AutoSE PRs left open, least-privilege permissions
+- [ ] The author reads all 14 ADRs and confirms; only then add a "Reviewed by the author" line to each ADR (nothing is claimed before that)
 - [ ] `roll_number_a3_AutoSE.txt` containing only the GitHub repo link
 - [ ] Submit
 
