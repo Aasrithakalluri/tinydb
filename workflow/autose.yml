@@ -48,6 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AUTOSE_RUN_BUDGET_USD: ${{ vars.AUTOSE_RUN_BUDGET_USD }}   # optional override of the per-run cap
+          AUTOSE_INJECT: ${{ vars.AUTOSE_INJECT }}                   # fault injection for tests only, normally unset
         run: python workflow/orchestrator.py
       - name: Upload stage artifacts
         if: always()
