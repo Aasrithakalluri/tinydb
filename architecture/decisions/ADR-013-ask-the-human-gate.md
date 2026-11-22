@@ -2,7 +2,7 @@
 
 - **Decision area:** D2 Control flow, D10 Triggers (refines ADR-002 and ADR-010; supersedes the vague-issue rule of ADR-012)
 - **Status:** Accepted (compared against the "assume" behaviour on issue #5; see `experiment/variants.md`)
-- **Decided by:** **the author.** Their words: "I am the human, ask me, I will give the green flag for issue 5". The mechanism (`/autose ask`, `/autose go`) was built by the assistant.
+- **Decided by:** **the author.** Their words: "I am the human, ask me, I will give the green flag for issue 5"; the reasons below are the author's, selected in the interview of 2026-11-22. The mechanism (`/autose ask`, `/autose go`) was built by the assistant.
 
 ## Context
 ADR-012 made vague issues proceed on a stated assumption, because during a run nobody can answer. The maintainer (the human in the loop) pointed out the better design: the pipeline should **ask them**, and they will give the green flag. This also matches the A1 skill (ask the P1 questions when a stakeholder is present) and the assignment's principle that humans own the decisions that matter. The cost of guessing is real: a wrong assumption turns into a wrong PR, and the reviewer does not see the spec (ADR-003), so it may not catch it.
@@ -14,6 +14,14 @@ ADR-012 made vague issues proceed on a stated assumption, because during a run n
 - **Resume:** the maintainer replies `/autose go <answers>` (a bare `/autose go` means "go ahead with your assumptions"). The orchestrator restores state from the artifact, runs the Planner once more in revision mode (skill section 10: answers become CONFIRMED, IDs are kept), and continues through design, build, test, release, and review. Any other trigger while `WAITING` just posts "still waiting".
 - Only users with write access can answer (same authorization as ADR-010). The answers are wrapped as data (`<maintainer_answers>`) and cannot change the Planner's output rules.
 - The gate happens once per issue (`asked` flag), so a run cannot ask forever.
+
+
+## Why (the author's reasons)
+Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+- **A wrong guess becomes a wrong pull request.** And the reviewer does not see the spec, so it may not notice a wrong assumption.
+- **The human owns what the issue means.** The maintainer decides the intent of an unclear request.
+- **It matches the A1 skill.** The skill says to ask the priority-1 questions when a stakeholder is available.
+- **No cost while waiting.** The run ends after the spec and resumes later from its saved state.
 
 ## Alternatives considered
 - **Always ask when the spec has open P1 questions:** the first runs showed that Haiku marks even clear issues "NOT READY" (issue #4), so this would stall most runs. Letting the maintainer decide per issue keeps clear issues fully automatic.

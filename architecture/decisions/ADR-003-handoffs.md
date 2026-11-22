@@ -2,7 +2,7 @@
 
 - **Decision area:** D3 Hand-offs
 - **Status:** Accepted
-- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
+- **Decided by:** the assistant proposed the mechanism (PR #7); **the reasons below are the author's**, selected in the interview of 2026-11-22.
 
 ## Context
 Agents have limited context and small budgets. What an agent sees also determines its bias: an implementer's reasoning primes a reviewer to agree.
@@ -18,6 +18,14 @@ Every agent starts with a fresh context and receives only files:
 | Reviewer (6) | issue text, `diff.patch`, clean checkout at PR head SHA | `spec.md`, `design.md`, Builder messages, test_report, PR description |
 
 Artifacts are the contract; no agent receives another agent's chat transcript.
+
+
+## Why (the author's reasons)
+Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+- **It keeps the reviewer independent.** The reviewer never receives the implementer's conversation or reasoning.
+- **Smaller prompts and lower cost.** Passing full transcripts would be huge and expensive.
+- **Humans can inspect the artifacts.** `spec.md`, `design.md`, `diff.patch` and the others are the contract between stages and are readable by anyone following the run.
+- **Summaries carry the previous agent's framing.** A summary written by the previous agent can hide exactly the awkward facts, so summaries are not handed over either.
 
 ## Alternatives considered
 - **Pass full transcripts:** maximal information, but huge token cost and contaminates the reviewer.

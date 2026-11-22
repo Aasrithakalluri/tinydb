@@ -2,19 +2,24 @@
 
 - **Decision area:** D6 Models
 - **Status:** Accepted
-- **Decided by:** **the author.** Their answer was "Haiku for the others and Sonnet for the reviewer".
+- **Decided by:** **the author** ("Haiku for the others and Sonnet for the reviewer"; reasons below from the interview of 2026-11-22). The author did **not** give cost or Haiku's capability as a reason for the choice; the $5 limit is a fact about the setting.
 
 ## Context
-Hard spend cap of $5 across setup, debugging, five issues and experiments. Roles differ in what failure costs: a weak Builder costs retries (bounded by the orchestrator); a weak Reviewer lets bad code reach the human.
+Hard spend cap of $5 across setup, debugging, five issues and experiments (a fact about the setting). Roles differ in what a failure costs: a weak Builder costs retries (bounded by the orchestrator); a weak Reviewer lets bad code reach the human.
 
 ## Decision
-- **Planner and Builder:** `claude-haiku-5-5` (cheap, fast, fine for structured spec/design and small edits to a 700-line library).
-- **Reviewer:** `claude-sonnet-5-5` (stronger reasoning, used once or twice per run on a small diff).
-Using a different model family tier for the reviewer also reduces correlated blind spots between author and reviewer.
+- **Planner and Builder:** `claude-haiku-5-5`.
+- **Reviewer:** `claude-sonnet-5-5`.
+
+
+## Why (the author's reasons)
+Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+- **A different model for the reviewer.** The reviewer then does not share the author's bias, which gives a stronger independence argument than a different prompt alone.
+- **The reviewer runs rarely.** It runs once or twice per run, so the stronger model is affordable there.
 
 ## Alternatives considered
-- **Haiku everywhere:** cheapest; the reviewer would share the Builder's blind spots. (Tested in Experiment 2.)
-- **Sonnet everywhere:** likely best quality, likely exhausts the $5 budget.
+- **Haiku everywhere:** the reviewer would share the Builder's model and its blind spots. Tested in Experiment 2: a Haiku reviewer with the author's artifacts caught 10/10 seeded defects against 8/10 for the independent Sonnet reviewer, at about 1/12 of the cost (`results/exp2_v2/README.md`).
+- **Sonnet everywhere:** not tried (the setting's $5 limit).
 
 ## Consequences
 + Most tokens (reading, editing, retries) are on the cheap model.

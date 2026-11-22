@@ -2,7 +2,7 @@
 
 - **Decision area:** D7 Checks
 - **Status:** Accepted
-- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
+- **Decided by:** the assistant proposed the mechanism (PR #7); **the reasons below are the author's**, selected in the interview of 2026-11-22, together with the author's note on stage 6.
 
 ## Context
 A stage's own agent is a poor judge of its output. Checks must be cheap, reproducible and hard to talk around.
@@ -16,6 +16,17 @@ The orchestrator runs every check as code (see `architecture/views/stage-map.md`
 - Stage 5: repo CI conclusion for the PR head SHA.
 - Stage 6: structured verdict; "approve" is rejected if the reviewer's tool log has no test run.
 The final pass/fail is always the orchestrator's, never an agent's. The final merge is the human's.
+
+
+## Why (the author's reasons)
+Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+- **No second model to fool.** An LLM judge would be one more component that can be misled by the input.
+- **Hard to talk around.** A check in code cannot be persuaded by a confident-sounding message.
+- **Cheap and reproducible.** The same input always gives the same result and costs no tokens.
+- **An agent must not grade its own stage.**
+
+## The author's note on stage 6
+The author pointed out that stage 6 is **not purely deterministic**: its input is the Reviewer agent's verdict, an LLM output. The orchestrator still applies a code rule to that verdict and rejects "approve" when the Reviewer's tool log shows no test run. The checks of stages 1 to 5 are deterministic code; stage 6 is a deterministic rule applied to an LLM verdict, and the final pass or fail is the orchestrator's. (The author's note was cut off after "So the fi…"; this paragraph records only what was written and what this ADR already decided.)
 
 ## Alternatives considered
 - **LLM judge per stage:** catches semantic problems (is this AC really testable?) but adds cost, noise and a second model to be fooled.
