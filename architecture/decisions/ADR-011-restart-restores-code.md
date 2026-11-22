@@ -2,7 +2,7 @@
 
 - **Decision area:** D4 State (supersedes ADR-004)
 - **Status:** Accepted
-- **Decided by:** the assistant, after real runs showed ADR-004 was wrong; reported to and accepted by the author.
+- **Decided by:** the assistant, after real runs showed ADR-004 was wrong; reported to and accepted by the author. **The lessons below are the author's**, selected in the interview of 2026-11-22.
 
 ## Context
 ADR-004 said a restarted run "downloads the latest artifact and resumes at the first stage whose check has not passed". The first real runs on issue #3 (Actions runs 44994878885, 44995093783, 44995270382) showed three things that were wrong:
@@ -16,6 +16,13 @@ ADR-004 said a restarted run "downloads the latest artifact and resumes at the f
 - CI results are taken only from the `workflow_dispatch` run for the head SHA.
 - A redesign or reset to base empties `diff.patch`, so stale code cannot be re-applied.
 - Any unexpected exception is converted into a FAILED stage with the error written into that stage's artifact.
+
+## What the author took from it
+Recorded from the author's answers in the interview of 2026-11-22; each point is one the author selected.
+- **State alone is not enough.** A restart must restore the code too (re-apply the saved diff and reuse the open pull request).
+- **A reasoned ADR can still be wrong.** One real run falsified ADR-004; the old ADR stays, marked Superseded, and this ADR explains what was learned.
+- **Restarts should rebase onto the current default branch,** so that fixes made in the meantime are picked up.
+- **Take the newest artifact by creation time,** because the artifacts API lists by id, which is not the order of creation.
 
 ## Alternatives considered
 - **Fetch the branch from the remote instead of re-applying the patch:** simpler, but the branch can be overwritten (as happened), while the artifact is written per stage.

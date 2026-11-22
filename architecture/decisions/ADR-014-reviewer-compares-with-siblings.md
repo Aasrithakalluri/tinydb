@@ -2,7 +2,7 @@
 
 - **Decision area:** D8 Reviewer independence (follows ADR-008, which stays Accepted)
 - **Status:** Proposed. Tested against its pre-registered criterion (`results/adr014_test/README.md`): criteria 1 and 2 met, criterion 3 not met (one correct control, C2, was rejected twice), so by the decision rule it stays Proposed and the production prompt is **not** changed. Not Accepted, not Superseded.
-- **Decided by:** the assistant proposed it after Experiment 2; the author asked for the new seeds and the updated prompt to be built ("build S6, S7, C3 and update the reviewer prompt"). Not adopted.
+- **Decided by:** the assistant proposed it after Experiment 2; the author asked for the new seeds and the updated prompt to be built ("build S6, S7, C3 and update the reviewer prompt"). Not adopted, for the reasons the author selected in the interview of 2026-11-22 (below).
 
 ## Context
 Experiment 2 (`results/exp2_v2/README.md`) compared the independent Sonnet reviewer of ADR-008 with a Haiku reviewer that also sees the author's spec, design and test report. On seeded PRs the independent reviewer caught 8 of 10 defective reviews and the shared-context one 10 of 10; the only difference was S4 (`multiply` silently skipping a document that lacks the field). The independent reviewer **saw** the behaviour and accepted it because the issue never says what should happen; the sibling operations in the same file raise `KeyError`. The shared-context reviewer had the spec, which said so. Separately, neither reviewer treated the reversal of a documented, tested contract (S2 / PR #14) as something a human must decide.
@@ -29,6 +29,13 @@ Pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` (committed befor
 - A2 caught S4, S6 and S7 in all six reviews and labelled the documented-rule reversal (S7) `approach`; it approved C1 and C3, and **rejected C2 twice** because `multiply` has stricter type validation than its siblings (defensible given the issue's "same style as the other operations", but it counts as a false rejection under the rule fixed in advance).
 - The old prompt already caught S6 and S7 (verdict level), so the new seeds did not discriminate the prompts. The measurable gain is S4 (design seed) and the `approach` routing of S7.
 - Steps 6 and 7 were tested together and cannot be separated. Not tuned further on C2 to avoid fitting the prompt to a single test case. Next test, if budget allows: step 7 alone on fresh seeds.
+
+## Why the author agrees it is not adopted
+Recorded from the author's answers in the interview of 2026-11-22; each point is one the author selected.
+- **The rule was fixed before the run.** A false rejection means the ADR stays Proposed, whatever else looks good.
+- **The old prompt already caught the new seeds,** so S6 and S7 did not discriminate between the prompts.
+- **Tuning it now would fit one test case:** changing the prompt to stop the rejected control would be fitting it to that control.
+- **The two steps were tested together** and cannot be separated.
 
 ## The author's decision on next steps
 Recorded from the author's answers of 2026-11-22: retry this change later with its two prompt steps split (compare with the closest analogue; treat a reversal of documented behaviour as an `approach` finding), on fresh seeds. Until then the production prompt is unchanged.
