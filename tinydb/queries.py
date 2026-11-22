@@ -486,6 +486,20 @@ class Query(QueryInstance):
             ('one_of', self._path, freeze(items))
         )
 
+    def none_of(self, items: list[Any]) -> QueryInstance:
+        """
+        Check if the value is not contained in a list or generator.
+        Documents where the field is missing are never matched.
+
+        >>> Query().f1.none_of(['value 1', 'value 2'])
+
+        :param items: The list of items to check with. Must be re-iterable.
+        """
+        return self._generate_test(
+            lambda value: value not in items,
+            ('none_of', self._path, freeze(items))
+        )
+
     def fragment(self, document: Mapping) -> QueryInstance:
         def test(value):
             for key in document:
