@@ -35,6 +35,17 @@ def add(field: str, n: Union[int, float, str]) -> Callable[[MutableMapping], Non
     return transform
 
 
+def multiply(field: str, n: Union[int, float]) -> Callable[[MutableMapping], None]:
+    """
+    Multiply a given field in the document by ``n``.
+    """
+    def transform(doc: MutableMapping):
+        if field in doc:
+            doc[field] *= n
+
+    return transform
+
+
 def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], None]:
     """
     Subtract ``n`` to a given field in the document.
