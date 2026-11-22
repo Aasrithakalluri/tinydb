@@ -3,6 +3,7 @@ This module implements tables, the central place for accessing and manipulating
 data in TinyDB.
 """
 
+import copy
 from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
 from typing import (
     NoReturn,
@@ -250,11 +251,10 @@ class Table:
         """
         Search for all documents matching a 'where' cond.
 
-        Note: a repeated search with the same ``cond`` is served from an
-        internal cache. The returned list is a fresh copy, but its
-        documents are the same objects held by the cache -- treat them as
-        read-only, since mutating one (a key or a nested value) corrupts
-        what a later identical search returns.
+        The returned documents are deep copies: mutating them (including
+        nested values) does not change the query cache or the stored data,
+        and a repeated search with the same ``cond`` returns unaffected
+        results.
 
         :param cond: the condition to check against
         :returns: list of matching documents
@@ -264,13 +264,15 @@ class Table:
         # query
         cached_results = self._query_cache.get(cond)
         if cached_results is not None:
-            return cached_results[:]
+            return copy.deepcopy(cached_results)
 
         # Perform the search by applying the query to all documents.
         # Then, only if the document matches the query, convert it
-        # to the document class and document ID class.
+        # to the document class and document ID class. The document is
+        # deep-copied so that nested values are not shared with storage.
         docs = [
-            self.document_class(doc, self.document_id_class(doc_id))
+            self.document_class(copy.deepcopy(doc),
+                                self.document_id_class(doc_id))
             for doc_id, doc in self._read_table().items()
             if cond(doc)
         ]
