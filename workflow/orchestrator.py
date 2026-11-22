@@ -255,10 +255,22 @@ class Run:
     def sh_reset_to_base(self):
         sh(["git", "reset", "--hard", self.st["base_sha"]], cwd=self.repo)
         sh(["git", "clean", "-fdq"], cwd=self.repo)
+        self.write("diff.patch", "")                       # the old change no longer applies after a redesign
+
+    def restore_worktree(self):
+        """Restart (ADR-004): state.json is restored from the artifact, so the code must be restored too.
+        A fresh checkout is plain master; re-apply the last diff.patch on the recorded base commit."""
+        patch = self.art / "diff.patch"
+        if self.st["state"] in ("IMPLEMENT", "TEST", "RELEASE", "REVIEW") and self.st.get("base_sha") and patch.exists() and patch.read_text().strip():
+            sh(["git", "checkout", "-q", "-B", self.branch, self.st["base_sha"]], cwd=self.repo)
+            sh(["git", "apply", "--index", str(patch)], cwd=self.repo)
+            self.log("restart: restored the working tree from diff.patch")
 
     # ---------------------------------------------------------------- stage 5
     def commit(self, msg: str) -> str:
         sh(["git", "add", "-A"], cwd=self.repo)
+        if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=self.repo).returncode == 0 and self.st.get("head_sha"):
+            return self.st["head_sha"]          # nothing new to commit (restart): reuse the last commit
         sh(["git", "-c", "user.name=autose-bot", "-c", "user.email=autose-bot@users.noreply.github.com",
             "commit", "-q", "--allow-empty", "-m", msg + "\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"], cwd=self.repo)
         return sh(["git", "rev-parse", "HEAD"], cwd=self.repo).strip()
@@ -269,8 +281,8 @@ class Run:
         run_id = None
         while time.time() < deadline:
             time.sleep(20)
-            out = gh("run", "list", "--workflow", "ci-workflow.yml", "--branch", self.branch, "--json",
-                     "databaseId,headSha,status,conclusion,url", "-L", "10", check=False)
+            out = gh("run", "list", "--workflow", "ci-workflow.yml", "--branch", self.branch, "--event", "workflow_dispatch",
+                     "--json", "databaseId,headSha,status,conclusion,url", "-L", "10", check=False)
             runs = [r for r in (json.loads(out) if out.strip() else []) if r["headSha"] == sha]
             if runs:
                 r = max(runs, key=lambda r: r["databaseId"])
@@ -345,10 +357,16 @@ class Run:
 
     # ---------------------------------------------------------------- loop
     def run(self):
+        self.restore_worktree()
         self.status("started")
         while self.st["state"] not in ("DONE", "FAILED"):
             state = self.st["state"]
-            getattr(self, f"stage_{state.lower()}")()
+            try:
+                getattr(self, f"stage_{state.lower()}")()
+            except SystemExit:
+                raise
+            except Exception as e:                      # never leave a run without an explanation (ADR-009)
+                self.fail(state, f"Unexpected error: {type(e).__name__}: {str(e)[:600]}")
             self.save()
             self.status(f"finished a step of {state}")
         self.status("finished: review posted on the pull request, waiting for a human decision" if self.st["state"] == "DONE" else "failed")
