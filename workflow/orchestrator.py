@@ -128,6 +128,8 @@ class Run:
         self.st["calls"].append({"role": role, "state": self.st["state"], "cost": round(res.cost_usd, 4), "turns": res.turns,
                                  "in": res.input_tokens, "out": res.output_tokens, "stop": res.stop_reason,
                                  "denied": len(res.denied)})
+        self.st.setdefault("denied_calls", []).extend(
+            {"role": role, "tool": t, "input": i[:160], "why": m} for t, i, m in res.denied[:10])
         self.log(f"{role} done: {res.turns} turns, ${res.cost_usd:.3f}, stop={res.stop_reason}, denied tool calls={len(res.denied)}")
         self.save()
         if self.st["cost_usd"] >= RUN_BUDGET_USD:
@@ -360,14 +362,7 @@ class Run:
                   f"```diff\n{diff[:30000]}\n```\n\nYour working directory is a clean checkout at the pull request's latest commit.")
         res = self.agent("reviewer", ["prompts/common.md", "prompts/reviewer.md"], prompt, clone)
         shutil.rmtree(tmp, ignore_errors=True)
-        m = re.findall(r"```json\s*(\{.*?\})\s*```", res.text, re.S)
-        try:
-            verdict = json.loads(m[-1])
-        except Exception:
-            verdict = {"verdict": "changes", "issue_type": "code", "findings": [{"problem": "Reviewer returned no valid verdict JSON."}]}
-        ran_tests = any(t == "Bash" and "pytest" in i.get("command", "") for t, i in res.tool_log)
-        if verdict.get("verdict") == "approve" and not ran_tests:
-            verdict = {"verdict": "changes", "issue_type": "code", "findings": [{"problem": "Approval rejected by the pipeline: the reviewer never ran the test suite."}]}
+        verdict, ran_tests = checks.parse_verdict(res.text, res.tool_log)
         self.st["review_rounds"] += 1
         rnd = self.st["review_rounds"]
         self.write("review.md", self.read("review.md") + f"\n\n# Review round {rnd} (head {self.st['head_sha'][:8]}, model: reviewer)\n\n{res.text}\n\n"

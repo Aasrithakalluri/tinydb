@@ -123,3 +123,22 @@ def ac_coverage_check(acs: list[tuple[str, str]], test_text: str) -> list[str]:
     norm = test_text.lower().replace("-", "_")
     return [f"No test references {a}. Name a test test_{a.lower().replace('-', '_')}_<what> or mention the ID in its docstring."
             for a, _ in acs if a.lower().replace("-", "_") not in norm]
+
+
+def parse_verdict(text: str, tool_log: list) -> tuple[dict, bool]:
+    """Stage 6 (ADR-008): the reviewer's verdict is data the orchestrator validates.
+    Returns (verdict, tests_were_run). An 'approve' without an executed pytest run is overruled."""
+    import json
+    m = re.findall(r"```json\s*(\{.*?\})\s*```", text or "", re.S)
+    try:
+        verdict = json.loads(m[-1])
+        if verdict.get("verdict") not in ("approve", "changes"):
+            raise ValueError("bad verdict")
+    except Exception:
+        verdict = {"verdict": "changes", "issue_type": "code",
+                   "findings": [{"problem": "Reviewer returned no valid verdict JSON."}]}
+    ran_tests = any(t == "Bash" and "pytest" in (i or {}).get("command", "") for t, i in tool_log)
+    if verdict.get("verdict") == "approve" and not ran_tests:
+        verdict = {"verdict": "changes", "issue_type": "code",
+                   "findings": [{"problem": "Approval rejected by the pipeline: the reviewer never ran the test suite."}]}
+    return verdict, ran_tests

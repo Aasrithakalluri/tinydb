@@ -1,0 +1,129 @@
+diff --git a/tests/test_queries.py b/tests/test_queries.py
+index e939eb4..b0a1841 100644
+--- a/tests/test_queries.py
++++ b/tests/test_queries.py
+@@ -527,3 +527,82 @@ def test_get_item():
+ 
+     assert query({'test': 1})
+     assert not query({'test': 0})
++
++
++def test_ne_missing_field():
++    query = where('nickname') != 'bob'
++    assert query({'name': 'c'})
++    assert query({})
++
++
++def test_fr_01_ac1_missing_field():
++    query = where('nickname') != 'bob'
++    assert query({'name': 'c'}) is True
++
++
++def test_fr_01_ac2_empty_document():
++    query = where('nickname') != 'bob'
++    assert query({}) is True
++
++
++def test_fr_01_ac3_search_includes_missing(db):
++    db.truncate()
++    db.insert({'name': 'a', 'nickname': 'bob'})
++    db.insert({'name': 'b', 'nickname': 'al'})
++    db.insert({'name': 'c'})
++
++    names = {doc['name'] for doc in db.search(where('nickname') != 'bob')}
++    assert names == {'b', 'c'}
++
++
++def test_fr_01_ac4_ne_equals_not_eq():
++    docs = [
++        {'name': 'a', 'nickname': 'bob'},
++        {'name': 'b', 'nickname': 'al'},
++        {'name': 'c'},
++    ]
++    ne_query = where('nickname') != 'bob'
++    not_eq_query = ~(where('nickname') == 'bob')
++
++    for doc in docs:
++        assert ne_query(doc) == not_eq_query(doc)
++
++
++def test_fr_02_ac1_equal_value_not_matched():
++    query = where('nickname') != 'bob'
++    assert query({'nickname': 'bob'}) is False
++
++
++def test_fr_02_ac2_different_value_matched():
++    query = where('nickname') != 'bob'
++    assert query({'nickname': 'al'}) is True
++
++
++def test_fr_02_ac3_none_value_present_field():
++    query = where('nickname') != 'bob'
++    assert query({'nickname': None}) is True
++
++
++def test_fr_02_ac4_list_value_equal():
++    query = where('nickname') != ['bob']
++    assert query({'nickname': ['bob']}) is False
++
++
++def test_fr_03_ac1_nested_missing_key():
++    query = where('profile').nickname != 'bob'
++    assert query({'profile': {}}) is True
++
++
++def test_fr_03_ac2_nested_parent_absent():
++    query = where('profile').nickname != 'bob'
++    assert query({}) is True
++
++
++def test_fr_03_ac3_nested_parent_not_mapping():
++    query = where('profile').nickname != 'bob'
++    assert query({'profile': 5}) is True
++
++
++def test_fr_03_ac4_nested_equal_value():
++    query = where('profile').nickname != 'bob'
++    assert query({'profile': {'nickname': 'bob'}}) is False
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..f41da6a 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -219,7 +219,8 @@ class Query(QueryInstance):
+             self,
+             test: Callable[[Any], bool],
+             hashval: tuple,
+-            allow_empty_path: bool = False
++            allow_empty_path: bool = False,
++            missing_result: bool = False
+     ) -> QueryInstance:
+         """
+         Generate a query based on a test function that first resolves the query
+@@ -227,6 +228,8 @@ class Query(QueryInstance):
+ 
+         :param test: The test the query executes.
+         :param hashval: The hash of the query.
++        :param missing_result: The result returned if the path cannot be
++                               resolved in the document.
+         :return: A :class:`~tinydb.queries.QueryInstance` object
+         """
+         if not self._path and not allow_empty_path:
+@@ -241,7 +244,7 @@ class Query(QueryInstance):
+                     else:
+                         value = part(value)
+             except (KeyError, TypeError):
+-                return False
++                return missing_result
+             else:
+                 # Perform the specified test
+                 return test(value)
+@@ -274,7 +277,8 @@ class Query(QueryInstance):
+         """
+         return self._generate_test(
+             lambda value: value != rhs,
+-            ('!=', self._path, freeze(rhs))
++            ('!=', self._path, freeze(rhs)),
++            missing_result=True
+         )
+ 
+     def __lt__(self, rhs: Any) -> QueryInstance:
