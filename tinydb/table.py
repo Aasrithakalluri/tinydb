@@ -729,6 +729,15 @@ class Table:
 
         return len(self._read_table())
 
+    def is_empty(self) -> bool:
+        """
+        Check whether this table contains no documents.
+
+        :returns: ``True`` if the table has no documents, ``False`` otherwise
+        """
+
+        return len(self) == 0
+
     def __iter__(self) -> Iterator[Document]:
         """
         Iterate over all documents stored in the table.
