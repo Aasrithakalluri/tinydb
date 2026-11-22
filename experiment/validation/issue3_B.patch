@@ -1,0 +1,21 @@
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..d7fdb02 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -706,14 +706,14 @@ class Table:
+         # Reset document ID counter
+         self._next_id = None
+ 
+-    def count(self, cond: QueryLike) -> int:
++    def count(self, cond=None) -> int:
+         """
+         Count the documents matching a query.
+ 
+         :param cond: the condition use
+         """
+ 
+-        return len(self.search(cond))
++        return sum(1 for _ in self) if cond is None else len(self.search(cond))
+ 
+     def clear_cache(self) -> None:
+         """

@@ -1,0 +1,21 @@
+diff --git a/tinydb/operations.py b/tinydb/operations.py
+index 3f6c6ab..75ad496 100644
+--- a/tinydb/operations.py
++++ b/tinydb/operations.py
+@@ -35,6 +35,16 @@ def add(field: str, n: Union[int, float, str]) -> Callable[[MutableMapping], Non
+     return transform
+ 
+ 
++def multiply(field: str, n: Union[int, float]) -> Callable[[MutableMapping], None]:
++    """
++    Multiply a given field in the document by ``n``.
++    """
++    def transform(doc: MutableMapping):
++        doc[field] *= n
++
++    return transform
++
++
+ def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], None]:
+     """
+     Subtract ``n`` to a given field in the document.

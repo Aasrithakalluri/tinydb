@@ -1,0 +1,15 @@
+{
+ "id": "S4",
+ "issue": 4,
+ "defect": "silently-skips-missing-field",
+ "expected_verdict": "changes",
+ "expected_issue_type": "code",
+ "description": "`multiply` silently skips documents that lack the field, unlike `add`/`subtract`/`increment`, which raise KeyError. Hides data errors and breaks consistency with the sibling operations.",
+ "how_to_find": "compare with `add` on a document without the field",
+ "branch": "seeded/s4",
+ "suite": "230 passed in 0.28s",
+ "hidden_tests": "1 failed, 3 passed in 0.01s",
+ "hidden_failed": [
+  "test_multiply_missing_field_raises_like_add"
+ ]
+}

@@ -1,0 +1,40 @@
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..18b5104 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -3,6 +3,7 @@ This module implements tables, the central place for accessing and manipulating
+ data in TinyDB.
+ """
+ 
++import copy
+ from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
+ from typing import (
+     NoReturn,
+@@ -264,7 +265,9 @@ class Table:
+         # query
+         cached_results = self._query_cache.get(cond)
+         if cached_results is not None:
+-            return cached_results[:]
++            table = self._read_table()
++            return [self.document_class(copy.deepcopy(table[str(i)]), self.document_id_class(i))
++                    for i in cached_results if str(i) in table]
+ 
+         # Perform the search by applying the query to all documents.
+         # Then, only if the document matches the query, convert it
+@@ -274,6 +277,7 @@ class Table:
+             for doc_id, doc in self._read_table().items()
+             if cond(doc)
+         ]
++        docs = [self.document_class(copy.deepcopy(dict(d)), d.doc_id) for d in docs]
+ 
+         # Only cache cacheable queries.
+         #
+@@ -292,7 +296,7 @@ class Table:
+                                                    lambda: True)
+         if is_cacheable():
+             # Update the query cache
+-            self._query_cache[cond] = docs[:]
++            self._query_cache[cond] = [d.doc_id for d in docs]
+ 
+         return docs
+ 

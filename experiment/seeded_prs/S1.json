@@ -1,0 +1,15 @@
+{
+ "id": "S1",
+ "issue": 1,
+ "defect": "nested-path-missing",
+ "expected_verdict": "changes",
+ "expected_issue_type": "code",
+ "description": "`!=` is fixed for top-level fields only; a missing nested path (`where('profile').city != 'x'`) still excludes the document, so `!=` is still not the negation of `==` there.",
+ "how_to_find": "try a nested path, or compare `~(q == v)` with `q != v` on several shapes",
+ "branch": "seeded/s1",
+ "suite": "230 passed in 0.28s",
+ "hidden_tests": "1 failed, 2 passed in 0.01s",
+ "hidden_failed": [
+  "test_ne_still_excludes_equal_and_nested_missing"
+ ]
+}

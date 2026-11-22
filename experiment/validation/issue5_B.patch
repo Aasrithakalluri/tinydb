@@ -1,0 +1,13 @@
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..c041ef0 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -794,7 +794,7 @@ class Table:
+ 
+         # Retrieve the current table's data
+         try:
+-            table = tables[self.name]
++            table = dict(sorted(tables[self.name].items(), key=lambda kv: int(kv[0])))
+         except KeyError:
+             # The table does not exist yet, so it is empty
+             return {}

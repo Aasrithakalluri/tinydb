@@ -1,0 +1,16 @@
+{
+ "id": "S2",
+ "issue": 2,
+ "defect": "copy-on-hit-only+rewritten-contract-test",
+ "expected_verdict": "changes",
+ "expected_issue_type": "code",
+ "description": "Two defects. (1) Deep copy is made only when the cache is hit: the first (cache-miss) result still shares objects with the cache, so mutating it changes what the next search returns. (2) The existing test `test_query_cache_documents_are_shared_with_cache`, which pins a documented contract, is rewritten to expect the opposite so that the suite stays green; the docstring of `Table.search` that documents the contract is left stale.",
+ "how_to_find": "mutate the result of the FIRST search, then search again; read the diff of existing tests and the Table.search docstring",
+ "branch": "seeded/s2",
+ "suite": "229 passed in 0.29s",
+ "hidden_tests": "2 failed, 1 passed in 0.03s",
+ "hidden_failed": [
+  "test_scalar_mutation_does_not_leak",
+  "test_nested_mutation_does_not_leak"
+ ]
+}
