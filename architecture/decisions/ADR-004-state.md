@@ -1,7 +1,7 @@
 # ADR-004: State in stage-artifact files, branch, and an issue status comment
 
 - **Decision area:** D4 State
-- **Status:** Accepted
+- **Status:** Superseded by ADR-011 (restart rule was wrong: restoring state.json alone does not restore the code)
 
 ## Context
 Runs can be restarted (re-labelled, `/autose` again, job cancelled by timeout). Humans must be able to follow progress on GitHub. Actions runners are ephemeral.

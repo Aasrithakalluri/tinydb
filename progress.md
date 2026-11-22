@@ -114,7 +114,7 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go. `[~]` = 
 ## Notes / Log
 | Date | What was done | Links |
 |------|---------------|-------|
-|      |               |       |
+| 2026-11-22 | Phase 1-3 done; first complete run on issue #3 succeeded after 3 fixes (see results/runs.md, ADR-011) | PR #10 |
 
 ## Key values (fill in as decided)
 - Fork URL: https://github.com/Aasrithakalluri/tinydb
