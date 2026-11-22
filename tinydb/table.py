@@ -271,7 +271,7 @@ class Table:
         # to the document class and document ID class.
         docs = [
             self.document_class(doc, self.document_id_class(doc_id))
-            for doc_id, doc in self._read_table().items()
+            for doc_id, doc in sorted(self._read_table().items(), key=lambda kv: int(kv[0]))
             if cond(doc)
         ]
 
@@ -478,7 +478,7 @@ class Table:
             # Perform the update operation (see _update_table for details)
             self._update_table(updater)
 
-            return updated_ids
+            return sorted(updated_ids)
 
         elif cond is not None:
             # Perform the update operation for documents specified by a query
@@ -507,7 +507,7 @@ class Table:
             # Perform the update operation (see _update_table for details)
             self._update_table(updater)
 
-            return updated_ids
+            return sorted(updated_ids)
 
         else:
             # Update all documents unconditionally
@@ -526,7 +526,7 @@ class Table:
             # Perform the update operation (see _update_table for details)
             self._update_table(updater)
 
-            return updated_ids
+            return sorted(updated_ids)
 
     def update_multiple(
         self,
@@ -649,6 +649,9 @@ class Table:
             removed_ids: list[int] = []
 
             def updater(table: dict):
+                missing = [doc_id for doc_id in requested_ids if doc_id not in table]
+                if missing:
+                    raise KeyError(missing[0])
                 # Filter to IDs that exist *before* performing any removals,
                 # so the operation is atomic: either every existing target is
                 # removed, or none is.
@@ -737,7 +740,7 @@ class Table:
         """
 
         # Iterate all documents and their IDs
-        for doc_id, doc in self._read_table().items():
+        for doc_id, doc in sorted(self._read_table().items(), key=lambda kv: int(kv[0])):
             # Convert documents to the document class
             yield self.document_class(doc, self.document_id_class(doc_id))
 

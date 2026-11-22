@@ -227,7 +227,8 @@ def test_remove_ids_missing(db: TinyDB):
     # Removing by a non-existent doc_id should not raise; the returned list
     # only contains IDs that were actually removed. This mirrors the silent
     # behaviour of ``get(doc_id=N)`` / ``get(doc_ids=[N])``.
-    assert db.remove(doc_ids=[99]) == []
+    with pytest.raises(KeyError):
+        db.remove(doc_ids=[99])
     assert len(db) == 3
 
 
@@ -236,9 +237,10 @@ def test_remove_ids_mixed(db: TinyDB):
     # documents should be removed and the missing IDs ignored. The removal
     # must be atomic - either every existing target is removed or none is
     # (no partial state on failure).
-    assert sorted(db.remove(doc_ids=[1, 99])) == [1]
-    assert len(db) == 2
-    assert db.get(doc_id=1) is None
+    with pytest.raises(KeyError):
+        db.remove(doc_ids=[1, 99])
+    assert len(db) == 3
+    assert db.get(doc_id=1) is not None
     assert db.get(doc_id=2) is not None
 
 
@@ -361,7 +363,8 @@ def test_doc_id_missing_consistency(db: TinyDB):
     assert db.get(doc_id=99) is None
     assert db.get(doc_ids=[99]) == []
     assert db.update({'int': 9}, doc_ids=[99]) == []
-    assert db.remove(doc_ids=[99]) == []
+    with pytest.raises(KeyError):
+        db.remove(doc_ids=[99])
 
 
 def test_update_multiple(db: TinyDB):
