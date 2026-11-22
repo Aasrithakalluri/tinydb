@@ -97,7 +97,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] New seeds built and verified (S6 hash tag copied from a sibling, S7 unrequested reversal of the documented remove(doc_ids) rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written (`reviewer_v2.md`, variant A2); success criterion pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` before any run
 - [x] ADR-014 test run and the pre-registered rule applied: A2 caught S4/S6/S7 6/6 and labelled S7 `approach`, but rejected the correct control C2 twice → ADR-014 stays **Proposed**, production prompt unchanged. The old prompt already caught S6/S7 (seeds do not discriminate); steps 6 and 7 are confounded. 18 reviews, $0.733 (`results/adr014_test/`)
 - [ ] Exercise the reviewer-"changes" back-edge through the orchestrator itself (fault-injected review verdict, labelled)
-- [ ] Run Exp 1 on the 5 issues; **repeat each variant at least twice** to show variance
+- [~] Run Exp 1 on the 5 issues: **blocked**: Anthropic returned "Credit balance is too low" (run 45010442196, no valid data). Needs the maintainer to check the console / add credit. Optional: two ADRs are already tested (ADR-008 via Exp 2, ADR-013/014).
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [x] `results/results.csv` (from final states, `results/aggregate.py`)
 - [ ] Total tokens and cost from the Anthropic console (maintainer reads it at the end)
@@ -141,6 +141,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 16. **My tooling hid its own failure:** a stale local branch was pushed instead of the new seed commit and the build output filtered the error, so S3 was reviewed against the wrong defect; fixed with an explicit HEAD push, visible errors and a runner guard comparing each branch diff with its patch. Invalid reviews kept and flagged.
 17. **Two confounds in my own experiment design** (variant B given artifacts of different code; v2 mutations that made the PR's own suite fail) found and removed before the main result; pilot kept.
 18. **ADR-014 result:** the compare-with-siblings prompt fixed S4 and routed the contract reversal (S7) to `approach`, but falsely rejected a correct control; the old prompt already caught the new seeds, so they did not discriminate. Stays Proposed (pre-registered rule).
+19. **API credit ran out earlier than our tracker predicted** ("Credit balance is too low" on 18 of 20 Exp 1 runs); either the credit was below $5 or our estimate undercounts. The console is authoritative; no result invented.
 10. **Cost is small:** ≈ $0.06–0.09 per clean run; the vague issue costs 2–3× more.
 
 ## Notes / Log
