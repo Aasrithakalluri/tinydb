@@ -1,0 +1,23 @@
+{
+ "id": "S5",
+ "set": "v2",
+ "issue": 5,
+ "defect": "lexical-order",
+ "expected_verdict": "changes",
+ "description": "PR #26 with the sort key changed to the raw string id: id 10 sorts before id 2.",
+ "how_to_find": "insert 12 documents and read them back",
+ "branch": "seeded2/s5",
+ "base": "parent",
+ "context": "v2-S5",
+ "derived_from": "autose/issue-5",
+ "suite": "241 passed in 0.30s",
+ "hidden_tests": "5 failed, 1 passed in 0.04s",
+ "hidden_failed": [
+  "test_all_and_search_sorted_by_doc_id_memory",
+  "test_order_consistent_after_reload",
+  "test_extra_update_returns_ids_ascending_and_iter_matches",
+  "test_updated_document_keeps_its_position_after_reopen",
+  "test_numeric_not_lexical_order_with_sorted_keys_storage"
+ ],
+ "tests_removed_because_they_expose_the_defect": []
+}

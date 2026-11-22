@@ -1,0 +1,192 @@
+diff --git a/tests/test_tables.py b/tests/test_tables.py
+index a94005e..9140699 100644
+--- a/tests/test_tables.py
++++ b/tests/test_tables.py
+@@ -2,7 +2,9 @@ import re
+ 
+ import pytest
+ 
+-from tinydb import where
++from tinydb import TinyDB, where
++from tinydb.storages import MemoryStorage
++from tinydb.table import Document
+ 
+ 
+ def test_next_id(db):
+@@ -197,3 +199,99 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
+     assert len(table) == 1
+     assert table.all() == [{'a': 1}]
+     db.close()
++
++
++def _fresh_table():
++    return TinyDB(storage=MemoryStorage).table('t')
++
++
++def _ids(docs):
++    return [doc.doc_id for doc in docs]
++
++
++def test_fr_01_ac1_auto_ids_in_order():
++    table = _fresh_table()
++    table.insert_multiple({'v': i} for i in range(3))
++
++    assert _ids(table.all()) == [1, 2, 3]
++
++
++def test_fr_01_ac2_explicit_then_auto_id_order():
++    table = _fresh_table()
++    table.insert(Document({'v': 'a'}, 3))
++    table.insert(Document({'v': 'b'}, 1))
++    table.insert({'v': 'c'})
++
++    assert _ids(table.all()) == [1, 3, 4]
++
++
++def test_fr_01_ac3_insert_multiple_explicit_ids_sorted():
++    table = _fresh_table()
++    table.insert_multiple([Document({'v': 'a'}, 5), Document({'v': 'b'}, 2)])
++
++    assert _ids(table.all()) == [2, 5]
++
++
++def test_fr_01_ac4_empty_table_all_is_empty_list():
++    table = _fresh_table()
++
++    assert table.all() == []
++
++
++def test_fr_02_ac1_search_returns_ascending_matches():
++    table = _fresh_table()
++    table.insert(Document({'m': True}, 4))
++    table.insert(Document({'m': False}, 1))
++    table.insert(Document({'m': True}, 2))
++    table.insert(Document({'m': False}, 3))
++
++    assert _ids(table.search(where('m') == True)) == [2, 4]  # noqa: E712
++
++
++def test_fr_02_ac2_search_no_match_is_empty_list():
++    table = _fresh_table()
++    table.insert_multiple({'m': False} for _ in range(3))
++
++    assert table.search(where('m') == True) == []  # noqa: E712
++
++
++def test_fr_02_ac3_search_cache_not_stale_after_lower_insert():
++    table = _fresh_table()
++    table.insert(Document({'m': True}, 3))
++    table.insert(Document({'m': True}, 4))
++
++    cond = where('m') == True  # noqa: E712
++    assert _ids(table.search(cond)) == [3, 4]
++
++    table.insert(Document({'m': True}, 1))
++
++    assert _ids(table.search(cond)) == [1, 3, 4]
++
++
++def test_fr_03_ac1_update_keeps_position():
++    table = _fresh_table()
++    table.insert_multiple({'x': i} for i in range(3))
++
++    table.update({'x': 9}, doc_ids=[2])
++
++    assert _ids(table.all()) == [1, 2, 3]
++    assert table.get(doc_id=2)['x'] == 9
++
++
++def test_fr_03_ac2_update_no_match_keeps_order():
++    table = _fresh_table()
++    table.insert_multiple({'x': i} for i in range(3))
++    before = _ids(table.all())
++
++    table.update({'y': 1}, where('x') == 100)
++
++    assert _ids(table.all()) == before
++
++
++def test_fr_03_ac3_upsert_new_id_zero_sorted_first():
++    table = _fresh_table()
++    table.insert_multiple({'x': i} for i in range(3))
++
++    table.upsert(Document({'x': 'new'}, 0))
++
++    assert _ids(table.all()) == [0, 1, 2, 3]
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..ca2471a 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -837,3 +837,39 @@ def test_lambda_query():
+     query.is_cacheable = lambda: False
+     assert db.search(query) == [{'foo': 'bar'}]
+     assert not db._query_cache
++
++
++def test_fr_04_ac1_json_reopen_order_is_ascending(tmp_path):
++    path = tmp_path / 'order.json'
++
++    db = TinyDB(path, storage=JSONStorage)
++    db.insert(Document({'v': 'c'}, 3))
++    db.insert(Document({'v': 'a'}, 1))
++    db.insert(Document({'v': 'b'}, 2))
++    db.close()
++
++    db = TinyDB(path, storage=JSONStorage)
++    assert [doc.doc_id for doc in db.all()] == [1, 2, 3]
++    db.close()
++
++
++def test_fr_04_ac2_json_reopen_after_remove_keeps_order(tmp_path):
++    path = tmp_path / 'remove.json'
++
++    db = TinyDB(path, storage=JSONStorage)
++    db.insert_multiple({'v': i} for i in range(3))
++    db.remove(doc_ids=[2])
++    db.close()
++
++    db = TinyDB(path, storage=JSONStorage)
++    assert [doc.doc_id for doc in db.all()] == [1, 3]
++    db.close()
++
++
++def test_fr_04_ac3_json_empty_file_reopen_is_empty_list(tmp_path):
++    path = tmp_path / 'empty.json'
++    path.write_text('')
++
++    db = TinyDB(path, storage=JSONStorage)
++    assert db.all() == []
++    db.close()
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..2a3aa4e 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -269,9 +269,13 @@ class Table:
+         # Perform the search by applying the query to all documents.
+         # Then, only if the document matches the query, convert it
+         # to the document class and document ID class.
++        # Results are returned in ascending document ID order.
+         docs = [
+             self.document_class(doc, self.document_id_class(doc_id))
+-            for doc_id, doc in self._read_table().items()
++            for doc_id, doc in sorted(
++                self._read_table().items(),
++                key=lambda item: item[0]
++            )
+             if cond(doc)
+         ]
+ 
+@@ -736,8 +740,11 @@ class Table:
+         :returns: an iterator over all documents.
+         """
+ 
+-        # Iterate all documents and their IDs
+-        for doc_id, doc in self._read_table().items():
++        # Iterate all documents and their IDs in ascending document ID order
++        for doc_id, doc in sorted(
++            self._read_table().items(),
++            key=lambda item: item[0]
++        ):
+             # Convert documents to the document class
+             yield self.document_class(doc, self.document_id_class(doc_id))
+ 

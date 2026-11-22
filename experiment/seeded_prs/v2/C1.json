@@ -1,0 +1,17 @@
+{
+ "id": "C1",
+ "set": "v2",
+ "issue": 3,
+ "defect": null,
+ "expected_verdict": "approve",
+ "description": "PR #10 unchanged (control).",
+ "how_to_find": "n/a",
+ "branch": "seeded2/c1",
+ "base": "parent",
+ "context": "v2-C1",
+ "derived_from": "autose/issue-3",
+ "suite": "248 passed in 0.30s",
+ "hidden_tests": "3 passed in 0.01s",
+ "hidden_failed": [],
+ "tests_removed_because_they_expose_the_defect": []
+}

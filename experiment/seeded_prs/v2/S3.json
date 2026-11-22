@@ -1,0 +1,19 @@
+{
+ "id": "S3",
+ "set": "v2",
+ "issue": 3,
+ "defect": "skips-empty-documents",
+ "expected_verdict": "changes",
+ "description": "PR #10 with `len(self)` replaced by a count that skips empty documents, so `count()` disagrees with `len(table)`.",
+ "how_to_find": "insert an empty document {} and compare `count()` with `len(db)`",
+ "branch": "seeded2/s3",
+ "base": "parent",
+ "context": "v2-S3",
+ "derived_from": "autose/issue-3",
+ "suite": "248 passed in 0.31s",
+ "hidden_tests": "1 failed, 2 passed in 0.01s",
+ "hidden_failed": [
+  "test_count_all_after_inserts_and_removes"
+ ],
+ "tests_removed_because_they_expose_the_defect": []
+}

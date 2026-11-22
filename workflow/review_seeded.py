@@ -38,6 +38,7 @@ def raw_verdict(text: str) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=["A", "B"], required=True)
+    ap.add_argument("--set", dest="seedset", choices=["v1", "v2"], default="v2", help="v1 = seeds built from my reference fixes (pilot), v2 = real pipeline PRs with one injected defect")
     ap.add_argument("--seeds", default="all")
     ap.add_argument("--runs", type=int, default=1)
     ap.add_argument("--out", default="seeded-review-out")
@@ -54,19 +55,20 @@ def main():
         for sid in seeds:
             if spent >= a.budget:
                 print(f"budget of ${a.budget} reached; stopping"); return
-            label = json.loads((ROOT / "experiment/seeded_prs" / f"{sid}.json").read_text())
+            label = json.loads((ROOT / "experiment/seeded_prs" / ("v2" if a.seedset == "v2" else ".") / f"{sid}.json").read_text())
             n = label["issue"]
             tmp = Path(tempfile.mkdtemp(prefix=f"seed-{sid}-"))
             clone = tmp / "repo"
             sh(["git", "clone", "-q", a.repo_url, str(clone)])
             sh(["git", "checkout", "-q", f"origin/{label['branch']}"], clone)
-            diff = sh(["git", "diff", f"{BASE}..HEAD"], clone)
+            base = "HEAD~1" if label.get("base") == "parent" else BASE
+            diff = sh(["git", "diff", f"{base}..HEAD"], clone)
             if a.variant == "A":
                 role, files = "reviewer", ["prompts/common.md", "prompts/reviewer.md"]
                 prompt = (f"Review the pull request for this issue.\n\n{issue_text(n)}\n\n## Diff of the pull request\n```diff\n{diff[:30000]}\n```\n\n"
                           "Your working directory is a clean checkout at the pull request's latest commit.")
             else:
-                ctx = ROOT / "experiment/seeded_prs/context" / f"issue{n}"
+                ctx = ROOT / "experiment/seeded_prs/context" / label.get("context", f"issue{n}")
                 role, files = "reviewer_b", ["prompts/common.md", "prompts/reviewer_shared.md"]
                 prompt = (f"Review this pull request.\n\n{issue_text(n)}\n\n## Author's spec (spec.md)\n{(ctx / 'spec.md').read_text()[:9000]}\n\n"
                           f"## Author's design (design.md)\n{(ctx / 'design.md').read_text()[:5000]}\n\n## Author's test report (test_report.md)\n{(ctx / 'test_report.md').read_text()[:3000]}\n\n"
@@ -78,7 +80,7 @@ def main():
             raw = raw_verdict(res.text)
             final, ran = checks.parse_verdict(res.text, res.tool_log)
             spent += res.cost_usd
-            row = {"variant": a.variant, "run": run, "seed": sid, "issue": n, "expected": label["expected_verdict"], "defect": label["defect"],
+            row = {"variant": a.variant, "set": a.seedset, "run": run, "seed": sid, "issue": n, "expected": label["expected_verdict"], "defect": label["defect"],
                    "raw_verdict": raw.get("verdict"), "final_verdict": final.get("verdict"), "issue_type": final.get("issue_type"),
                    "tests_run": ran, "findings": len(raw.get("findings", [])), "turns": res.turns, "cost_usd": round(res.cost_usd, 4),
                    "in_tokens": res.input_tokens, "out_tokens": res.output_tokens, "stop": res.stop_reason, "seconds": round(time.time() - t0)}
