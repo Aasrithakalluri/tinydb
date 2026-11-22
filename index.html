@@ -102,10 +102,10 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three) is done and scored (20 runs). Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
+  <p><b>Phases 0 to 2 are done. Phase 3 is proven, including both back-edges through the orchestrator (fault-injected). The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three) is done and scored (20 runs). Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
 
   <div class="stats">
-    <div class="stat"><b>≈ $3.3</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
+    <div class="stat"><b>≈ $3.4</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
     <div class="stat"><b>≈ 9M / 550k</b><span>input / output tokens so far</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
     <div class="stat"><b>14</b><span>ADRs written (D1 to D10, plus ADR-011 to 014)</span></div>
@@ -219,7 +219,7 @@ const PHASES = [
     ["x", "Hidden acceptance tests (3 to 4 per issue) kept outside the repo in <code>~/a3_private/hidden_tests/</code>. They fail on the baseline (verified)."],
     ["x", "Issue texts saved to <code>experiment/issues/</code>"],
     ["x", "Hidden-test integrity: SHA-256 manifest committed in <code>experiment/hidden_tests/</code> (the tests themselves stay private while agents run, so they cannot read them)"],
-    ["o", "Copy the hidden tests into <code>experiment/hidden_tests/</code>, only after the last run is scored"]]],
+    ["x", "Hidden tests copied into <code>experiment/hidden_tests/</code> after the last agent run on issues 1 to 5; the SHA-256 manifest (committed before the runs) matches all five files"]]],
   ["Phase 2: Design before build", [
     ["x", "Component view, planned sequence view, stage map in <code>architecture/views/</code>"],
     ["x", "ADR-001 to ADR-010 (Nygard format) in <code>architecture/decisions/</code>"],
@@ -243,7 +243,7 @@ const PHASES = [
     ["x", "Concurrency verified for real: a second trigger sent during an active run stayed <code>pending</code> until the first finished (no race)"],
     ["x", "Back-edge TEST to IMPLEMENT exercised for real (fault-injected and labelled): finished DONE. Finding: the Builder grew the diff 18 to 201 lines \"fixing\" a failure that did not exist."],
     ["x", "Agent-level timeout unit-tested (a hanging session is stopped and reported as <code>timeout</code>; 31 workflow tests pass). The 45-minute job timeout is GitHub's and was not triggered."],
-    ["p", "Two back-edges are still unexercised by a real run and need API credit: reviewer \"changes\" back to the Builder, and the redesign loop. The fault-injection hooks are built and tested (<code>AUTOSE_INJECT=review_changes_once</code>, <code>tests_fail_thrice</code>)."],
+    ["x", "Both remaining back-edges exercised through the orchestrator (fault-injected and labelled, run 45021250106, $0.128): TEST to IMPLEMENT twice, then the redesign back to DESIGN, then the reviewer \"changes\" back to IMPLEMENT, finishing DONE after a second review"],
     ["x", "Budget cap verified: with the cap at $0.02 the run stopped before the reviewer. It exposed a gap (PR left open and looking finished), now fixed with a PR notice."],
     ["x", "Anti-rubber-stamp rule unit-tested: an approval without an executed pytest run, or garbage JSON, is overruled to \"changes\""],
     ["x", "Anti-rubber-stamp in practice: measured on the seeded PRs (68 reviews over all experiments); the rule that overrules an approval without a test run never fired because every review ran the suite, so the protection came from the prompt and the model, not from the rule"],
@@ -258,7 +258,7 @@ const PHASES = [
     ["x", "Every run logged in <code>results/runs.md</code>"],
     ["x", "Ask-mode run on #5 finished (PR #26, $0.092, hidden tests 5/6, the same as auto mode); answers were chosen by the assistant on the maintainer's delegation"],
     ["x", "Exp 1 tooling built and tested offline: single-agent mode, runs that stop after stage 4 (no PR, CI or Sonnet reviewer, to save cost), a driver with a hard budget, and a local scorer for the hidden tests"],
-    ["p", "Exercise the reviewer-\"changes\" and redesign back-edges through the orchestrator (fault-injected, labelled; about $0.15 for one run on the throwaway issue): <b>blocked by the API credit</b>, hooks ready"],
+    ["x", "Reviewer-\"changes\" and redesign back-edges exercised for real (see the Phase 3 item); the injection variables were deleted afterwards"],
     ["x", "Exp 2 variants implemented: <code>review_seeded.py</code> runs variant A (independent Sonnet) or B (Haiku that also sees the author's spec, design and test report); scorer and workflow ready, tested offline"],
     ["x", "7 seeded PRs built and verified (S1 to S5 defective, C1 and C2 correct controls): suite green on all, hidden tests fail on defective and pass on controls; branches <code>seeded/*</code> pushed"],
     ["x", "Exp 2 pilot (seeds v1): A caught 8/10 (missed S4 twice), B caught 10/10 but falsely rejected a correct control 2/4. Found a confound (B was given artifacts of different code), so seeds v2 were built from the real pipeline PRs with one injected defect each; the pilot is kept as evidence."],
