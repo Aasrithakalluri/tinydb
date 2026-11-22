@@ -1,19 +1,20 @@
 # ADR-014: The independent reviewer must compare new code with its closest analogue; contract reversals are `approach` findings
 
+- **Author:** Aasritha Kalluri
 - **Decision area:** D8 Reviewer independence (follows ADR-008, which stays Accepted)
 - **Status:** Proposed. Tested against its pre-registered criterion (`results/adr014_test/README.md`): criteria 1 and 2 met, criterion 3 not met (one correct control, C2, was rejected twice), so by the decision rule it stays Proposed and the production prompt is **not** changed. Not Accepted, not Superseded.
-- **Decided by:** the assistant proposed it after Experiment 2; the author asked for the new seeds and the updated prompt to be built ("build S6, S7, C3 and update the reviewer prompt"). Not adopted, for the reasons the author selected in the interview of 2026-11-22 (below).
+- **Decided by:** my coding assistant proposed it after Experiment 2, and I asked for the new seeds and the updated prompt to be built ("build S6, S7, C3 and update the reviewer prompt"). Not adopted, for the reasons I selected in the design interview of 2026-11-22 (below).
 
 ## Context
-Experiment 2 (`results/exp2_v2/README.md`) compared the independent Sonnet reviewer of ADR-008 with a Haiku reviewer that also sees the author's spec, design and test report. On seeded PRs the independent reviewer caught 8 of 10 defective reviews and the shared-context one 10 of 10; the only difference was S4 (`multiply` silently skipping a document that lacks the field). The independent reviewer **saw** the behaviour and accepted it because the issue never says what should happen; the sibling operations in the same file raise `KeyError`. The shared-context reviewer had the spec, which said so. Separately, neither reviewer treated the reversal of a documented, tested contract (S2 / PR #14) as something a human must decide.
+Experiment 2 (`results/exp2_v2/README.md`) compared the independent Sonnet reviewer of ADR-008 with a Haiku reviewer that also sees the implementer's spec, design and test report. On seeded PRs the independent reviewer caught 8 of 10 defective reviews and the shared-context one 10 of 10; the only difference was S4 (`multiply` silently skipping a document that lacks the field). The independent reviewer **saw** the behaviour and accepted it because the issue never says what should happen; the sibling operations in the same file raise `KeyError`. The shared-context reviewer had the spec, which said so. Separately, neither reviewer treated the reversal of a documented, tested contract (S2 / PR #14) as something a human must decide.
 
 ## Decision
-- Keep the independence rule of ADR-008 (the reviewer sees only the issue, the diff and the repository). Do **not** give it the author's spec, design or test report.
+- Keep the independence rule of ADR-008 (the reviewer sees only the issue, the diff and the repository). Do **not** give it the implementer's spec, design or test report.
 - Add two steps to the reviewer prompt: (1) *find the closest existing analogue of each new or changed function (siblings in the same module) and compare edge-case behaviour: missing input, wrong type, empty input, error type raised*; (2) *a change that removes assertions from an existing test, or contradicts a documented docstring/ADR, is a finding with `issue_type: approach`* so that the orchestrator routes it to design and the status comment names it for a human.
 - The reviewer still returns the same JSON; the orchestrator rule that overrules an approval without a test run stays.
 
 ## Alternatives considered
-- **Give the reviewer the spec (variant B):** best detection in the experiment and 12 times cheaper, but violates the assignment's independence requirement and lets the author's assumptions leak into the review. Rejected on those grounds, not on the measured results.
+- **Give the reviewer the spec (variant B):** best detection in the experiment and 12 times cheaper, but violates the assignment's independence requirement and lets the implementer's assumptions leak into the review. Rejected on those grounds, not on the measured results.
 - **Let the Planner's acceptance criteria (not the whole spec) reach the reviewer:** a possible middle path; not tested, listed as future work.
 - **Do nothing and accept the miss:** the S4 class (silent behaviour that differs from sibling code) is common in real changes.
 
@@ -30,12 +31,12 @@ Pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` (committed befor
 - The old prompt already caught S6 and S7 (verdict level), so the new seeds did not discriminate the prompts. The measurable gain is S4 (design seed) and the `approach` routing of S7.
 - Steps 6 and 7 were tested together and cannot be separated. Not tuned further on C2 to avoid fitting the prompt to a single test case. Next test, if budget allows: step 7 alone on fresh seeds.
 
-## Why the author agrees it is not adopted
-Recorded from the author's answers in the interview of 2026-11-22; each point is one the author selected.
+## Why I agree it is not adopted
+Recorded from my answers in the design interview of 2026-11-22; each point is one I selected.
 - **The rule was fixed before the run.** A false rejection means the ADR stays Proposed, whatever else looks good.
 - **The old prompt already caught the new seeds,** so S6 and S7 did not discriminate between the prompts.
 - **Tuning it now would fit one test case:** changing the prompt to stop the rejected control would be fitting it to that control.
 - **The two steps were tested together** and cannot be separated.
 
-## The author's decision on next steps
-Recorded from the author's answers of 2026-11-22: retry this change later with its two prompt steps split (compare with the closest analogue; treat a reversal of documented behaviour as an `approach` finding), on fresh seeds. Until then the production prompt is unchanged.
+## My decision on next steps
+Recorded from my answers of 2026-11-22: I will retry this change later with its two prompt steps split (compare with the closest analogue; treat a reversal of documented behaviour as an `approach` finding), on fresh seeds. Until then the production prompt is unchanged.

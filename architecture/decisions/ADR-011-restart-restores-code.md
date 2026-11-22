@@ -1,8 +1,9 @@
 # ADR-011: On restart, restore state.json and re-apply diff.patch; reuse the open PR
 
+- **Author:** Aasritha Kalluri
 - **Decision area:** D4 State (supersedes ADR-004)
 - **Status:** Accepted
-- **Decided by:** the assistant, after real runs showed ADR-004 was wrong; reported to and accepted by the author. **The lessons below are the author's**, selected in the interview of 2026-11-22.
+- **Decided by:** my coding assistant, after real runs showed that ADR-004 was wrong; it reported this to me and I accepted it. The lessons below are mine, selected in the design interview of 2026-11-22.
 
 ## Context
 ADR-004 said a restarted run "downloads the latest artifact and resumes at the first stage whose check has not passed". The first real runs on issue #3 (Actions runs 44994878885, 44995093783, 44995270382) showed three things that were wrong:
@@ -17,8 +18,8 @@ ADR-004 said a restarted run "downloads the latest artifact and resumes at the f
 - A redesign or reset to base empties `diff.patch`, so stale code cannot be re-applied.
 - Any unexpected exception is converted into a FAILED stage with the error written into that stage's artifact.
 
-## What the author took from it
-Recorded from the author's answers in the interview of 2026-11-22; each point is one the author selected.
+## What I took from it
+Recorded from my answers in the design interview of 2026-11-22; each point is one I selected.
 - **State alone is not enough.** A restart must restore the code too (re-apply the saved diff and reuse the open pull request).
 - **A reasoned ADR can still be wrong.** One real run falsified ADR-004; the old ADR stays, marked Superseded, and this ADR explains what was learned.
 - **Restarts should rebase onto the current default branch,** so that fixes made in the meantime are picked up.

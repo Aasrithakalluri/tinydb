@@ -1,8 +1,9 @@
 # ADR-007: Deterministic checks decide pass/fail; LLMs never grade their own stage
 
+- **Author:** Aasritha Kalluri
 - **Decision area:** D7 Checks
 - **Status:** Accepted
-- **Decided by:** the assistant proposed the mechanism (PR #7); **the reasons below are the author's**, selected in the interview of 2026-11-22, together with the author's note on stage 6.
+- **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22, together with my note on stage 6.
 
 ## Context
 A stage's own agent is a poor judge of its output. Checks must be cheap, reproducible and hard to talk around.
@@ -18,15 +19,15 @@ The orchestrator runs every check as code (see `architecture/views/stage-map.md`
 The final pass/fail is always the orchestrator's, never an agent's. The final merge is the human's.
 
 
-## Why (the author's reasons)
-Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+## Why (my reasons)
+Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
 - **No second model to fool.** An LLM judge would be one more component that can be misled by the input.
 - **Hard to talk around.** A check in code cannot be persuaded by a confident-sounding message.
 - **Cheap and reproducible.** The same input always gives the same result and costs no tokens.
 - **An agent must not grade its own stage.**
 
-## The author's note on stage 6
-The author pointed out that stage 6 is **not purely deterministic**: its input is the Reviewer agent's verdict, an LLM output. The orchestrator still applies a code rule to that verdict and rejects "approve" when the Reviewer's tool log shows no test run. The checks of stages 1 to 5 are deterministic code; stage 6 is a deterministic rule applied to an LLM verdict, and the final pass or fail is the orchestrator's. (The author's note was cut off after "So the fi…"; this paragraph records only what was written and what this ADR already decided.)
+## My note on stage 6
+I pointed out that stage 6 is **not purely deterministic**: its input is the Reviewer agent's verdict, an LLM output. The orchestrator still applies a code rule to that verdict and rejects "approve" when the Reviewer's tool log shows no test run. The checks of stages 1 to 5 are deterministic code; stage 6 is a deterministic rule applied to an LLM verdict, and the final pass or fail is the orchestrator's. (My note in the interview was cut off after "So the fi…"; this paragraph records only what I wrote and what this ADR already decided.)
 
 ## Alternatives considered
 - **LLM judge per stage:** catches semantic problems (is this AC really testable?) but adds cost, noise and a second model to be fooled.
