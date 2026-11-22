@@ -262,3 +262,24 @@ def test_fr_02_ac3_search_without_matches_returns_empty_list(db):
     db.insert_multiple([{'k': 'x'}, {'k': 'y'}])
 
     assert db.search(where('k') == 'z') == []
+
+
+def test_all_order_numeric_after_update_and_remove(db):
+    db.truncate()
+    db.insert_multiple({'v': i} for i in range(1, 13))
+    db.update({'v': 99}, doc_ids=[1])
+    db.remove(doc_ids=[5])
+
+    assert [doc.doc_id for doc in db.all()] == [
+        1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12]
+
+
+def test_search_order_matches_all(db):
+    db.truncate()
+    db.insert_multiple({'k': 'x' if i % 2 else 'y'} for i in range(1, 13))
+    query = where('k') == 'x'
+
+    searched = [doc.doc_id for doc in db.search(query)]
+    expected = [doc.doc_id for doc in db.all() if doc.get('k') == 'x']
+
+    assert searched == expected == [1, 3, 5, 7, 9, 11]

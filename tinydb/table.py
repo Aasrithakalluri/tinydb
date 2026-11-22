@@ -379,7 +379,7 @@ class Table:
             # Now return the filtered documents in form of list
             return [
                 self.document_class(doc, self.document_id_class(doc_id))
-                for doc_id, doc in table.items()
+                for doc_id, doc in self._iter_sorted_items(table)
                 if doc_id in doc_ids_set
             ]
 
@@ -389,7 +389,7 @@ class Table:
             # doesn't think that `doc_id_` (which is a string) needs
             # to have the same type as `doc_id` which is this function's
             # parameter and is an optional `int`.
-            for doc_id_, doc in self._read_table().items():
+            for doc_id_, doc in self._iter_sorted_items(table):
                 if cond(doc):
                     return self.document_class(
                         doc,
