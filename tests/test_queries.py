@@ -527,3 +527,82 @@ def test_get_item():
 
     assert query({'test': 1})
     assert not query({'test': 0})
+
+
+def test_ne_missing_field():
+    query = where('nickname') != 'bob'
+    assert query({'name': 'c'})
+    assert query({})
+
+
+def test_fr_01_ac1_missing_field():
+    query = where('nickname') != 'bob'
+    assert query({'name': 'c'}) is True
+
+
+def test_fr_01_ac2_empty_document():
+    query = where('nickname') != 'bob'
+    assert query({}) is True
+
+
+def test_fr_01_ac3_search_includes_missing(db):
+    db.truncate()
+    db.insert({'name': 'a', 'nickname': 'bob'})
+    db.insert({'name': 'b', 'nickname': 'al'})
+    db.insert({'name': 'c'})
+
+    names = {doc['name'] for doc in db.search(where('nickname') != 'bob')}
+    assert names == {'b', 'c'}
+
+
+def test_fr_01_ac4_ne_equals_not_eq():
+    docs = [
+        {'name': 'a', 'nickname': 'bob'},
+        {'name': 'b', 'nickname': 'al'},
+        {'name': 'c'},
+    ]
+    ne_query = where('nickname') != 'bob'
+    not_eq_query = ~(where('nickname') == 'bob')
+
+    for doc in docs:
+        assert ne_query(doc) == not_eq_query(doc)
+
+
+def test_fr_02_ac1_equal_value_not_matched():
+    query = where('nickname') != 'bob'
+    assert query({'nickname': 'bob'}) is False
+
+
+def test_fr_02_ac2_different_value_matched():
+    query = where('nickname') != 'bob'
+    assert query({'nickname': 'al'}) is True
+
+
+def test_fr_02_ac3_none_value_present_field():
+    query = where('nickname') != 'bob'
+    assert query({'nickname': None}) is True
+
+
+def test_fr_02_ac4_list_value_equal():
+    query = where('nickname') != ['bob']
+    assert query({'nickname': ['bob']}) is False
+
+
+def test_fr_03_ac1_nested_missing_key():
+    query = where('profile').nickname != 'bob'
+    assert query({'profile': {}}) is True
+
+
+def test_fr_03_ac2_nested_parent_absent():
+    query = where('profile').nickname != 'bob'
+    assert query({}) is True
+
+
+def test_fr_03_ac3_nested_parent_not_mapping():
+    query = where('profile').nickname != 'bob'
+    assert query({'profile': 5}) is True
+
+
+def test_fr_03_ac4_nested_equal_value():
+    query = where('profile').nickname != 'bob'
+    assert query({'profile': {'nickname': 'bob'}}) is False
