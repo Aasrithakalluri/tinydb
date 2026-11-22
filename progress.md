@@ -35,20 +35,20 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
 
 ## Phase 2 — Design before build (Part 2) — commit BEFORE any agent code
 - [x] Create repo skeleton (README, architecture/, workflow/, experiment/, results/)
-- [ ] **Component view** (agents, tools, how they call each other) → `architecture/views/`
-- [ ] **Sequence view** (placeholder now; fill from a *real* run later)
-- [ ] **Stage map table** (agent / artifact / check per stage)
-- [ ] Write ADRs in Nygard format (Context, Decision, Status, Consequences) in `architecture/decisions/` — at least 8 of:
-  - [ ] D1 Splitting the work
-  - [ ] D2 Control flow
-  - [ ] D3 Hand-offs
-  - [ ] D4 State
-  - [ ] D5 Tools
-  - [ ] D6 Models
-  - [ ] D7 Checks
-  - [ ] D8 Reviewer independence
-  - [ ] D9 Safety and failures
-  - [ ] D10 Triggers
+- [x] **Component view** (agents, tools, how they call each other) → `architecture/views/`
+- [x] **Sequence view** (placeholder now; fill from a *real* run later)
+- [x] **Stage map table** (agent / artifact / check per stage)
+- [x] Write ADRs in Nygard format (Context, Decision, Status, Consequences) in `architecture/decisions/` — at least 8 of:
+  - [x] D1 Splitting the work
+  - [x] D2 Control flow
+  - [x] D3 Hand-offs
+  - [x] D4 State
+  - [x] D5 Tools
+  - [x] D6 Models
+  - [x] D7 Checks
+  - [x] D8 Reviewer independence
+  - [x] D9 Safety and failures
+  - [x] D10 Triggers
 - [ ] **Commit views + ADRs first** (git history must show design preceded agent code)
 - [ ] Rule: wrong ADRs are marked *Superseded* (kept), plus a new ADR explaining what was learned
 
@@ -77,7 +77,7 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
 
 ## Phase 4 — Experiments
 - [ ] Prepare **5 seeded PRs** for reviewer check (diffs + labels) → `experiment/seeded_prs/`
-- [ ] Choose **2 ADRs to test**; define variants in `experiment/variants.md`
+- [x] Choose **2 ADRs to test**; define variants in `experiment/variants.md`
 - [ ] Run each variant on the 5 issues (real runs only)
 - [ ] Record every Actions run, PR, review link in `results/runs.md`
 - [ ] Record metrics in `results/results.csv`
@@ -119,7 +119,7 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
 ## Key values (fill in as decided)
 - Fork URL: https://github.com/Aasrithakalluri/tinydb
 - Pinned commit: edff96aeb2616402e9489d46e90a592c05565621 (default branch is `master`)
-- Agent framework:
-- Models (implementer / reviewer):
+- Agent framework: Claude Agent SDK, single Python orchestrator
+- Models (implementer / reviewer): claude-haiku-5-5 / claude-sonnet-5-5
 - Spend limit set: $5 (Anthropic)
 - Total tokens used:
