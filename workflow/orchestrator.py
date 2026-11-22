@@ -145,6 +145,9 @@ class Run:
         self.write(art, self.read(art) + f"\n\n---\n# STAGE FAILED ({stage})\n\n{reason}\n")
         self.st["state"] = "FAILED"
         self.st["failed_stage"] = stage
+        if self.st.get("pr"):                         # never leave an open PR that looks finished when the run stopped early
+            gh("pr", "comment", self.st["pr"], "--body-file", "-", check=False,
+               input=f"**AutoSE stopped at stage {stage} and did not finish its checks.** Reason: {reason[:600]}\n\nThis pull request has not passed every stage (for example it may be unreviewed). A human must decide what to do with it.")
         self.log(f"FAILED at {stage}: {reason[:300]}")
         self.status(f"stopped at **{stage}**: {reason[:500]}")
         raise SystemExit(1)

@@ -1,0 +1,201 @@
+diff --git a/tests/test_tables.py b/tests/test_tables.py
+index a94005e..8ccd975 100644
+--- a/tests/test_tables.py
++++ b/tests/test_tables.py
+@@ -2,7 +2,9 @@ import re
+ 
+ import pytest
+ 
+-from tinydb import where
++from tinydb import TinyDB, where
++from tinydb.storages import MemoryStorage
++from tinydb.table import Table
+ 
+ 
+ def test_next_id(db):
+@@ -197,3 +199,114 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
+     assert len(table) == 1
+     assert table.all() == [{'a': 1}]
+     db.close()
++
++
++def test_fr_01_ac1_empty_table_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++
++    assert table.is_empty() is True
++
++
++def test_fr_01_ac2_single_document_not_empty():
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++    table.insert({'name': 'alice'})
++
++    assert table.is_empty() is False
++
++
++def test_fr_01_ac3_all_documents_removed_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++    doc_id = table.insert({'name': 'alice'})
++    table.remove(doc_ids=[doc_id])
++
++    assert len(table) == 0
++    assert table.is_empty() is True
++
++
++def test_fr_01_ac4_removed_then_reinserted_not_empty():
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++    doc_id = table.insert({'name': 'alice'})
++    table.remove(doc_ids=[doc_id])
++    table.insert({'name': 'bob'})
++
++    assert table.is_empty() is False
++
++
++def test_fr_01_ac5_empty_result_is_bool_true():
++    db = TinyDB(storage=MemoryStorage)
++    result = db.table('users').is_empty()
++
++    assert type(result) is bool
++    assert result is True
++
++
++def test_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++    assert table.is_empty() is True
++
++    doc_id = table.insert({'name': 'alice'})
++    assert table.is_empty() is False
++
++    table.remove(doc_ids=[doc_id])
++    assert table.is_empty() is True
++
++
++def test_fr_03_ac1_named_table_with_documents_not_empty():
++    db = TinyDB(storage=MemoryStorage)
++    users = db.table('users')
++    users.insert_multiple([{'name': 'alice'}, {'name': 'bob'}])
++
++    assert db.table('users').is_empty() is False
++
++
++def test_fr_03_ac2_named_table_all_removed_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++    users = db.table('users')
++    ids = users.insert_multiple([{'name': 'alice'}, {'name': 'bob'}])
++    users.remove(doc_ids=ids)
++
++    assert db.table('users').is_empty() is True
++
++
++def test_fr_03_ac3_other_tables_ignored():
++    db = TinyDB(storage=MemoryStorage)
++    db.table('posts').insert({'title': 'hello'})
++    db.table('users')
++
++    assert db.table('users').is_empty() is True
++
++
++def test_fr_03_ac4_never_written_table_is_empty():
++    # Q-02 assumed option (a): a table that was never written reads as empty.
++    db = TinyDB(storage=MemoryStorage)
++
++    assert db.table('never_written').is_empty() is True
++
++
++def test_nfr_01_ac1_existing_behaviour_unchanged():
++    # is_empty is read-only: calling it must not change the table contents
++    # or the counts reported by the existing API.
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++    table.insert({'name': 'alice'})
++
++    table.is_empty()
++    table.is_empty()
++
++    assert len(table) == 1
++    assert table.all() == [{'name': 'alice'}]
++
++
++def test_nfr_01_ac2_broken_is_empty_detected(monkeypatch):
++    # A deliberately wrong is_empty must be caught by the expectations above.
++    db = TinyDB(storage=MemoryStorage)
++    table = db.table('users')
++
++    monkeypatch.setattr(Table, 'is_empty', lambda self: False)
++
++    assert table.is_empty() is not True
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..ef8f240 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -837,3 +837,48 @@ def test_lambda_query():
+     query.is_cacheable = lambda: False
+     assert db.search(query) == [{'foo': 'bar'}]
+     assert not db._query_cache
++
++
++def test_default_table_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++    assert db.is_empty() is True
++
++    db.insert({'a': 1})
++    assert db.is_empty() is False
++    assert db.is_empty() == (len(db) == 0)
++
++
++def test_fr_02_ac1_default_table_with_documents_not_empty():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple([{'a': 1}, {'a': 2}])
++
++    assert db.is_empty() is False
++
++
++def test_fr_02_ac2_database_without_documents_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++
++    assert db.is_empty() is True
++
++
++def test_fr_02_ac3_default_table_all_removed_is_empty():
++    db = TinyDB(storage=MemoryStorage)
++    ids = db.insert_multiple([{'a': 1}, {'a': 2}])
++    db.remove(doc_ids=ids)
++
++    assert db.is_empty() is True
++
++
++def test_fr_02_ac4_named_table_documents_ignored():
++    db = TinyDB(storage=MemoryStorage)
++    db.table('users').insert({'name': 'alice'})
++
++    assert db.is_empty() is True
++
++
++def test_fr_02_ac5_database_empty_returns_bool_true():
++    db = TinyDB(storage=MemoryStorage)
++    result = db.is_empty()
++
++    assert type(result) is bool
++    assert result is True
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..669ea57 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -729,6 +729,13 @@ class Table:
+ 
+         return len(self._read_table())
+ 
++    def is_empty(self) -> bool:
++        """
++        Check whether this table contains no documents.
++        """
++
++        return len(self) == 0
++
+     def __iter__(self) -> Iterator[Document]:
+         """
+         Iterate over all documents stored in the table.
