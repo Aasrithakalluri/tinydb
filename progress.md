@@ -96,6 +96,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 - [x] Exp 2 on seeds v2 (both variants, 2 runs each) scored and read: A (independent Sonnet) 8/10 caught (missed S4 twice), B (Haiku + author's artifacts) 10/10, 0 false rejections each; A $0.551 vs B $0.046. Hypothesis NOT supported. A tooling bug invalidated S3 in the first dispatch (stale branch) → re-run + runner guard. → ADR-014 (Proposed)
 - [x] New seeds built and verified (S6 hash tag copied from a sibling, S7 unrequested reversal of the documented remove(doc_ids) rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written (`reviewer_v2.md`, variant A2); success criterion pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` before any run
 - [ ] Run the ADR-014 test (A2 on S4, S6, S7, C1, C2, C3; A on S6, S7, C3; 2 runs each) and apply the decision rule
+- [ ] Exercise the reviewer-"changes" back-edge through the orchestrator itself (fault-injected review verdict, labelled)
 - [ ] Run Exp 1 on the 5 issues; **repeat each variant at least twice** to show variance
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [ ] `results/results.csv`; total tokens and cost from the console
@@ -136,6 +137,8 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 13. **Prompt injection resisted** (one direct attack); denied calls were benign formatting.
 14. **Budget cap left an unreviewed PR looking finished** → PR notice added. **A fake failure made the Builder inflate the diff** 18 → 201 lines.
 15. **Issue #2 asks to break a documented, tested contract** (`Table.search` docstring + `test_query_cache_documents_are_shared_with_cache`); the pipeline rewrote that test, the reviewer approved; any valid fix must change it. 1 of 8 PRs removed assertions from existing tests.
+16. **My tooling hid its own failure:** a stale local branch was pushed instead of the new seed commit and the build output filtered the error, so S3 was reviewed against the wrong defect; fixed with an explicit HEAD push, visible errors and a runner guard comparing each branch diff with its patch. Invalid reviews kept and flagged.
+17. **Two confounds in my own experiment design** (variant B given artifacts of different code; v2 mutations that made the PR's own suite fail) found and removed before the main result; pilot kept.
 10. **Cost is small:** ≈ $0.06–0.09 per clean run; the vague issue costs 2–3× more.
 
 ## Notes / Log
