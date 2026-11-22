@@ -22,7 +22,9 @@ sys.path.insert(0, str(HERE))
 import checks  # noqa: E402
 
 # --- limits (ADR-009) -------------------------------------------------------
-RUN_BUDGET_USD = float(os.environ.get("AUTOSE_RUN_BUDGET_USD", "0.60"))
+RUN_BUDGET_USD = float(os.environ.get("AUTOSE_RUN_BUDGET_USD") or "0.60")   # repo variable AUTOSE_RUN_BUDGET_USD overrides (used to test the cap)
+# Fault injection for testing back-edges ONLY. Set through the repo variable AUTOSE_INJECT; every injected run is labelled in results/runs.md.
+INJECT = {x.strip() for x in (os.environ.get("AUTOSE_INJECT") or "").split(",") if x.strip()}
 STAGE_RETRIES = 1          # re-ask the same stage once when its lint fails
 TEST_RETRIES = 2           # TEST -> IMPLEMENT
 REDESIGNS = 1              # TEST -> DESIGN
@@ -256,6 +258,10 @@ class Run:
         changed = self.changed_files()
         test_text = "\n".join((self.repo / f).read_text() for f in changed if f.startswith("tests/") and (self.repo / f).exists())
         ok, out = checks.run_pytest(self.repo)               # we run the suite ourselves; the agent's claim is not trusted
+        if "tests_fail_once" in INJECT and not self.st.get("injected_test_fail"):
+            self.st["injected_test_fail"] = True
+            ok, out = False, "[FAULT INJECTED via AUTOSE_INJECT=tests_fail_once: this failure is simulated, not real]\nFAILED tests/test_injected.py::test_simulated - AssertionError: simulated failure\n" + out[-800:]
+            self.log("FAULT INJECTED: the first test run is reported as failing")
         cov = checks.ac_coverage_check(checks.parse_acs(self.read("spec.md")), test_text)
         report = (f"# Test report (attempt {self.st['test_retries'] + 1})\n\n- full suite passed: **{ok}**\n"
                   f"- acceptance criteria without a test: {len(cov)}\n\n## pytest output (tail)\n```\n{out}\n```\n"
