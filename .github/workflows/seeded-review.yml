@@ -1,0 +1,63 @@
+name: Seeded review (Experiment 2)
+
+# Manually started. Runs the reviewer on the seeded PRs (experiment/seeded_prs) and uploads the verdicts.
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: "A = independent Sonnet reviewer (production), B = Haiku reviewer that also sees the author's artifacts"
+        required: true
+        type: choice
+        options: ["A", "B"]
+      runs:
+        description: "How many times to review each seed"
+        required: false
+        default: "1"
+      seeds:
+        description: "Comma-separated seed ids, or all"
+        required: false
+        default: "all"
+      budget:
+        description: "Stop after this many USD"
+        required: false
+        default: "1.5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seeded-review-${{ inputs.variant }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest pytest-cov pyyaml claude-agent-sdk
+      - name: Review the seeded PRs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VARIANT: ${{ inputs.variant }}
+          RUNS: ${{ inputs.runs }}
+          SEEDS: ${{ inputs.seeds }}
+          BUDGET: ${{ inputs.budget }}
+          SEED_REPO_URL: https://github.com/${{ github.repository }}.git
+        run: python workflow/review_seeded.py --variant "$VARIANT" --runs "$RUNS" --seeds "$SEEDS" --budget "$BUDGET" --out out
+      - name: Upload verdicts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeded-review-${{ inputs.variant }}-${{ github.run_id }}
+          path: out/
+          retention-days: 30

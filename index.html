@@ -160,6 +160,7 @@
       <li><b>Prompt injection resisted</b> (one direct attack): the Planner recorded it as a risk, the reviewer ignored it and still tested. All denied tool calls were benign formatting (<code>&amp;&amp; echo OK</code>, <code>| tail</code>).</li>
       <li><b>Budget cap left an unreviewed PR looking finished</b>; now the orchestrator comments on the PR when a run stops early.</li>
       <li><b>A fake failure caused churn:</b> the diff grew from 18 to 201 lines when the Builder was told tests failed although they had not.</li>
+      <li><b>Issue #2 asks to break a documented, tested contract</b> (<code>Table.search</code> docstring and <code>test_query_cache_documents_are_shared_with_cache</code>). The pipeline rewrote that test and the reviewer approved; any valid fix must change it. Only 1 of 8 PRs removed assertions from existing tests.</li>
       <li><b>Cost is small:</b> about $0.06 to $0.09 per clean run. The vague issue costs 2 to 3 times more.</li>
     </ol>
   </div>
@@ -250,11 +251,11 @@ const PHASES = [
     ["x", "Every run logged in <code>results/runs.md</code>"],
     ["x", "Ask-mode run on #5 finished (PR #26, $0.092, hidden tests 5/6, the same as auto mode); answers were chosen by the assistant on the maintainer's delegation"],
     ["o", "Implement the Exp 1 variant (single-agent mode flag in the orchestrator)"],
-    ["o", "Implement the Exp 2 variant (shared-context Haiku reviewer flag)"],
-    ["o", "Prepare 5 seeded PRs with known defects (plus 1 or 2 clean ones) in <code>experiment/seeded_prs/</code>"],
+    ["x", "Exp 2 variants implemented: <code>review_seeded.py</code> runs variant A (independent Sonnet) or B (Haiku that also sees the author's spec, design and test report); scorer and workflow ready, tested offline"],
+    ["x", "7 seeded PRs built and verified (S1 to S5 defective, C1 and C2 correct controls): suite green on all, hidden tests fail on defective and pass on controls; branches <code>seeded/*</code> pushed"],
     ["o", "Run Exp 2 on the seeded PRs (catch rate, false approve, false reject, cost)"],
     ["o", "Run Exp 1 on the 5 issues, repeating each variant at least twice to show variance"],
-    ["o", "Validate the hidden tests (reference solution and an alternative valid fix per issue)"],
+    ["x", "Hidden tests validated with a reference fix and an alternative fix per issue (<code>experiment/validation/</code>). Finding: issue #2 conflicts with a documented contract and an existing test."],
     ["o", "<code>results/results.csv</code>; total tokens and cost from the console"],
     ["o", "Update the design from results (supersede ADRs that turned out wrong)"],
     ["o", "Capture one clean run for the sequence view and the demo"]]],
