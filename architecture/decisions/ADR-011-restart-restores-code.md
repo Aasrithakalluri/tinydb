@@ -4,6 +4,7 @@
 - **Decision area:** D4 State (supersedes ADR-004)
 - **Status:** Accepted
 - **Decided by:** my coding assistant, after real runs showed that ADR-004 was wrong; it reported this to me and I accepted it. The lessons below are mine, selected in the design interview of 2026-11-22.
+- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
 
 ## Context
 ADR-004 said a restarted run "downloads the latest artifact and resumes at the first stage whose check has not passed". The first real runs on issue #3 (Actions runs 44994878885, 44995093783, 44995270382) showed three things that were wrong:
@@ -12,6 +13,8 @@ ADR-004 said a restarted run "downloads the latest artifact and resumes at the f
 3. The CI wait matched the newest run for the head SHA, which was the `pull_request` run gated at `action_required`, not the `workflow_dispatch` run that actually executes.
 
 ## Decision
+I decided as follows.
+
 - The workflow artifact (`state.json` + stage artifacts, including `diff.patch`) remains the restart source of truth. On resume in IMPLEMENT/TEST/RELEASE/REVIEW, the orchestrator checks out the recorded `base_sha` on branch `autose/issue-N` and **re-applies `diff.patch`** before continuing.
 - The release stage first looks up an **open PR for the branch** and reuses it; the PR URL is saved to state immediately after creation.
 - CI results are taken only from the `workflow_dispatch` run for the head SHA.
@@ -26,10 +29,16 @@ Recorded from my answers in the design interview of 2026-11-22; each point is on
 - **Take the newest artifact by creation time,** because the artifacts API lists by id, which is not the order of creation.
 
 ## Alternatives considered
+
+I rejected these options:
+
 - **Fetch the branch from the remote instead of re-applying the patch:** simpler, but the branch can be overwritten (as happened), while the artifact is written per stage.
 - **Commit state files to the branch:** durable, but pollutes the PR (rejected in ADR-004 already).
 
 ## Consequences
+
+What I accept with this decision:
+
 + A restart is idempotent: same code, same PR, budgets preserved.
 − Restart correctness now depends on `diff.patch` being applied cleanly to `base_sha`; if master moved, we still use the recorded base (the PR may then need a human rebase).
 − The lesson for the report: the original ADR was reasoned but untested; one real run was enough to falsify it.

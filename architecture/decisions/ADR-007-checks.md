@@ -4,11 +4,14 @@
 - **Decision area:** D7 Checks
 - **Status:** Accepted
 - **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22, together with my note on stage 6.
+- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
 
 ## Context
 A stage's own agent is a poor judge of its output. Checks must be cheap, reproducible and hard to talk around.
 
 ## Decision
+I decided as follows.
+
 The orchestrator runs every check as code (see `architecture/views/stage-map.md`):
 - Stage 1: spec lint (AC IDs, `situation → result` form, banned vague words, ≥1 failure/boundary AC per requirement). "Testable" is approximated structurally.
 - Stage 2: design lint (named files exist, named functions/classes found, only `tinydb/` and `tests/`, import-layering constraints from `ARCHITECTURE.md` §3.4).
@@ -30,10 +33,16 @@ Recorded from my answers in the design interview of 2026-11-22; each point below
 I pointed out that stage 6 is **not purely deterministic**: its input is the Reviewer agent's verdict, an LLM output. The orchestrator still applies a code rule to that verdict and rejects "approve" when the Reviewer's tool log shows no test run. The checks of stages 1 to 5 are deterministic code; stage 6 is a deterministic rule applied to an LLM verdict, and the final pass or fail is the orchestrator's. (My note in the interview was cut off after "So the fi…"; this paragraph records only what I wrote and what this ADR already decided.)
 
 ## Alternatives considered
+
+I rejected these options:
+
 - **LLM judge per stage:** catches semantic problems (is this AC really testable?) but adds cost, noise and a second model to be fooled.
 - **Trust the agent's own report:** cheapest, known to over-report success.
 
 ## Consequences
+
+What I accept with this decision:
+
 + Cheap, reproducible, no extra tokens.
 − Lint cannot judge whether an AC is *meaningfully* testable; weak ACs can pass (Limitations). Possible later addition: an LLM judge for stage 1 only.
-− CI in stage 5: PRs created with `GITHUB_TOKEN` do not trigger `pull_request` workflows, so CI will be started with `workflow_dispatch` (to be verified in Phase 3; ADR to be superseded if this does not work).
+− CI in stage 5: pull requests created with `GITHUB_TOKEN` do not reliably run the `pull_request` workflow (the run it creates is gated at `action_required`), so the orchestrator starts CI with `workflow_dispatch` and reads only that run. I verified this works in the real runs (ADR-011 records the bug that came from reading the wrong run).

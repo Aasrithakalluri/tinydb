@@ -4,18 +4,21 @@
 - **Decision area:** D5 Tools
 - **Status:** Accepted
 - **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22.
+- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
 
 ## Context
 Agents read untrusted issue text and run code in a CI runner that holds secrets. The strongest safeguard is that an agent cannot do harm even when fooled.
 
 ## Decision
+I decided as follows.
+
 Agents are run with the Claude Agent SDK. Tools are granted per agent by `allowed_tools` and a Bash command allowlist:
 
 | Agent | Tools |
 |-------|-------|
 | Planner | `Read`, `Grep`, `Glob` (no write, no Bash, no network) |
 | Builder | `Read`, `Grep`, `Glob`, `Edit`, `Write` (inside the working tree), `Bash` limited to `python -m pytest`, `python -m compileall`, `python -c` |
-| Reviewer | `Read`, `Grep`, `Glob`, `Bash` limited to `python -m pytest`, `python -c`; no `Edit`/`Write` outside a scratch dir |
+| Reviewer | `Read`, `Grep`, `Glob`, `Bash` limited to `python -m pytest`, `python -c`; no `Edit` or `Write` at all |
 
 No agent gets `WebFetch`/MCP servers (the A1 skill's optional fetch tool is disabled here: not needed for code tasks and a prompt-injection channel). GitHub operations (clone, push, `gh pr create`, comments) are plain code in the orchestrator via the `gh` CLI. Agent subprocesses get a **stripped environment**: `ANTHROPIC_API_KEY` yes, `GITHUB_TOKEN` no; checkout uses `persist-credentials: false` so no token sits in `.git/config`.
 
@@ -28,10 +31,16 @@ Recorded from my answers in the design interview of 2026-11-22; each point below
 - **No network or MCP tools.** Fetching pages is not needed for code tasks and would be an injection channel.
 
 ## Alternatives considered
+
+I rejected these options:
+
 - **GitHub MCP server for agents:** convenient, but gives agents write access to GitHub and a bigger tool surface.
 - **Unrestricted Bash:** simplest, but a fooled agent could exfiltrate secrets or push.
 
 ## Consequences
+
+What I accept with this decision:
+
 + A prompt-injected agent can at worst edit the working tree and run tests.
 − Allowlisted Bash is limiting (no `git diff`, no pip); the orchestrator produces diffs for agents.
 − Allowlist enforcement depends on the SDK; a Python `-c` call can still run arbitrary Python in the runner (residual risk, no secrets in env mitigates; listed in Limitations).
