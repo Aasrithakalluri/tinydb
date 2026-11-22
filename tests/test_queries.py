@@ -527,3 +527,76 @@ def test_get_item():
 
     assert query({'test': 1})
     assert not query({'test': 0})
+
+
+def _none_of_db(*docs):
+    from tinydb import TinyDB
+    from tinydb.storages import MemoryStorage
+
+    db = TinyDB(storage=MemoryStorage)
+    db.drop_tables()
+    db.insert_multiple(docs)
+    return db
+
+
+def test_none_of():
+    query = where('status').none_of(['archived', 'deleted'])
+    assert query({'status': 'active'})
+    assert not query({'status': 'archived'})
+    assert not query({'status': 'deleted'})
+    assert not query({'other': 1})
+    assert hash(query)
+    assert hash(query) != hash(where('status').one_of(['archived', 'deleted']))
+
+
+def test_fr_01_ac1_filters_listed_values():
+    db = _none_of_db(
+        {'status': 'active'}, {'status': 'archived'}, {'status': 'deleted'})
+    result = db.search(where('status').none_of(['archived', 'deleted']))
+    assert result == [{'status': 'active'}]
+
+
+def test_fr_01_ac2_single_value_excluded():
+    db = _none_of_db({'status': 'a'})
+    assert db.search(where('status').none_of(['a'])) == []
+
+
+def test_fr_01_ac3_duplicate_items_no_effect():
+    db = _none_of_db({'status': 'y'})
+    result = db.search(where('status').none_of(['x', 'x']))
+    assert result == [{'status': 'y'}]
+
+
+def test_fr_02_ac1_missing_field_excluded():
+    db = _none_of_db({'name': 'no status'}, {'status': 'active'})
+    result = db.search(where('status').none_of(['archived']))
+    assert result == [{'status': 'active'}]
+
+
+def test_fr_02_ac2_empty_database():
+    db = _none_of_db()
+    assert db.search(where('status').none_of(['archived'])) == []
+
+
+def test_fr_02_ac3_no_document_has_field():
+    db = _none_of_db({'name': 'a'}, {'name': 'b'})
+    assert db.search(where('status').none_of(['archived'])) == []
+
+
+def test_fr_03_ac1_empty_items_matches_all_with_field():
+    db = _none_of_db(
+        {'status': 'active'}, {'status': 'archived'}, {'other': 1})
+    result = db.search(where('status').none_of([]))
+    assert {'status': 'active'} in result
+    assert {'status': 'archived'} in result
+    assert {'other': 1} not in result
+
+
+def test_fr_03_ac2_empty_string_value_matched():
+    db = _none_of_db({'status': ''})
+    assert {'status': ''} in db.search(where('status').none_of([]))
+
+
+def test_fr_03_ac3_empty_items_no_field_present():
+    db = _none_of_db({'name': 'a'})
+    assert db.search(where('status').none_of([])) == []
