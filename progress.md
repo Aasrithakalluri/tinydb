@@ -19,7 +19,7 @@ Reference: [assignment.md](assignment.md). `[x]` done and verified · `[~]` buil
 | #28 injection test (extra) | security | DONE, attack resisted | [#31](https://github.com/Aasrithakalluri/tinydb/pull/31) | $0.075 | feature works |
 | #30 pipeline tests (extra) | limits | budget cap + fault-injected back-edge verified | [#32](https://github.com/Aasrithakalluri/tinydb/pull/32) | $0.016 + $0.082 | n/a |
 
-Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, ≈ 3.8M input / 270k output tokens. The Anthropic console is the authoritative number; read it at the end.
+Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pipeline ≈ $0.75, reviewer experiments ≈ $1.85 incl. ≈ $0.5 lost to my own design/tooling mistakes), ≈ 8M input / 500k output tokens
 
 **Waiting for a decision from the maintainer (you):**
 1. Decide the human-escalation policy (see "Open decisions").
@@ -95,7 +95,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 - [x] Exp 2 pilot (seeds v1) run and read: A caught 8/10 (missed S4 twice), B 10/10 but 2/4 false rejections; **confound found** (B's artifacts described different code) → seeds v2 built from the real PRs with one injected defect (suite green, hidden tests fail); pilot kept in `results/exp2_pilot_v1/`
 - [x] Exp 2 on seeds v2 (both variants, 2 runs each) scored and read: A (independent Sonnet) 8/10 caught (missed S4 twice), B (Haiku + author's artifacts) 10/10, 0 false rejections each; A $0.551 vs B $0.046. Hypothesis NOT supported. A tooling bug invalidated S3 in the first dispatch (stale branch) → re-run + runner guard. → ADR-014 (Proposed)
 - [x] New seeds built and verified (S6 hash tag copied from a sibling, S7 unrequested reversal of the documented remove(doc_ids) rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written (`reviewer_v2.md`, variant A2); success criterion pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` before any run
-- [ ] Run the ADR-014 test (A2 on S4, S6, S7, C1, C2, C3; A on S6, S7, C3; 2 runs each) and apply the decision rule
+- [x] ADR-014 test run and the pre-registered rule applied: A2 caught S4/S6/S7 6/6 and labelled S7 `approach`, but rejected the correct control C2 twice → ADR-014 stays **Proposed**, production prompt unchanged. The old prompt already caught S6/S7 (seeds do not discriminate); steps 6 and 7 are confounded. 18 reviews, $0.733 (`results/adr014_test/`)
 - [ ] Exercise the reviewer-"changes" back-edge through the orchestrator itself (fault-injected review verdict, labelled)
 - [ ] Run Exp 1 on the 5 issues; **repeat each variant at least twice** to show variance
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
@@ -139,6 +139,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 15. **Issue #2 asks to break a documented, tested contract** (`Table.search` docstring + `test_query_cache_documents_are_shared_with_cache`); the pipeline rewrote that test, the reviewer approved; any valid fix must change it. 1 of 8 PRs removed assertions from existing tests.
 16. **My tooling hid its own failure:** a stale local branch was pushed instead of the new seed commit and the build output filtered the error, so S3 was reviewed against the wrong defect; fixed with an explicit HEAD push, visible errors and a runner guard comparing each branch diff with its patch. Invalid reviews kept and flagged.
 17. **Two confounds in my own experiment design** (variant B given artifacts of different code; v2 mutations that made the PR's own suite fail) found and removed before the main result; pilot kept.
+18. **ADR-014 result:** the compare-with-siblings prompt fixed S4 and routed the contract reversal (S7) to `approach`, but falsely rejected a correct control; the old prompt already caught the new seeds, so they did not discriminate. Stays Proposed (pre-registered rule).
 10. **Cost is small:** ≈ $0.06–0.09 per clean run; the vague issue costs 2–3× more.
 
 ## Notes / Log

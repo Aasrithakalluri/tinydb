@@ -102,11 +102,11 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test running. Experiment 1 (single agent vs three) is not run yet. Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
+  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three) is not run yet. Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
 
   <div class="stats">
-    <div class="stat"><b>≈ $1.9</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
-    <div class="stat"><b>≈ 7M / 450k</b><span>input / output tokens so far</span></div>
+    <div class="stat"><b>≈ $2.6</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
+    <div class="stat"><b>≈ 8M / 500k</b><span>input / output tokens so far</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
     <div class="stat"><b>14</b><span>ADRs written (D1 to D10, plus ADR-011 to 014)</span></div>
   </div>
@@ -114,7 +114,7 @@
   <div class="card banner">
     <h3>Waiting for a decision from the maintainer</h3>
     <p><b>1.</b> Decide the human-escalation policy (see open decisions below).</p>
-    <p><b>2.</b> Say go for Experiment 1 (single agent vs three agents for stages 1 to 4; about $0.8) once the ADR-014 test is scored.</p>
+    <p><b>2.</b> Say go for Experiment 1 (single agent vs three agents for stages 1 to 4; about $0.8) (it is the next step).</p>
   </div>
 
   <div class="card table-wrap">
@@ -162,6 +162,7 @@
       <li><b>A fake failure caused churn:</b> the diff grew from 18 to 201 lines when the Builder was told tests failed although they had not.</li>
       <li><b>Issue #2 asks to break a documented, tested contract</b> (<code>Table.search</code> docstring and <code>test_query_cache_documents_are_shared_with_cache</code>). The pipeline rewrote that test and the reviewer approved; any valid fix must change it. Only 1 of 8 PRs removed assertions from existing tests.</li>
       <li><b>Independence did not buy detection (Exp 2):</b> the independent Sonnet reviewer missed the one defect class where the issue is silent but sibling code and the author's spec are not (S4); Haiku with the spec caught it. Independence is kept (assignment rule); ADR-014 adds a compare-with-siblings step. Neither reviewer escalated the reversal of a documented contract.</li>
+      <li><b>ADR-014 test (pre-registered):</b> the compare-with-siblings prompt fixed S4 and routed the documented-rule reversal to <code>approach</code>, but falsely rejected a correct control twice; the old prompt already caught the two new seeds, so they did not discriminate. Stays Proposed; production prompt unchanged.</li>
       <li><b>My tooling hid its own failure:</b> a stale local branch was pushed instead of the new seed commit and the build output filtered out the error, so S3 was reviewed against the wrong defect. Fixed with an explicit <code>HEAD:refs/heads/...</code> push, visible errors, and a runner guard that compares each branch diff with its patch file. The invalid reviews are kept and flagged.</li>
       <li><b>Two confounds found in my own experiment design</b> (variant B given artifacts of different code; v2 mutations that made the PR's own suite fail) and removed before the main result, with the pilot kept as evidence.</li>
       <li><b>Cost is small:</b> about $0.06 to $0.09 per clean run. The vague issue costs 2 to 3 times more.</li>
@@ -260,7 +261,7 @@ const PHASES = [
     ["x", "Exp 2 pilot (seeds v1): A caught 8/10 (missed S4 twice), B caught 10/10 but falsely rejected a correct control 2/4. Found a confound (B was given artifacts of different code), so seeds v2 were built from the real pipeline PRs with one injected defect each; the pilot is kept as evidence."],
     ["x", "Exp 2 on seeds v2 scored: independent Sonnet caught 8/10 (missed S4 twice), Haiku with the author's artifacts 10/10, no false rejections; $0.551 vs $0.046. Hypothesis NOT supported (negative result). A tooling bug invalidated S3 in the first dispatch; re-run with a runner guard. Leads to ADR-014 (Proposed)."],
     ["x", "New seeds for ADR-014 built and verified (S6 hash tag copied from a sibling operator, S7 unrequested reversal of the documented <code>remove(doc_ids)</code> rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written; success criterion pre-registered before any run"],
-    ["o", "Run the ADR-014 test (A2 on S4, S6, S7, C1, C2, C3; A on S6, S7, C3; 2 runs each) and apply the pre-registered decision rule"],
+    ["x", "ADR-014 test run, pre-registered rule applied: the compare-with-siblings prompt caught S4, S6, S7 (6/6) and routed S7 to <code>approach</code>, but rejected the correct control C2 twice, so ADR-014 stays <b>Proposed</b> and production is unchanged. The old prompt already caught S6 and S7 (the new seeds do not discriminate)."],
     ["o", "Run Exp 1 on the 5 issues, repeating each variant at least twice to show variance"],
     ["x", "Hidden tests validated with a reference fix and an alternative fix per issue (<code>experiment/validation/</code>). Finding: issue #2 conflicts with a documented contract and an existing test."],
     ["o", "<code>results/results.csv</code>; total tokens and cost from the console"],
