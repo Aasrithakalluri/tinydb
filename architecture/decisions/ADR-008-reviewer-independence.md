@@ -1,7 +1,7 @@
 # ADR-008: Reviewer is isolated by context, model, prompt and permissions
 
 - **Decision area:** D8 Reviewer independence
-- **Status:** Accepted (to be tested in Experiment 2)
+- **Status:** Accepted. Experiment 2 did **not** support its hypothesis that independence improves detection (independent reviewer 8/10 caught, shared-context reviewer 10/10); see `results/exp2_v2/README.md`. Independence is kept because the assignment requires it; ADR-014 changes the reviewer prompt in response.
 
 ## Context
 A reviewer that sees the implementer's reasoning tends to agree with it. The brief requires: sees only issue, diff and repo at PR head; can run code; cannot push.
