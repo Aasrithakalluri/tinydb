@@ -219,7 +219,8 @@ class Query(QueryInstance):
             self,
             test: Callable[[Any], bool],
             hashval: tuple,
-            allow_empty_path: bool = False
+            allow_empty_path: bool = False,
+            missing_result: bool = False
     ) -> QueryInstance:
         """
         Generate a query based on a test function that first resolves the query
@@ -241,7 +242,7 @@ class Query(QueryInstance):
                     else:
                         value = part(value)
             except (KeyError, TypeError):
-                return False
+                return missing_result and len(self._path) == 1
             else:
                 # Perform the specified test
                 return test(value)
@@ -274,7 +275,8 @@ class Query(QueryInstance):
         """
         return self._generate_test(
             lambda value: value != rhs,
-            ('!=', self._path, freeze(rhs))
+            ('!=', self._path, freeze(rhs)),
+            missing_result=True
         )
 
     def __lt__(self, rhs: Any) -> QueryInstance:
