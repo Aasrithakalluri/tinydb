@@ -271,7 +271,7 @@ class Table:
         # to the document class and document ID class.
         docs = [
             self.document_class(doc, self.document_id_class(doc_id))
-            for doc_id, doc in self._read_table().items()
+            for doc_id, doc in sorted(self._read_table().items())
             if cond(doc)
         ]
 
@@ -737,7 +737,7 @@ class Table:
         """
 
         # Iterate all documents and their IDs
-        for doc_id, doc in self._read_table().items():
+        for doc_id, doc in sorted(self._read_table().items()):
             # Convert documents to the document class
             yield self.document_class(doc, self.document_id_class(doc_id))
 
