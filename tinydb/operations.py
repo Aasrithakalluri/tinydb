@@ -45,6 +45,30 @@ def subtract(field: str, n: Union[int, float]) -> Callable[[MutableMapping], Non
     return transform
 
 
+def multiply(field: str, factor: Union[int, float]) -> Callable[[MutableMapping], None]:
+    """
+    Multiply a given field in the document by ``factor``.
+
+    Only int and float values are supported. Booleans are rejected even though
+    they are a subclass of int. The factor is validated when this function is
+    called, not when the transform is applied.
+    """
+    if isinstance(factor, bool) or not isinstance(factor, (int, float)):
+        raise TypeError(f"factor must be int or float, not {type(factor).__name__}")
+
+    def transform(doc: MutableMapping):
+        if field not in doc:
+            return
+        value = doc[field]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError(
+                f"field {field!r} must be int or float, not {type(value).__name__}"
+            )
+        doc[field] = value * factor
+
+    return transform
+
+
 def set(field: str, val: Any) -> Callable[[MutableMapping], None]:
     """
     Set a given field to ``val``.
