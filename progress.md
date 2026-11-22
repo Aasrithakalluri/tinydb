@@ -75,10 +75,11 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] Denied tool calls recorded in `state.json` with what and why
 - [x] Concurrency verified for real: a second trigger during an active run stayed `pending` until the first finished
 - [x] Back-edge TEST → IMPLEMENT exercised for real (fault-injected, labelled); finding: Builder grew the diff 18 → 201 lines "fixing" a failure that did not exist
-- [~] Still to exercise: reviewer "changes" back-edge (seeded PRs), redesign loop, job timeout
+- [x] Agent-level timeout unit-tested (31 workflow tests pass)
+- [~] Reviewer "changes" and redesign back-edges: need API credit; hooks built and tested (`AUTOSE_INJECT=review_changes_once`, `tests_fail_thrice`)
 - [x] Budget cap verified (cap $0.02 → stopped before the reviewer); gap found and fixed: PR notice when a run stops early
 - [x] Anti-rubber-stamp rule unit-tested (approve without a pytest run, or garbage JSON, is overruled)
-- [~] Anti-rubber-stamp in practice: measured by the seeded PRs (Phase 4)
+- [x] Anti-rubber-stamp in practice: measured on the seeded PRs; the rule never fired (every review ran the suite), so the protection came from the prompt and the model
 - [x] Prompt injection: real attack issue #28 resisted at every stage (`experiment/security/results.md`); one direct attack only
 - [x] Allowlist widened narrowly for `2>&1 | tail N` (benign friction), 30 workflow tests
 - [x] Reviewer reads ARCHITECTURE.md: after the prompt fix all 7 checked reviews cite the constraints (3–5 mentions each)
@@ -96,13 +97,13 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] Exp 2 on seeds v2 (both variants, 2 runs each) scored and read: A (independent Sonnet) 8/10 caught (missed S4 twice), B (Haiku + author's artifacts) 10/10, 0 false rejections each; A $0.551 vs B $0.046. Hypothesis NOT supported. A tooling bug invalidated S3 in the first dispatch (stale branch) → re-run + runner guard. → ADR-014 (Proposed)
 - [x] New seeds built and verified (S6 hash tag copied from a sibling, S7 unrequested reversal of the documented remove(doc_ids) rule with 3 pinning tests rewritten, C3 control); reviewer prompt v2 written (`reviewer_v2.md`, variant A2); success criterion pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` before any run
 - [x] ADR-014 test run and the pre-registered rule applied: A2 caught S4/S6/S7 6/6 and labelled S7 `approach`, but rejected the correct control C2 twice → ADR-014 stays **Proposed**, production prompt unchanged. The old prompt already caught S6/S7 (seeds do not discriminate); steps 6 and 7 are confounded. 18 reviews, $0.733 (`results/adr014_test/`)
-- [ ] Exercise the reviewer-"changes" back-edge through the orchestrator itself (fault-injected review verdict, labelled)
+- [~] Exercise the reviewer-"changes" and redesign back-edges through the orchestrator (fault-injected, labelled): **blocked by API credit** (re-try run 45011637296, $0)
 - [~] Run Exp 1 on the 5 issues: **blocked**: Anthropic returned "Credit balance is too low" (run 45010442196, no valid data). Needs the maintainer to check the console / add credit. Optional: two ADRs are already tested (ADR-008 via Exp 2, ADR-013/014).
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [x] `results/results.csv` (from final states, `results/aggregate.py`)
 - [ ] Total tokens and cost from the Anthropic console (maintainer reads it at the end)
 - [x] Design updated from results: `architecture/decisions/README.md` (summary table of all 14 ADRs, what each experiment changed, notes on the top 3 decisions); ADR-001 untested, ADR-009 addendum
-- [ ] Capture one clean run for the sequence view and the demo
+- [x] Clean run for the sequence view (#3) and the demo (walk through the finished run on #1, no new spend)
 
 ## Phase 5 — Results analysis
 - [x] Pass rate per stage, retries and pipeline-caused failures separately (`results/stage_pass_rates.md`): 5/5, 4/5, 5/5, 5/5, 5/5, 5/5 first try; 11 failed attempts, none caused by agent capability

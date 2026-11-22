@@ -112,9 +112,9 @@
   </div>
 
   <div class="card banner">
-    <h3>Needs the maintainer now</h3>
+    <h3>Needs the maintainer now (blocked by API credit)</h3>
     <p><b>1.</b> Decide the human-escalation policy (see open decisions below).</p>
-    <p><b>2.</b> <b>Check the Anthropic console.</b> The API returned "Credit balance is too low", so the real spend is higher than the $2.6 our orchestrator tracked or the credit was lower than $5. Tell me the real balance, and whether to add a little credit for Experiment 1 (about $0.5) and the review back-edge test (about $0.15), or to skip them.</p>
+    <p><b>2.</b> <b>Add API credit (or tell me to skip).</b> The API still returns "Credit balance is too low" (re-tried: run 45011637296, $0). With about $1 added, three things run: Experiment 1 (up to $0.50), the back-edge test (about $0.15) and, if wanted, nothing else. Please also read the real spend from the Anthropic console.</p>
   </div>
 
   <div class="card table-wrap">
@@ -241,10 +241,11 @@ const PHASES = [
     ["x", "Denied tool calls are now recorded with what was denied and why (<code>state.json</code>)"],
     ["x", "Concurrency verified for real: a second trigger sent during an active run stayed <code>pending</code> until the first finished (no race)"],
     ["x", "Back-edge TEST to IMPLEMENT exercised for real (fault-injected and labelled): finished DONE. Finding: the Builder grew the diff 18 to 201 lines \"fixing\" a failure that did not exist."],
-    ["p", "Back-edges still to exercise: reviewer \"changes\" (seeded PRs, Phase 4) and the redesign loop; job timeout"],
+    ["x", "Agent-level timeout unit-tested (a hanging session is stopped and reported as <code>timeout</code>; 31 workflow tests pass). The 45-minute job timeout is GitHub's and was not triggered."],
+    ["p", "Two back-edges are still unexercised by a real run and need API credit: reviewer \"changes\" back to the Builder, and the redesign loop. The fault-injection hooks are built and tested (<code>AUTOSE_INJECT=review_changes_once</code>, <code>tests_fail_thrice</code>)."],
     ["x", "Budget cap verified: with the cap at $0.02 the run stopped before the reviewer. It exposed a gap (PR left open and looking finished), now fixed with a PR notice."],
     ["x", "Anti-rubber-stamp rule unit-tested: an approval without an executed pytest run, or garbage JSON, is overruled to \"changes\""],
-    ["p", "Anti-rubber-stamp in practice: how often the reviewer approves wrongly is measured by the seeded PRs (Phase 4)"],
+    ["x", "Anti-rubber-stamp in practice: measured on the seeded PRs (68 reviews over all experiments); the rule that overrules an approval without a test run never fired because every review ran the suite, so the protection came from the prompt and the model, not from the rule"],
     ["x", "Prompt injection: a real attack issue (#28) was resisted at every stage; the Planner logged it as risk RSK-01; no secrets in any artifact or log (one attack, direct injection only)"],
     ["x", "Early-stop notice: when a run stops after the PR exists, the orchestrator comments on the PR; allowlist widened narrowly for <code>2>&amp;1 | tail N</code> (30 workflow tests)"],
     ["x", "Reviewer reads <code>ARCHITECTURE.md</code>: after the prompt fix, all 7 checked reviews cite constraints 4 and 5 (3 to 5 mentions each)"],
@@ -256,7 +257,7 @@ const PHASES = [
     ["x", "Every run logged in <code>results/runs.md</code>"],
     ["x", "Ask-mode run on #5 finished (PR #26, $0.092, hidden tests 5/6, the same as auto mode); answers were chosen by the assistant on the maintainer's delegation"],
     ["x", "Exp 1 tooling built and tested offline: single-agent mode, runs that stop after stage 4 (no PR, CI or Sonnet reviewer, to save cost), a driver with a hard budget, and a local scorer for the hidden tests"],
-    ["o", "Exercise the reviewer-\"changes\" back-edge through the orchestrator itself (fault-injected review verdict, labelled), since the seeded runs only measure verdicts"],
+    ["p", "Exercise the reviewer-\"changes\" and redesign back-edges through the orchestrator (fault-injected, labelled; about $0.15 for one run on the throwaway issue): <b>blocked by the API credit</b>, hooks ready"],
     ["x", "Exp 2 variants implemented: <code>review_seeded.py</code> runs variant A (independent Sonnet) or B (Haiku that also sees the author's spec, design and test report); scorer and workflow ready, tested offline"],
     ["x", "7 seeded PRs built and verified (S1 to S5 defective, C1 and C2 correct controls): suite green on all, hidden tests fail on defective and pass on controls; branches <code>seeded/*</code> pushed"],
     ["x", "Exp 2 pilot (seeds v1): A caught 8/10 (missed S4 twice), B caught 10/10 but falsely rejected a correct control 2/4. Found a confound (B was given artifacts of different code), so seeds v2 were built from the real pipeline PRs with one injected defect each; the pilot is kept as evidence."],
@@ -268,7 +269,7 @@ const PHASES = [
     ["x", "<code>results/results.csv</code> from the orchestrator's own final states (<code>results/aggregate.py</code>)"],
     ["o", "Total tokens and cost from the Anthropic console (the maintainer reads the console at the end; our numbers are orchestrator-tracked)"],
     ["x", "Design updated from results: ADR index with chosen / rejected / reason / status for all 14 ADRs and a table of what each experiment changed (<code>architecture/decisions/README.md</code>); ADR-001 marked untested, ADR-009 gets the credit-exhaustion addendum; ADR-004 was superseded earlier"],
-    ["o", "Capture one clean run for the sequence view and the demo"]]],
+    ["x", "Clean run for the sequence view (issue #3, run 44995345522) and for the demo: the demo can walk through the finished run on issue #1 (run 44996285044: issue, status comment, artifacts, PR, review) without any new spend"]]],
   ["Phase 5: Results analysis", [
     ["x", "Pass rate per stage, counting retries and pipeline-caused failures separately (<code>results/stage_pass_rates.md</code>): spec 5/5, design 4/5, build 5/5, tests 5/5, CI 5/5, review 5/5 first try; 11 failed attempts, none caused by the agents' capability (10 my pipeline/setup defects, 1 deliberate test)"],
     ["p", "Hidden-test results per issue and per variant: per issue done (<code>results/analysis.md</code>); the Experiment 1 variant is still missing"],
