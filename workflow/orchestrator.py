@@ -276,9 +276,11 @@ class Run:
         changed = self.changed_files()
         test_text = "\n".join((self.repo / f).read_text() for f in changed if f.startswith("tests/") and (self.repo / f).exists())
         ok, out = checks.run_pytest(self.repo)               # we run the suite ourselves; the agent's claim is not trusted
-        if "tests_fail_once" in INJECT and not self.st.get("injected_test_fail"):
+        fail_times = 3 if "tests_fail_thrice" in INJECT else (1 if "tests_fail_once" in INJECT else 0)
+        if self.st.get("injected_test_fail_count", 0) < fail_times:
+            self.st["injected_test_fail_count"] = self.st.get("injected_test_fail_count", 0) + 1
             self.st["injected_test_fail"] = True
-            ok, out = False, "[FAULT INJECTED via AUTOSE_INJECT=tests_fail_once: this failure is simulated, not real]\nFAILED tests/test_injected.py::test_simulated - AssertionError: simulated failure\n" + out[-800:]
+            ok, out = False, "[FAULT INJECTED via AUTOSE_INJECT=tests_fail_once/thrice: this failure is simulated, not real]\nFAILED tests/test_injected.py::test_simulated - AssertionError: simulated failure\n" + out[-800:]
             self.log("FAULT INJECTED: the first test run is reported as failing")
         cov = checks.ac_coverage_check(checks.parse_acs(self.read("spec.md")), test_text)
         report = (f"# Test report (attempt {self.st['test_retries'] + 1})\n\n- full suite passed: **{ok}**\n"
@@ -436,6 +438,11 @@ class Run:
         res = self.agent("reviewer", ["prompts/common.md", "prompts/reviewer.md"], prompt, clone)
         shutil.rmtree(tmp, ignore_errors=True)
         verdict, ran_tests = checks.parse_verdict(res.text, res.tool_log)
+        if "review_changes_once" in INJECT and not self.st.get("injected_review"):
+            self.st["injected_review"] = True            # FAULT INJECTION (tests only): pretend the reviewer asked for changes
+            verdict = {"verdict": "changes", "issue_type": "code", "findings": [{"file": "tinydb/", "line": 1,
+                       "problem": "[FAULT INJECTED via AUTOSE_INJECT=review_changes_once: simulated request for changes, not a real finding]"}]}
+            self.log("FAULT INJECTED: the first review verdict is replaced by 'changes'")
         self.st["review_rounds"] += 1
         rnd = self.st["review_rounds"]
         self.write("review.md", self.read("review.md") + f"\n\n# Review round {rnd} (head {self.st['head_sha'][:8]}, model: reviewer)\n\n{res.text}\n\n"

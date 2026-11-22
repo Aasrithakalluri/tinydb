@@ -2,6 +2,7 @@
 
 - **Decision area:** D5 Tools
 - **Status:** Accepted
+- **Decided by:** the assistant proposed it; the author accepted it by merging the design (PR #7).
 
 ## Context
 Agents read untrusted issue text and run code in a CI runner that holds secrets. The strongest safeguard is that an agent cannot do harm even when fooled.

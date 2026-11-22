@@ -2,6 +2,7 @@
 
 - **Decision area:** D1 Splitting the work
 - **Status:** Accepted, **untested**: the planned Experiment 1 (single agent vs three agents for stages 1 to 4) could not run because the API credit was exhausted (`results/runs.md`, run 45010442196, no valid data). The split is supported only indirectly: the tool policy and the independent reviewer depend on it, and 5 of 5 final runs passed the stage checks with it. Nothing in the evidence shows it is better than one agent.
+- **Decided by:** **the author.** Their answer was "1A": three agents (Planner stages 1-2, Builder 3-4, Reviewer 6), release as plain code. The reasoning text was drafted by the assistant from that answer.
 
 ## Context
 Six stages must be run. Stages 1-2 (spec, design) are read-only reasoning over the issue and `ARCHITECTURE.md`. Stages 3-4 (implement, test) both edit the same files and rely on each other's feedback (a failing test is only useful to whoever holds the code). Stage 6 must be independent of everything else. Stage 5 (push, open PR) is deterministic. Budget is $5 in total, so every extra agent costs context re-reading.

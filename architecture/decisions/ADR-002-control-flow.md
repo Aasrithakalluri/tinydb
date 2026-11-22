@@ -2,6 +2,7 @@
 
 - **Decision area:** D2 Control flow
 - **Status:** Accepted
+- **Decided by:** **the author.** Their answer was "use a single python orchestrator script". The retry counts and routing rules (2 test retries, 1 redesign, 2 review rounds) were proposed by the assistant and accepted (PR #7).
 
 ## Context
 The flow has loops (test retries, review rounds) and back-edges (to implementation or design). Someone must decide when to go back and when to stop, and that decision must be inspectable and bounded. GitHub Actions is good at triggering and permissions, poor at loops with counters.

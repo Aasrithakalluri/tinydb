@@ -2,6 +2,7 @@
 
 - **Decision area:** D8 Reviewer independence
 - **Status:** Accepted. Experiment 2 did **not** support its hypothesis that independence improves detection (independent reviewer 8/10 caught, shared-context reviewer 10/10); see `results/exp2_v2/README.md`. Independence is kept because the assignment requires it; ADR-014 changes the reviewer prompt in response.
+- **Decided by:** **the author** chose a different, stronger model for the reviewer and chose to test this decision ("yes" to experimenting on D8). The prompt design and the anti-rubber-stamp rule were proposed by the assistant and accepted (PR #7).
 
 ## Context
 A reviewer that sees the implementer's reasoning tends to agree with it. The brief requires: sees only issue, diff and repo at PR head; can run code; cannot push.

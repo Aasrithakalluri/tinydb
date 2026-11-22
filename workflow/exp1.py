@@ -44,5 +44,7 @@ for rep in range(1, a.repeats + 1):
                 print("ERROR", type(e).__name__, e)
             st = json.loads((art / "state.json").read_text()) if (art / "state.json").exists() else {}
             spent += st.get("cost_usd", 0.0)
+            if "Credit balance is too low" in "\n".join(st.get("log", [])):
+                print("The API reports 'Credit balance is too low'; stopping at once (no further runs, no results from this run)."); sys.exit(2)
             print(f"rep{rep} issue{n} {mode:6s} state={st.get('state')} cost=${st.get('cost_usd', 0):.3f} calls={len(st.get('calls', []))} total=${spent:.3f}", flush=True)
 print(f"done; spent ${spent:.3f}")

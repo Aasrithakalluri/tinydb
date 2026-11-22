@@ -2,6 +2,7 @@
 
 - **Decision area:** D9 Safety and failures
 - **Status:** Accepted
+- **Decided by:** the assistant proposed the limits; the author set the hard $5 provider limit and asked repeatedly to keep the cost low. The per-run numbers were accepted with the design (PR #7).
 
 ## Context
 $5 total spend, Actions timeouts, loops that can spin, and issue/comment text written by anyone.

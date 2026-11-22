@@ -2,6 +2,7 @@
 
 - **Decision area:** D2 Control flow, D10 Triggers (refines ADR-002 and ADR-010; supersedes the vague-issue rule of ADR-012)
 - **Status:** Accepted (compared against the "assume" behaviour on issue #5; see `experiment/variants.md`)
+- **Decided by:** **the author.** Their words: "I am the human, ask me, I will give the green flag for issue 5". The mechanism (`/autose ask`, `/autose go`) was built by the assistant.
 
 ## Context
 ADR-012 made vague issues proceed on a stated assumption, because during a run nobody can answer. The maintainer (the human in the loop) pointed out the better design: the pipeline should **ask them**, and they will give the green flag. This also matches the A1 skill (ask the P1 questions when a stakeholder is present) and the assignment's principle that humans own the decisions that matter. The cost of guessing is real: a wrong assumption turns into a wrong PR, and the reviewer does not see the spec (ADR-003), so it may not catch it.
