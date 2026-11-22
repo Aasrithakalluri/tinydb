@@ -9,32 +9,32 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
 ---
 
 ## Phase 0 — Decisions to make up front
-- [ ] Pick target repo (tinydb `edff96a` / mistune `f7ec702` / structlog `19c4f21` / Python-Markdown `3f2c551` / other, tests < 5 min)
-- [ ] Pick agent SDK/framework (Claude Agent SDK / OpenAI Agents SDK / LangGraph / mini-swe-agent)
+- [x] Pick target repo (tinydb `edff96a` / mistune `f7ec702` / structlog `19c4f21` / Python-Markdown `3f2c551` / other, tests < 5 min)
+- [x] Pick agent SDK/framework (Claude Agent SDK / OpenAI Agents SDK / LangGraph / mini-swe-agent)
 - [ ] Pick model(s) per role (implementer vs reviewer)
 - [ ] Pick which 8–10 ADRs (D1–D10) to write, and which **2 ADRs** to experimentally test
-- [ ] Locate A1 skill (requirements) and A2 `ARCHITECTURE.md` for the chosen repo
-- [ ] Set up a git repo in this folder and a GitHub account/org for the fork
+- [x] Locate A1 skill (requirements) and A2 `ARCHITECTURE.md` for the chosen repo
+- [x] Set up a git repo in this folder and a GitHub account/org for the fork
 
 ## Phase 1 — Repository setup (Part 1)
-- [ ] Fork the chosen repo (public) — record **fork URL**
-- [ ] Pin to a specific commit — record **commit hash**
-- [ ] Confirm test suite runs locally and in CI in < 5 min
-- [ ] Add API keys as **repository secrets** (never in code/logs/prompts)
-- [ ] **Set a hard spending limit** with the model provider (before first run)
-- [ ] Protect `main` branch (no direct pushes)
-- [ ] Create the label (e.g. `autose`)
-- [ ] Write **5 issues** like real users: 
-  - [ ] Bug report #1
-  - [ ] Bug report #2
-  - [ ] Feature request #1 (small)
-  - [ ] Feature request #2 (small)
-  - [ ] Vague issue
-- [ ] Write **2–4 hidden acceptance tests per issue**, kept outside the repo (`experiment/hidden_tests/`)
-- [ ] Save issue texts to `experiment/issues/`
+- [x] Fork the chosen repo (public) — record **fork URL**
+- [x] Pin to a specific commit — record **commit hash**
+- [x] Confirm test suite runs locally and in CI in < 5 min
+- [x] Add API keys as **repository secrets** (never in code/logs/prompts)
+- [x] **Set a hard spending limit** with the model provider (before first run)
+- [x] Protect `main` branch (no direct pushes)
+- [x] Create the label (e.g. `autose`)
+- [x] Write **5 issues** like real users: 
+  - [x] Bug report #1
+  - [x] Bug report #2
+  - [x] Feature request #1 (small)
+  - [x] Feature request #2 (small)
+  - [x] Vague issue
+- [x] Write **2–4 hidden acceptance tests per issue**, kept outside the repo (`experiment/hidden_tests/`)
+- [x] Save issue texts to `experiment/issues/`
 
 ## Phase 2 — Design before build (Part 2) — commit BEFORE any agent code
-- [ ] Create repo skeleton (README, architecture/, workflow/, experiment/, results/)
+- [x] Create repo skeleton (README, architecture/, workflow/, experiment/, results/)
 - [ ] **Component view** (agents, tools, how they call each other) → `architecture/views/`
 - [ ] **Sequence view** (placeholder now; fill from a *real* run later)
 - [ ] **Stage map table** (agent / artifact / check per stage)
@@ -117,9 +117,9 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
 |      |               |       |
 
 ## Key values (fill in as decided)
-- Fork URL:
-- Pinned commit:
+- Fork URL: https://github.com/Aasrithakalluri/tinydb
+- Pinned commit: edff96aeb2616402e9489d46e90a592c05565621 (default branch is `master`)
 - Agent framework:
 - Models (implementer / reviewer):
-- Spend limit set:
+- Spend limit set: $5 (Anthropic)
 - Total tokens used:
