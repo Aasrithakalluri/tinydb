@@ -102,7 +102,7 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 3 are done. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
+  <p><b>Phases 0 to 2 are done, and Phase 3 is built and mostly proven. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
 
   <div class="stats">
     <div class="stat"><b>≈ $0.49</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
@@ -202,14 +202,15 @@ const PHASES = [
     ["x", "5 issues opened (2 bugs, 2 features, 1 vague): #1 to #5"],
     ["x", "Hidden acceptance tests (3 to 4 per issue) kept outside the repo in <code>~/a3_private/hidden_tests/</code>. They fail on the baseline (verified)."],
     ["x", "Issue texts saved to <code>experiment/issues/</code>"],
-    ["o", "Copy hidden tests into <code>experiment/hidden_tests/</code> for submission, only after all runs are scored"]]],
+    ["x", "Hidden-test integrity: SHA-256 manifest committed in <code>experiment/hidden_tests/</code> (the tests themselves stay private while agents run, so they cannot read them)"],
+    ["o", "Copy the hidden tests into <code>experiment/hidden_tests/</code>, only after the last run is scored"]]],
   ["Phase 2: Design before build", [
     ["x", "Component view, planned sequence view, stage map in <code>architecture/views/</code>"],
     ["x", "ADR-001 to ADR-010 (Nygard format) in <code>architecture/decisions/</code>"],
     ["x", "Design committed before any agent code (PR #7 merged before PR #8 with the code)"],
     ["x", "Superseded rule used: ADR-004 superseded by ADR-011 (found by a real run). ADR-012 refines ADR-007 and ADR-002. ADR-013 supersedes ADR-012's vague-issue rule."],
-    ["o", "Replace the planned sequence view with one drawn from a real run"],
-    ["o", "Update the component view for the ask gate (WAITING state)"]]],
+    ["x", "Sequence view replaced by one drawn from the real run on issue #3 (times, costs, restart, denied calls)"],
+    ["x", "Component view updated with the ask gate and a full state diagram (WAITING, back-edges)"]]],
   ["Phase 3: Build the workflow", [
     ["x", "<code>autose.yml</code> with label and <code>/autose</code> comment triggers; actionlint clean"],
     ["x", "Orchestrator state machine, per-role tool policy, deterministic checks, prompts in <code>workflow/</code>"],
@@ -220,13 +221,17 @@ const PHASES = [
     ["x", "Run is followable: status comment, artifacts, PR, review comment"],
     ["x", "Unit tests for the checks in <code>workflow/tests/test_checks.py</code> (5 pass)"],
     ["x", "Ask-the-human gate (<code>/autose ask</code>, WAITING, <code>/autose go ...</code>), ADR-013. First real pause worked."],
-    ["p", "Trigger authorization: positive path used; a user without write access is untested"],
+    ["x", "Trigger authorization: real GitHub permissions API refuses an outsider (<code>octocat</code>, read) and accepts the owner; 9 unit tests (checked locally, not inside Actions)"],
+    ["x", "Tool policy tested: planner read-only, builder writes only <code>tinydb/</code> and <code>tests/</code>, Bash allowlist rejects <code>curl</code>, <code>git push</code>, <code>env</code>, chained commands, <code>gh pr merge</code> (23 tests pass in <code>workflow/tests/</code>)"],
+    ["x", "Denied tool calls are now recorded with what was denied and why (<code>state.json</code>)"],
     ["p", "Concurrency: one run per issue; two simultaneous triggers on the same issue not tested"],
     ["p", "Back-edges (test fail to implement, redesign, review changes) not yet needed by any real run"],
     ["p", "Budget cap ($0.60 per run) and timeouts: never hit"],
-    ["p", "Anti-rubber-stamp: \"approve without running tests is rejected\" is coded; needs the seeded PRs to measure"],
+    ["x", "Anti-rubber-stamp rule unit-tested: an approval without an executed pytest run, or garbage JSON, is overruled to \"changes\""],
+    ["p", "Anti-rubber-stamp in practice: how often the reviewer approves wrongly is measured by the seeded PRs (Phase 4)"],
     ["p", "Prompt-injection defences exist (untrusted tags, no network, no token); no adversarial issue has been run"],
-    ["o", "Watch for recurrence: reviewer once claimed it could not read <code>ARCHITECTURE.md</code> (prompt fixed)"]]],
+    ["o", "Watch for recurrence: reviewer once claimed it could not read <code>ARCHITECTURE.md</code> (prompt fixed)"],
+    ["o", "Real runs still to do (needs OK to spend about $0.30): concurrency, budget cap, prompt injection, test-failure back-edge (fault-injected)"]]],
   ["Phase 4: Experiments", [
     ["x", "Variants defined in <code>experiment/variants.md</code>: Exp 1 = ADR-001 (3 agents vs 1), Exp 2 = ADR-008 (independent Sonnet reviewer vs Haiku reviewer with implementer artifacts), Exp 3 = ADR-013 (assume vs ask, issue #5 only)"],
     ["x", "Baseline (variant A) run once on every issue"],
