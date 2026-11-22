@@ -1,0 +1,24 @@
+{
+ "id": "S2",
+ "set": "v2",
+ "issue": 2,
+ "defect": "cache-shares-objects-on-miss",
+ "expected_verdict": "changes",
+ "description": "PR #14 with the cache storing `docs[:]` instead of a deep copy: the first (miss) result shares objects with the cache. (The real PR also rewrote the contract test; that is part of every version of this PR.)",
+ "how_to_find": "mutate the result of the FIRST search, then search again",
+ "branch": "seeded2/s2",
+ "base": "parent",
+ "context": "v2-S2",
+ "derived_from": "autose/issue-2",
+ "suite": "229 passed in 0.25s",
+ "hidden_tests": "2 failed, 1 passed in 0.03s",
+ "hidden_failed": [
+  "test_scalar_mutation_does_not_leak",
+  "test_nested_mutation_does_not_leak"
+ ],
+ "tests_removed_because_they_expose_the_defect": [
+  "test_tinydb.py::test_search_results_isolated_from_cache",
+  "test_tinydb.py::test_fr_01_ac1_top_level_mutation_does_not_change_later_search",
+  "test_tinydb.py::test_fr_01_ac2_nested_mutation_does_not_change_later_search"
+ ]
+}

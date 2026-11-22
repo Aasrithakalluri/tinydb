@@ -1,0 +1,23 @@
+{
+ "id": "S1",
+ "set": "v2",
+ "issue": 1,
+ "defect": "nested-path-missing",
+ "expected_verdict": "changes",
+ "description": "PR #15 with `return missing_result` changed to `missing_result and len(self._path) == 1`: `!=` is fixed for top-level fields only.",
+ "how_to_find": "try a nested path; compare `q != v` with `~(q == v)`",
+ "branch": "seeded2/s1",
+ "base": "parent",
+ "context": "v2-S1",
+ "derived_from": "autose/issue-1",
+ "suite": "239 passed in 0.23s",
+ "hidden_tests": "1 failed, 2 passed in 0.01s",
+ "hidden_failed": [
+  "test_ne_still_excludes_equal_and_nested_missing"
+ ],
+ "tests_removed_because_they_expose_the_defect": [
+  "test_queries.py::test_fr_03_ac1_nested_missing_key",
+  "test_queries.py::test_fr_03_ac2_nested_parent_absent",
+  "test_queries.py::test_fr_03_ac3_nested_parent_not_mapping"
+ ]
+}

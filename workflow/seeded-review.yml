@@ -9,6 +9,12 @@ on:
         required: true
         type: choice
         options: ["A", "B"]
+      seedset:
+        description: "v2 = real pipeline PRs with one injected defect (main experiment), v1 = pilot seeds built from my reference fixes"
+        required: false
+        type: choice
+        default: "v2"
+        options: ["v2", "v1"]
       runs:
         description: "How many times to review each seed"
         required: false
@@ -51,13 +57,14 @@ jobs:
           VARIANT: ${{ inputs.variant }}
           RUNS: ${{ inputs.runs }}
           SEEDS: ${{ inputs.seeds }}
+          SEEDSET: ${{ inputs.seedset }}
           BUDGET: ${{ inputs.budget }}
           SEED_REPO_URL: https://github.com/${{ github.repository }}.git
-        run: python workflow/review_seeded.py --variant "$VARIANT" --runs "$RUNS" --seeds "$SEEDS" --budget "$BUDGET" --out out
+        run: python workflow/review_seeded.py --variant "$VARIANT" --runs "$RUNS" --set "$SEEDSET" --seeds "$SEEDS" --budget "$BUDGET" --out out
       - name: Upload verdicts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: seeded-review-${{ inputs.variant }}-${{ github.run_id }}
+          name: seeded-review-${{ inputs.seedset }}-${{ inputs.variant }}-${{ github.run_id }}
           path: out/
           retention-days: 30

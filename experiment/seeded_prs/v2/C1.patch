@@ -1,0 +1,115 @@
+diff --git a/tests/test_tables.py b/tests/test_tables.py
+index a94005e..61bb5f4 100644
+--- a/tests/test_tables.py
++++ b/tests/test_tables.py
+@@ -197,3 +197,86 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
+     assert len(table) == 1
+     assert table.all() == [{'a': 1}]
+     db.close()
++
++
++def test_fr_01_ac1_count_without_condition(db):
++    """FR-01-AC1: count() with no argument returns the total number of documents."""
++    table = db.table('count_fr01_ac1')
++    table.insert_multiple([{'x': 1}, {'x': 2}, {'x': 3}])
++
++    assert table.count() == 3
++
++
++def test_fr_01_ac2_count_without_condition_empty(db):
++    """FR-01-AC2: count() with no argument on an empty table returns 0."""
++    table = db.table('count_fr01_ac2')
++
++    assert table.count() == 0
++
++
++def test_fr_01_ac3_count_without_condition_mixed_ids(db):
++    """FR-01-AC3: count() with no argument counts documents with and without an id field."""
++    table = db.table('count_fr01_ac3')
++    table.insert({'name': 'a'})
++    table.insert({'name': 'b'})
++    table.insert({'id': 7, 'name': 'c'})
++
++    assert table.count() == 3
++
++
++def test_fr_01_ac4_count_without_condition_after_remove(db):
++    """FR-01-AC4: count() with no argument reflects removed documents."""
++    table = db.table('count_fr01_ac4')
++    table.insert_multiple([{'x': 1}, {'x': 2}, {'x': 3}])
++    table.remove(doc_ids=[1])
++
++    assert table.count() == 2
++
++
++def test_fr_02_ac1_count_with_condition_matches(db):
++    """FR-02-AC1: count(cond) returns only the number of matching documents."""
++    table = db.table('count_fr02_ac1')
++    table.insert_multiple([{'x': 1}, {'x': 1}, {'x': 2}])
++
++    assert table.count(where('x') == 1) == 2
++
++
++def test_fr_02_ac2_count_with_condition_no_matches(db):
++    """FR-02-AC2: count(cond) returns 0 when no document matches."""
++    table = db.table('count_fr02_ac2')
++    table.insert_multiple([{'x': 1}, {'x': 2}, {'x': 3}])
++
++    assert table.count(where('x') == 99) == 0
++
++
++def test_fr_02_ac3_count_with_exists_condition(db):
++    """FR-02-AC3: count(where('id').exists()) returns 2, not the total of 4."""
++    table = db.table('count_fr02_ac3')
++    table.insert({'id': 1})
++    table.insert({'id': 2})
++    table.insert({'name': 'a'})
++    table.insert({'name': 'b'})
++
++    assert table.count(where('id').exists()) == 2
++
++
++def test_fr_02_ac4_count_with_condition_empty_table(db):
++    """FR-02-AC4: count(cond) on an empty table returns 0."""
++    table = db.table('count_fr02_ac4')
++
++    assert table.count(where('x') == 1) == 0
++
++
++def test_fr_03_ac1_count_none_returns_total(db):
++    """FR-03-AC1: count(None) returns the total number of documents."""
++    table = db.table('count_fr03_ac1')
++    table.insert_multiple([{'x': 1}, {'x': 2}, {'x': 3}])
++
++    assert table.count(None) == 3
++
++
++def test_fr_03_ac2_count_none_empty_table(db):
++    """FR-03-AC2: count(None) on an empty table returns 0."""
++    table = db.table('count_fr03_ac2')
++
++    assert table.count(None) == 0
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..6c803fd 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -706,13 +706,18 @@ class Table:
+         # Reset document ID counter
+         self._next_id = None
+ 
+-    def count(self, cond: QueryLike) -> int:
++    def count(self, cond: Optional[QueryLike] = None) -> int:
+         """
+         Count the documents matching a query.
+ 
++        If no query is given, count all documents in the table.
++
+         :param cond: the condition use
+         """
+ 
++        if cond is None:
++            return len(self)
++
+         return len(self.search(cond))
+ 
+     def clear_cache(self) -> None:
