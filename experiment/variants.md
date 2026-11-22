@@ -20,3 +20,11 @@ Run on the 5 seeded PRs (`experiment/seeded_prs/`, each with a known defect, plu
 Hypothesis: B approves more defective PRs. Metrics: defect catch rate, false-approve rate, false-reject rate, tokens/cost.
 
 Negative or null results are reported as such.
+
+## Experiment 3 (small, issue #5 only) — ADR-013 (ask the human vs assume)
+| Variant | What changes |
+|---------|--------------|
+| **A (auto)** | `/autose fresh`: vague issue proceeds on the Planner's stated assumption (ADR-012). |
+| **B (ask)** | `/autose fresh ask`: the run pauses with questions; the maintainer answers with `/autose go ...`. |
+
+Metrics: hidden tests of issue #5 (tests for the readings), whether the chosen interpretation matches the maintainer's, number of human round trips, cost. One issue only, so this is a case study, not a statistic.
