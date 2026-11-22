@@ -4,11 +4,14 @@
 - **Decision area:** D3 Hand-offs
 - **Status:** Accepted
 - **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22.
+- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
 
 ## Context
 Agents have limited context and small budgets. What an agent sees also determines its bias: an implementer's reasoning primes a reviewer to agree.
 
 ## Decision
+I decided as follows.
+
 Every agent starts with a fresh context and receives only files:
 
 | Agent | Receives | Deliberately NOT given |
@@ -29,10 +32,16 @@ Recorded from my answers in the design interview of 2026-11-22; each point below
 - **Summaries carry the previous agent's framing.** A summary written by the previous agent can hide exactly the awkward facts, so summaries are not handed over either.
 
 ## Alternatives considered
+
+I rejected these options:
+
 - **Pass full transcripts:** maximal information, but huge token cost and contaminates the reviewer.
 - **Summaries written by the previous agent:** cheap, but summaries carry the previous agent's framing and can omit exactly the awkward facts.
 
 ## Consequences
+
+What I accept with this decision:
+
 + Independence of the reviewer by construction; small prompts (cost).
 + Handoffs are reviewable by humans as artifacts.
 − The Builder may miss intent that lives only in the issue; mitigated because ACs derive from the issue and the Builder may read it.

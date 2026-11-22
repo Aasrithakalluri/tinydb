@@ -102,12 +102,12 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 5 are done: the pipeline, all experiments, the analysis, the checks and the final README.</b> Excluding the report and the video, <b>73 of 77 page items (95%) are complete</b>. Left: the report (<code>report.pdf</code>), the demo video, and four items that only the maintainer can do (below). Every experiment was run for real and its result, positive, negative or null, is in <code>results/</code>; mistakes of mine that cost money or time are logged in <code>results/runs.md</code>.</p>
+  <p><b>Phases 0 to 5 are done: the pipeline, all experiments, the analysis, the checks and the final README.</b> Excluding the report and the video, <b>74 of 77 page items (96%) are complete</b>. Left: the report (<code>report.pdf</code>), the demo video, and the items that only the maintainer can do (below). Every experiment was run for real and its result, positive, negative or null, is in <code>results/</code>; mistakes of mine that cost money or time are logged in <code>results/runs.md</code>.</p>
 
   <div class="stats">
     <div class="stat"><b>≈ $3.4</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
     <div class="stat"><b>≈ 9M / 550k</b><span>input / output tokens so far</span></div>
-    <div class="stat"><b>95%</b><span>of the page's items done, excluding the report and the video (73 of 77)</span></div>
+    <div class="stat"><b>96%</b><span>of the page's items done, excluding the report and the video (74 of 77)</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
     <div class="stat"><b>14</b><span>ADRs written (D1 to D10, plus ADR-011 to 014)</span></div>
   </div>
@@ -115,9 +115,8 @@
   <div class="card banner">
     <h3>Needs the maintainer</h3>
     <p><b>1.</b> <b>Console:</b> read the real spend and tokens from the Anthropic console (our numbers are orchestrator-tracked, about $3.4).</p>
-    <p><b>2.</b> <b>ADRs:</b> read the 14 ADRs in <code>architecture/decisions/</code> and confirm; only then does each get a "Reviewed by the author" line.</p>
-    <p><span class="pill todo">decision</span> <b>Escalation policy:</b> when must a run reach a human? The experiments give four concrete candidates: (1) a pull request that removes assertions from existing tests (a detector would have flagged exactly one of eight real PRs, #14, and no harmless one); (2) a design that lists a change that was never applied, or records an unresolved conflict, yet the run is reported DONE (seen in Experiment 1, issue 2); (3) ambiguity that changes behaviour (a P1 question plus an ASSUMED item in an acceptance criterion); (4) the reviewer rejecting the approach twice. A naive "any P1 question" rule would stall most runs (Haiku marks even clear issues NOT READY). Not implemented; it would become ADR-015.</p>
-    <p><b>4.</b> <b>Roll number</b> for <code>roll_number_a3_AutoSE.txt</code>, then Submit (after the report and the video).</p>
+    <p><b>2.</b> <b>Escalation policy</b> (optional): decide whether a run must reach a human in the cases listed under Open decisions; it would become ADR-015. Also confirm the top-3 decisions and the two ADRs to present side by side (Hindsight is left out by your choice).</p>
+    <p><b>3.</b> <b>Roll number</b> for <code>roll_number_a3_AutoSE.txt</code>, then Submit (after the report and the video).</p>
   </div>
 
   <div class="card table-wrap">
@@ -139,7 +138,7 @@
 
   <h2>Open decisions</h2>
   <div class="card">
-    <p><span class="pill todo">to do</span> <b>Escalation policy:</b> when must a run reach a human? Proposal: ambiguity that changes behaviour (a P1 question plus an ASSUMED item in an acceptance criterion), the reviewer rejecting the approach twice, and safety signals. It would become ADR-014 and a measured variant. Haiku marks even clear issues NOT READY, so a naive "any P1 question" threshold would stall most runs.</p>
+    <p><span class="pill todo">decision</span> <b>Escalation policy:</b> when must a run reach a human? The experiments give four concrete candidates: (1) a pull request that removes assertions from existing tests (a detector would have flagged exactly one of eight real PRs, #14, and no harmless one); (2) a design that lists a change that was never applied, or records an unresolved conflict, yet the run is reported DONE (seen in Experiment 1, issue 2); (3) ambiguity that changes behaviour (a P1 question plus an ASSUMED item in an acceptance criterion); (4) the reviewer rejecting the approach twice. A naive "any P1 question" rule would stall most runs (Haiku marks even clear issues NOT READY). Not implemented; it would become ADR-015.</p>
     <p><span class="pill done">done</span> <b>Hidden-test validity:</b> validated with a reference fix and an independent alternative fix per issue (<code>experiment/validation/</code>); issue 5's answer-based tests were written before its ask-mode run resumed; issue 2 is a documented contract conflict, scored with a second measure. The tests are now released in <code>experiment/hidden_tests/</code> and match the manifest committed before the runs.</p>
   </div>
 
@@ -286,7 +285,7 @@ const PHASES = [
     ["x", "What the reviewer caught and where it was wrong (<code>results/analysis.md</code>): approved all 7 real PRs in round 1 (no evidence it catches anything there); on seeded PRs it caught 8/10 and missed the sibling-convention defect S4; it did not escalate contract reversals"],
     ["x", "Side-by-side comparison of the tested ADRs: Exp 1 (ADR-001), Exp 2 (ADR-008), ADR-014 test, ADR-013 (<code>results/analysis.md</code>); negative and null results are reported as such"]]],
   ["Phase 6: Deliverables", [
-    ["o", "<b>Report inputs only the author can give</b>: (1) confirm which three decisions mattered most (draft: the orchestrator and restart state, ADR-002/004/011; reviewer independence, ADR-008/014; deterministic checks, ADR-007); (2) the Hindsight answer, which decision to change first and why; (3) which two tested ADRs to present side by side (draft: ADR-001 and ADR-008); (4) the console figures for tokens and cost, and (5) the roll number. Everything else in the report already exists in <code>results/</code> and <code>architecture/</code>."],
+    ["o", "<b>Report inputs only the author can give</b>: (1) confirm which three decisions mattered most (draft: the orchestrator and restart state, ADR-002/004/011; reviewer independence, ADR-008/014; deterministic checks, ADR-007); (2) which two tested ADRs to present side by side (draft: ADR-001 and ADR-008); (3) the console figures for tokens and cost; (4) the roll number. <b>Hindsight is left out by the author's choice</b>, although the assignment lists it as a required half page."],
     ["o", "<b>report.pdf</b> (at most 8 pages plus appendices). Tooling is available (pandoc, headless Chrome for the diagrams and the PDF); content is ready except the inputs above."],
     ["o", "Architecture (2 pp)", true], ["o", "Design decisions: table plus top 3 (2.5 pp)", true],
     ["o", "Experiments (1.5 pp)", true], ["o", "Results (1 pp)", true],
@@ -297,7 +296,7 @@ const PHASES = [
     ["x", "Fork is public; all 39 run, PR and issue links in the results documents resolve"],
     ["x", "No secrets: scanned the working tree, the whole git history (all branches) and 29 workflow run logs for key and token patterns; 0 matches"],
     ["x", "Touches only our fork and never merges: 0 issues or PRs by us in the upstream repo, no merge call in the pipeline code, all AutoSE PRs left open, least-privilege permissions per workflow"],
-    ["o", "The author reads all 14 ADRs (<code>architecture/decisions/</code>) and confirms; only then each ADR gets a \"Reviewed by the author\" line. Nothing is claimed before that."],
+    ["x", "All 14 ADRs read and adopted by Aasritha Kalluri on 2026-11-22; every ADR is in first person, has her as author, her reasons, and a \"Reviewed and adopted by\" line. While reading them I corrected statements that did not match what was built (timeouts, reviewer tools, state directory, number of seeded PRs, CI approach)."],
     ["o", "<code>roll_number_a3_AutoSE.txt</code> containing only the GitHub repo link"],
     ["o", "Submit"]]]
 ];

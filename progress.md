@@ -108,7 +108,7 @@ Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Ant
 - [x] Side-by-side comparison of the tested ADRs (Exp 1, Exp 2, ADR-014, ADR-013) in `results/analysis.md`
 
 ## Phase 6 — Deliverables
-- [ ] **Report inputs only the author can give:** (1) which three decisions mattered most (draft: ADR-002/004/011, ADR-008/014, ADR-007); (2) Hindsight: which decision to change first and why; (3) which two tested ADRs to present (draft: ADR-001 and ADR-008); (4) console figures for tokens and cost; (5) roll number
+- [ ] **Report inputs only the author can give:** (1) which three decisions mattered most (draft: ADR-002/004/011, ADR-008/014, ADR-007); (2) which two tested ADRs to present (draft: ADR-001 and ADR-008); (3) console figures for tokens and cost; (4) roll number. **Hindsight is left out by the author's choice** (the assignment lists it as a required half page).
 - [ ] **report.pdf** (≤ 8 pages + appendices): Architecture (2 pp) · Design decisions table + top 3 (2.5 pp) · Experiments (1.5 pp) · Results (1 pp) · Hindsight (0.5 pp) · Limitations (≥ 3)
 - [ ] **Demo video** ≤ 5 min: one full run from the issue page to the posted review
 - [x] **README.md** final (fork, commit, models, triggers, layout, results, honest limits, AI-use disclosure; the author must confirm and rewrite the ADRs in their own words)
@@ -116,7 +116,7 @@ Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Ant
 - [x] Fork is public; all 39 links in the results docs resolve
 - [x] No secrets: working tree, full git history and 29 workflow logs scanned, 0 matches
 - [x] Only our fork touched (0 upstream issues/PRs by us), no merge call in the code, AutoSE PRs left open, least-privilege permissions
-- [ ] The author reads all 14 ADRs and confirms; only then add a "Reviewed by the author" line to each ADR (nothing is claimed before that)
+- [x] All 14 ADRs read and adopted by Aasritha Kalluri on 2026-11-22 (first person, her as author, her reasons, "Reviewed and adopted by" line); inaccurate statements corrected while reading
 - [ ] `roll_number_a3_AutoSE.txt` containing only the GitHub repo link
 - [ ] Submit
 

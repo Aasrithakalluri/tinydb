@@ -4,15 +4,18 @@
 - **Decision area:** D9 Safety and failures
 - **Status:** Accepted
 - **Decided by:** my coding assistant proposed the numbers and I accepted them (PR #7). I set the hard $5 provider limit and asked repeatedly to keep the cost low. The reasons below are mine, selected in the design interview of 2026-11-22.
+- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
 
 ## Context
-$5 total spend, Actions timeouts, loops that can spin, and issue/comment text written by anyone.
+My total spend is $5; I also have to deal with Actions timeouts, loops that can spin, and issue/comment text written by anyone.
 
 ## Decision
+I decided as follows.
+
 **Budgets and limits**
 - Per agent call: `max_turns` (Planner 15, Builder 40, Reviewer 25) and a USD cap from SDK; per run: a cumulative cap of $0.60 tracked in `state.json` (run stops with FAILED when exceeded).
 - Loop counters: stage retries 1, test→implement retries 2, redesign 1, review rounds 2 (restored on restart).
-- Job `timeout-minutes: 40`; each pytest call has a 120 s timeout; a stage with no progress for 10 min is aborted.
+- Job `timeout-minutes: 45`; each agent call is aborted after 15 minutes (900 s) and each pytest run after 300 s.
 - On any stop the stage artifact states why; the status comment shows FAILED/STOPPED with the reason.
 
 **Prompt injection**
@@ -32,10 +35,16 @@ Recorded from my answers in the design interview of 2026-11-22; each point below
 - **A stuck stage must stop.** Timeouts and caps end a run that is not making progress, and the reason is written into the stage's artifact.
 
 ## Alternatives considered
+
+I rejected these options:
+
 - Provider-side limit only: required anyway ($5 cap) but gives no per-run stopping.
-- Sandboxed VM/container per agent: stronger, more setup than the timeline allows.
+- Sandboxed VM/container per agent: stronger, but more setup than the time I had allows.
 
 ## Consequences
+
+What I accept with this decision:
+
 + Predictable worst-case cost per run (~$0.60) and bounded loops.
 − Hard caps can stop a run that would have succeeded with one more turn.
 − Python `-c` in allowlist is a residual escape hatch (documented).
