@@ -106,18 +106,18 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 
 ## Phase 5 — Results analysis
 - [x] Pass rate per stage, retries and pipeline-caused failures separately (`results/stage_pass_rates.md`): 5/5, 4/5, 5/5, 5/5, 5/5, 5/5 first try; 11 failed attempts, none caused by agent capability
-- [ ] Hidden-test results per issue and per variant
+- [~] Hidden-test results per issue done (`results/analysis.md`); the Experiment 1 variant is missing
 - [x] What the reviewer caught and where it was wrong (`results/analysis.md`)
-- [ ] Side-by-side comparison of the tested ADRs (negative results count equally)
+- [~] Side-by-side comparison done for Exp 2, ADR-014 and ADR-013 (`results/analysis.md`); ADR-001 (Exp 1) not run
 
 ## Phase 6 — Deliverables
 - [ ] **report.pdf** (≤ 8 pages + appendices): Architecture (2 pp) · Design decisions table + top 3 (2.5 pp) · Experiments (1.5 pp) · Results (1 pp) · Hindsight (0.5 pp) · Limitations (≥ 3)
 - [ ] **Demo video** ≤ 5 min: one full run from the issue page to the posted review
-- [ ] **README.md** in final form: fork URL + commit, models, how to trigger, AI-use disclosure (currently `README_AUTOSE.md`, rename at the end)
-- [ ] Repo layout matches the spec (architecture/, workflow/, experiment/, results/ …)
-- [ ] Fork public; every link in `runs.md` opens
-- [ ] No secrets in code, logs or prompts (check artifacts and logs)
-- [ ] Workflow touches only our fork, never upstream; never merges
+- [x] **README.md** final (fork, commit, models, triggers, layout, results, honest limits, AI-use disclosure; the author must confirm and rewrite the ADRs in their own words)
+- [x] Repo layout matches the spec (only report.pdf and demo.mp4 missing; hidden tests copied at the end)
+- [x] Fork is public; all 39 links in the results docs resolve
+- [x] No secrets: working tree, full git history and 29 workflow logs scanned, 0 matches
+- [x] Only our fork touched (0 upstream issues/PRs by us), no merge call in the code, AutoSE PRs left open, least-privilege permissions
 - [ ] `roll_number_a3_AutoSE.txt` containing only the GitHub repo link
 - [ ] Submit
 
