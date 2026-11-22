@@ -108,8 +108,8 @@ Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Ant
 - [x] Side-by-side comparison of the tested ADRs (Exp 1, Exp 2, ADR-014, ADR-013) in `results/analysis.md`
 
 ## Phase 6 — Deliverables
-- [ ] **Report inputs only the author can give:** (1) which three decisions mattered most (draft: ADR-002/004/011, ADR-008/014, ADR-007); (2) which two tested ADRs to present (draft: ADR-001 and ADR-008); (3) console figures for tokens and cost; (4) roll number. **Hindsight is left out by the author's choice** (the assignment lists it as a required half page).
-- [ ] **report.pdf** (≤ 8 pages + appendices): Architecture (2 pp) · Design decisions table + top 3 (2.5 pp) · Experiments (1.5 pp) · Results (1 pp) · Hindsight (0.5 pp) · Limitations (≥ 3)
+- [x] Report inputs settled (drafts adopted by the author: top-3 decisions, ADR-001 and ADR-008 side by side; tracked cost with a caveat; roll number 2025204019); Hindsight left out by the author's choice
+- [x] **report.pdf** written: 7 pages (5 body + 2 appendix), diagrams from the real artifacts, ADR table, two experiments side by side, results, 10 limitations, AI-use appendix; source `report/report.html`
 - [ ] **Demo video** ≤ 5 min: one full run from the issue page to the posted review
 - [x] **README.md** final (fork, commit, models, triggers, layout, results, honest limits, AI-use disclosure; the author must confirm and rewrite the ADRs in their own words)
 - [x] Repo layout matches the spec (only report.pdf and demo.mp4 missing; hidden tests copied at the end)
@@ -117,7 +117,7 @@ Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Ant
 - [x] No secrets: working tree, full git history and 29 workflow logs scanned, 0 matches
 - [x] Only our fork touched (0 upstream issues/PRs by us), no merge call in the code, AutoSE PRs left open, least-privilege permissions
 - [x] All 14 ADRs read and adopted by Aasritha Kalluri on 2026-11-22 (first person, her as author, her reasons, "Reviewed and adopted by" line); inaccurate statements corrected while reading
-- [ ] `roll_number_a3_AutoSE.txt` containing only the GitHub repo link
+- [x] `2025204019_a3_AutoSE.txt` created (contains only the GitHub link)
 - [ ] Submit
 
 ---

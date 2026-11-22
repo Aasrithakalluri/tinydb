@@ -5,7 +5,7 @@ A maintainer labels an issue `autose` (or comments `/autose`); agents write the 
 - **Fork:** https://github.com/Aasrithakalluri/tinydb (upstream `msiemens/tinydb` is never touched)
 - **Pinned commit:** `edff96aeb2616402e9489d46e90a592c05565621` (`edff96a`); the fork's default branch is `master`, protected (changes only by pull request)
 - **Models:** Planner and Builder `claude-haiku-5-5`; Reviewer `claude-sonnet-5-5` (via the Claude Agent SDK)
-- **Report / video:** `report.pdf`, `demo.mp4` (see the end of this file for what is still missing)
+- **Report:** `report.pdf` (5 body pages + 2 appendix pages; source `report/report.html`, rendered with headless Chrome). **Video:** `demo.mp4` (still to record). Submission file: `2025204019_a3_AutoSE.txt`.
 
 ## How to trigger it
 | Action | Effect |
@@ -50,4 +50,4 @@ Author: **Aasritha Kalluri**. I used Claude Code (Claude Sonnet 5.5) substantial
 `python experiment/validation/validate.py` (hidden-test validation), `python experiment/seeded_prs/build_v2.py` / `build_v3.py` (seeds), `python experiment/seeded_prs/score.py <results.jsonl>` (reviewer experiments), `python results/aggregate.py` (results.csv), `python -m pytest workflow/tests -c /dev/null` (30 tests of the checks, tool policy and rules). The hidden tests are in `experiment/hidden_tests/` once released.
 
 ## Still to do before submission
-`report.pdf`, `demo.mp4`, the console figures for tokens and cost, the hidden tests copied into `experiment/hidden_tests/`, and the submission file `roll_number_a3_AutoSE.txt` (needs the roll number).
+The demo video (`demo.mp4`), the console figures for tokens and cost (the report uses the orchestrator's estimates and says so), and Submit.
