@@ -24,3 +24,6 @@ ADR-004 said a restarted run "downloads the latest artifact and resumes at the f
 + A restart is idempotent: same code, same PR, budgets preserved.
 − Restart correctness now depends on `diff.patch` being applied cleanly to `base_sha`; if master moved, we still use the recorded base (the PR may then need a human rebase).
 − The lesson for the report: the original ADR was reasoned but untested; one real run was enough to falsify it.
+
+## Addendum 2026-11-22: "latest artifact" must mean newest by creation time
+Found when answering the ask-mode questions on issue #5 (runs 45003888171 and 45003922512). The restore step took the first entry of the artifact list, but the GitHub artifacts API orders by artifact id, and ids are not in creation order. It restored the finished baseline run's state (DONE) instead of the paused ask run's state (WAITING), so `/autose go` did nothing, and the no-op runs re-uploaded the DONE state as the newest artifact. The restore now lists up to 100 artifacts, drops expired ones, and sorts by `created_at`. The two poisoned artifacts were deleted. This is a bug in the implementation of this decision, not a change to the decision.

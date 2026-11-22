@@ -451,8 +451,9 @@ def authorize(event: dict) -> tuple[int, dict] | None:
 def restore_state(number: int, art: Path) -> None:
     """ADR-004: pick up state.json from the newest artifact of an earlier run for this issue."""
     try:
-        arts = json.loads(gh("api", f"repos/{REPO}/actions/artifacts?name=autose-issue-{number}&per_page=1"))["artifacts"]
-        if not arts:
+        arts = json.loads(gh("api", f"repos/{REPO}/actions/artifacts?name=autose-issue-{number}&per_page=100"))["artifacts"]
+        arts = sorted((a for a in arts if not a.get("expired")), key=lambda a: a["created_at"], reverse=True)
+        if not arts:                     # the API lists by artifact id, which is NOT creation order: sort by created_at
             return
         art.mkdir(parents=True, exist_ok=True)
         zip_path = art / "prev.zip"
