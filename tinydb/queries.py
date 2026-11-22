@@ -219,7 +219,8 @@ class Query(QueryInstance):
             self,
             test: Callable[[Any], bool],
             hashval: tuple,
-            allow_empty_path: bool = False
+            allow_empty_path: bool = False,
+            missing_result: bool = False
     ) -> QueryInstance:
         """
         Generate a query based on a test function that first resolves the query
@@ -227,6 +228,8 @@ class Query(QueryInstance):
 
         :param test: The test the query executes.
         :param hashval: The hash of the query.
+        :param missing_result: The result returned if the path cannot be
+                               resolved in the document.
         :return: A :class:`~tinydb.queries.QueryInstance` object
         """
         if not self._path and not allow_empty_path:
@@ -241,7 +244,7 @@ class Query(QueryInstance):
                     else:
                         value = part(value)
             except (KeyError, TypeError):
-                return False
+                return missing_result
             else:
                 # Perform the specified test
                 return test(value)
@@ -274,7 +277,8 @@ class Query(QueryInstance):
         """
         return self._generate_test(
             lambda value: value != rhs,
-            ('!=', self._path, freeze(rhs))
+            ('!=', self._path, freeze(rhs)),
+            missing_result=True
         )
 
     def __lt__(self, rhs: Any) -> QueryInstance:
