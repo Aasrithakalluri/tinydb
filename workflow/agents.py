@@ -23,6 +23,9 @@ PROFILES = {
                     write=("tinydb/", "tests/"), bash=(PY_TEST, PY_C)),
     "reviewer": dict(model=SONNET, tools=["Read", "Grep", "Glob", "Bash"], max_turns=25,
                      write=(), bash=(PY_TEST, PY_C)),
+    # Experiment 1, variant B only (ADR-001): ONE agent does stages 1-4 in one context, with the Builder's tools
+    "single": dict(model=HAIKU, tools=["Read", "Grep", "Glob", "Edit", "Write", "Bash"], max_turns=60,
+                   write=("tinydb/", "tests/"), bash=(PY_TEST, PY_C)),
     # Experiment 2, variant B only (ADR-008): a Haiku reviewer that is NOT independent (it also sees the author's artifacts)
     "reviewer_b": dict(model=HAIKU, tools=["Read", "Grep", "Glob", "Bash"], max_turns=25,
                        write=(), bash=(PY_TEST, PY_C)),

@@ -1,0 +1,57 @@
+name: Experiment 1 (single agent vs three agents)
+
+# Manually started. Runs stages 1-4 only (no PR, no CI, no reviewer) in both modes and uploads the artifacts for local scoring.
+on:
+  workflow_dispatch:
+    inputs:
+      issues:
+        description: "Comma-separated issue numbers"
+        required: false
+        default: "1,2,3,4,5"
+      repeats:
+        description: "Repeats per issue and mode"
+        required: false
+        default: "2"
+      budget:
+        description: "Stop starting new runs after this many USD"
+        required: false
+        default: "0.60"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exp1
+  cancel-in-progress: false
+
+jobs:
+  exp1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest pytest-cov pyyaml claude-agent-sdk
+      - name: Run experiment 1
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ISSUES: ${{ inputs.issues }}
+          REPEATS: ${{ inputs.repeats }}
+          BUDGET: ${{ inputs.budget }}
+        run: python workflow/exp1.py --issues "$ISSUES" --repeats "$REPEATS" --budget "$BUDGET" --out exp1-out
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp1-${{ github.run_id }}
+          path: exp1-out/
+          retention-days: 30
