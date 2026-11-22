@@ -128,9 +128,8 @@ def main(push: bool):
                 "expected_issue_type": s["issue_type"], "description": s["desc"], "how_to_find": s["how_to_find"],
                 "branch": f"seeded/{sid.lower()}", "suite": suite, "hidden_tests": hidden, "hidden_failed": hfail}, indent=1))
             if push and good:
-                run(["git", "checkout", "-q", "-b", f"seeded/{sid.lower()}"], w)
                 run(["git", "-c", "user.name=seed-builder", "-c", "user.email=seed@users.noreply.github.com", "commit", "-q", "-m", f"seeded {sid}: {s['defect'] or 'correct control'} [skip ci]"], w)
-                r = run(["git", "push", "-q", "--force", "origin", f"seeded/{sid.lower()}"], w)
+                r = run(["git", "push", "-q", "--force", "origin", f"HEAD:refs/heads/seeded/{sid.lower()}"], w)   # explicit HEAD: a stale local branch of the same name must not be pushed instead
                 print("   pushed" if r.returncode == 0 else "   push failed: " + r.stderr[-200:])
             run(["git", "worktree", "remove", "--force", str(w)], REPO)
     finally:

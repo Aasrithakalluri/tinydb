@@ -10,7 +10,7 @@
  "base": "parent",
  "context": "v2-S2",
  "derived_from": "autose/issue-2",
- "suite": "229 passed in 0.25s",
+ "suite": "229 passed in 0.24s",
  "hidden_tests": "2 failed, 1 passed in 0.03s",
  "hidden_failed": [
   "test_scalar_mutation_does_not_leak",

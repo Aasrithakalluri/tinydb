@@ -123,10 +123,10 @@ def main(push):
                 "how_to_find": s["how"], "branch": f"seeded2/{sid.lower()}", "base": "parent", "context": f"v2-{sid}", "derived_from": s["pr_branch"],
                 "suite": suite, "hidden_tests": hidden, "hidden_failed": hf, "tests_removed_because_they_expose_the_defect": dropped}, indent=1))
             if push and good:
-                run(["git", "checkout", "-q", "-b", f"seeded2/{sid.lower()}"], w)
                 run(["git", "-c", "user.name=seed-builder", "-c", "user.email=seed@users.noreply.github.com", "commit", "-q", "-m", f"seeded2 {sid}: {s['defect'] or 'real PR unchanged'} [skip ci]"], w)
-                r = run(["git", "push", "-q", "--force", "origin", f"seeded2/{sid.lower()}"], w)
-                print("   pushed" if r.returncode == 0 else "   push failed: " + r.stderr[-200:])
+                r = run(["git", "push", "-q", "--force", "origin", f"HEAD:refs/heads/seeded2/{sid.lower()}"], w)   # explicit HEAD: a stale local branch of the same name must not be pushed instead
+                print("   pushed" if r.returncode == 0 else "   PUSH FAILED: " + r.stderr[-400:])
+                ok &= r.returncode == 0
             run(["git", "worktree", "remove", "--force", str(w)], REPO)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

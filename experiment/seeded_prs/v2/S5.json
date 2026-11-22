@@ -10,7 +10,7 @@
  "base": "parent",
  "context": "v2-S5",
  "derived_from": "autose/issue-5",
- "suite": "241 passed in 0.30s",
+ "suite": "241 passed in 0.29s",
  "hidden_tests": "5 failed, 1 passed in 0.04s",
  "hidden_failed": [
   "test_all_and_search_sorted_by_doc_id_memory",

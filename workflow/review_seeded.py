@@ -63,6 +63,9 @@ def main():
             sh(["git", "checkout", "-q", f"origin/{label['branch']}"], clone)
             base = "HEAD~1" if label.get("base") == "parent" else BASE
             diff = sh(["git", "diff", f"{base}..HEAD"], clone)
+            patch = ROOT / "experiment/seeded_prs" / ("v2" if a.seedset == "v2" else ".") / f"{sid}.patch"
+            if diff.strip() != patch.read_text().strip():          # a stale or wrong branch would silently invalidate the experiment
+                raise SystemExit(f"seed {sid}: branch {label['branch']} does not match {patch.name}; re-run build and push before reviewing")
             if a.variant == "A":
                 role, files = "reviewer", ["prompts/common.md", "prompts/reviewer.md"]
                 prompt = (f"Review the pull request for this issue.\n\n{issue_text(n)}\n\n## Diff of the pull request\n```diff\n{diff[:30000]}\n```\n\n"
