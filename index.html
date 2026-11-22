@@ -102,12 +102,12 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 5 are done: the pipeline, all experiments, the analysis, the checks and the final README.</b> Excluding the report and the video, <b>74 of 77 page items (96%) are complete</b>. Left: the report (<code>report.pdf</code>), the demo video, and the items that only the maintainer can do (below). Every experiment was run for real and its result, positive, negative or null, is in <code>results/</code>; mistakes of mine that cost money or time are logged in <code>results/runs.md</code>.</p>
+  <p><b>Phases 0 to 5 are done: the pipeline, all experiments, the analysis, the checks and the final README.</b> Excluding the report and the video, <b>76 of 78 page items (97%) are complete</b>. The report is written (<code>report.pdf</code>, 7 pages). Left: the demo video, the console figures, and Submit (below). Every experiment was run for real and its result, positive, negative or null, is in <code>results/</code>; mistakes of mine that cost money or time are logged in <code>results/runs.md</code>.</p>
 
   <div class="stats">
     <div class="stat"><b>≈ $3.4</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
     <div class="stat"><b>≈ 9M / 550k</b><span>input / output tokens so far</span></div>
-    <div class="stat"><b>96%</b><span>of the page's items done, excluding the report and the video (74 of 77)</span></div>
+    <div class="stat"><b>97%</b><span>of the page's items done, excluding the report and the video (76 of 78)</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
     <div class="stat"><b>14</b><span>ADRs written (D1 to D10, plus ADR-011 to 014)</span></div>
   </div>
@@ -115,8 +115,8 @@
   <div class="card banner">
     <h3>Needs the maintainer</h3>
     <p><b>1.</b> <b>Console:</b> read the real spend and tokens from the Anthropic console (our numbers are orchestrator-tracked, about $3.4).</p>
-    <p><b>2.</b> <b>Escalation policy</b> (optional): decide whether a run must reach a human in the cases listed under Open decisions; it would become ADR-015. Also confirm the top-3 decisions and the two ADRs to present side by side (Hindsight is left out by your choice).</p>
-    <p><b>3.</b> <b>Roll number</b> for <code>roll_number_a3_AutoSE.txt</code>, then Submit (after the report and the video).</p>
+    <p><b>2.</b> <b>Escalation policy</b> (optional): decide whether a run must reach a human in the cases listed under Open decisions; it would become ADR-015.</p>
+    <p><b>3.</b> <b>Demo video</b> (<code>demo.mp4</code>), then <b>Submit</b>: the file <code>2025204019_a3_AutoSE.txt</code> is ready.</p>
   </div>
 
   <div class="card table-wrap">
@@ -285,11 +285,11 @@ const PHASES = [
     ["x", "What the reviewer caught and where it was wrong (<code>results/analysis.md</code>): approved all 7 real PRs in round 1 (no evidence it catches anything there); on seeded PRs it caught 8/10 and missed the sibling-convention defect S4; it did not escalate contract reversals"],
     ["x", "Side-by-side comparison of the tested ADRs: Exp 1 (ADR-001), Exp 2 (ADR-008), ADR-014 test, ADR-013 (<code>results/analysis.md</code>); negative and null results are reported as such"]]],
   ["Phase 6: Deliverables", [
-    ["o", "<b>Report inputs only the author can give</b>: (1) confirm which three decisions mattered most (draft: the orchestrator and restart state, ADR-002/004/011; reviewer independence, ADR-008/014; deterministic checks, ADR-007); (2) which two tested ADRs to present side by side (draft: ADR-001 and ADR-008); (3) the console figures for tokens and cost; (4) the roll number. <b>Hindsight is left out by the author's choice</b>, although the assignment lists it as a required half page."],
-    ["o", "<b>report.pdf</b> (at most 8 pages plus appendices). Tooling is available (pandoc, headless Chrome for the diagrams and the PDF); content is ready except the inputs above."],
-    ["o", "Architecture (2 pp)", true], ["o", "Design decisions: table plus top 3 (2.5 pp)", true],
-    ["o", "Experiments (1.5 pp)", true], ["o", "Results (1 pp)", true],
-    ["o", "Hindsight (0.5 pp)", true], ["o", "Limitations and threats to validity (at least 3)", true],
+    ["x", "Report inputs settled: the three decisions that mattered most (orchestrator and restart state, reviewer independence, deterministic checks) and the two ADRs presented side by side (ADR-001 and ADR-008) are the drafts I proposed and the author asked me to confirm; tracked cost figures are used with a caveat; roll number 2025204019. Hindsight is left out by the author's choice."],
+    ["x", "<b>report.pdf</b> written and rendered: 7 pages (5 body pages plus 2 appendix pages, limit 8 plus appendices), two diagrams from the real artifacts, the ADR summary table, two experiments side by side, results with the cost caveat, 10 limitations, AI-use appendix (<code>report.pdf</code>, source <code>report/report.html</code>)"],
+    ["x", "Architecture (2 pp)", true], ["x", "Design decisions: table plus top 3 (2.5 pp)", true],
+    ["x", "Experiments (1.5 pp)", true], ["x", "Results (1 pp)", true],
+    ["o", "Hindsight (0.5 pp): left out by the author's choice, although the assignment lists it as required", true], ["x", "Limitations and threats to validity (at least 3)", true],
     ["o", "<b>Demo video</b> of at most 5 minutes: one full run from the issue page to the posted review"],
     ["x", "Final <code>README.md</code>: fork URL and commit, models, how to trigger, layout, results, honest limits, AI-use disclosure (the author still has to confirm what they reviewed and rewrite the ADRs in their own words)"],
     ["x", "Repo layout matches the spec (only <code>report.pdf</code> and <code>demo.mp4</code> are missing; hidden tests are copied in at the end)"],
@@ -297,7 +297,7 @@ const PHASES = [
     ["x", "No secrets: scanned the working tree, the whole git history (all branches) and 29 workflow run logs for key and token patterns; 0 matches"],
     ["x", "Touches only our fork and never merges: 0 issues or PRs by us in the upstream repo, no merge call in the pipeline code, all AutoSE PRs left open, least-privilege permissions per workflow"],
     ["x", "All 14 ADRs read and adopted by Aasritha Kalluri on 2026-11-22; every ADR is in first person, has her as author, her reasons, and a \"Reviewed and adopted by\" line. While reading them I corrected statements that did not match what was built (timeouts, reviewer tools, state directory, number of seeded PRs, CI approach)."],
-    ["o", "<code>roll_number_a3_AutoSE.txt</code> containing only the GitHub repo link"],
+    ["x", "Submission file <code>2025204019_a3_AutoSE.txt</code> created: it contains only the GitHub link of the repository"],
     ["o", "Submit"]]]
 ];
 
