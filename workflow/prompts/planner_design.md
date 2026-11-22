@@ -19,3 +19,5 @@ For each relevant constraint in ARCHITECTURE.md section 3, one line saying wheth
 Max 3 bullets.
 
 Do not write code in the design beyond tiny snippets. Do not edit any file.
+
+OPEN QUESTIONS NEVER BLOCK YOU. No human is available during the run. If the spec has open questions or ASSUMED interpretations, design for the ASSUMED interpretation. Never write that implementation should wait, be postponed or not start. List the assumption under "Risks" so a human can reject it in the pull request.
