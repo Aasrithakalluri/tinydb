@@ -1,0 +1,5 @@
+Defect reproduced: `count()` returns 1 when the table holds 2 documents, one of them `{}`.
+
+```json
+{"verdict":"changes","issue_type":"code","tests_run":true,"findings":[{"file":"tinydb/table.py","line":720,"problem":"`count()` with no condition uses `len([doc for doc in self if doc])`. The `if doc` filter drops empty documents (`{}`), which are valid documents. The count is therefore lower than the real total, and it disagrees with `len(table)`. The issue asks for the total number of documents. The fix is `len(self)`, or counting without the truthiness filter.","evidence":"python -c with a MemoryStorage db: insert({}), insert({'a':1}); print(db.count(), len(db), len(db.all())) -> `1 2 2`"}],"notes":["Full suite passes: 248 passed.","The new tests never insert an empty document, so they miss this bug.","ARCHITECTURE.md section 3: `count` is read-only. It goes through iteration and `search`, so the `_update_table` and query-hash constraints are not affected. Layering is respected.","`count(cond)` behaviour is unchanged, since it still calls `search`."]}
+```

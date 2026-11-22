@@ -28,3 +28,8 @@ Negative or null results are reported as such.
 | **B (ask)** | `/autose fresh ask`: the run pauses with questions; the maintainer answers with `/autose go ...`. |
 
 Metrics: hidden tests of issue #5 (tests for the readings), whether the chosen interpretation matches the maintainer's, number of human round trips, cost. One issue only, so this is a case study, not a statistic.
+
+## Results pointers
+- Experiment 2 (ADR-008): `results/exp2_v2/README.md` (main, seeds v2) and `results/exp2_pilot_v1/README.md` (pilot with a confound). Hypothesis not supported; led to ADR-014.
+- Experiment 3 (ADR-013): issue #5 in `results/runs.md` (runs 11 and 17) and `results/variant_runs/issue5-auto/`.
+- Experiment 1 (ADR-001): not run yet.

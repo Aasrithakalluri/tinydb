@@ -93,7 +93,8 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 - [x] Exp 2 variants implemented (`workflow/review_seeded.py`, variant A Sonnet independent / B Haiku with the author's artifacts; scorer `experiment/seeded_prs/score.py`; workflow `seeded-review.yml`), tested offline
 - [x] 7 seeded PRs built and verified (S1–S5 defective, C1–C2 correct): suite green on all, hidden tests fail on defective / pass on controls; branches `seeded/*` pushed
 - [x] Exp 2 pilot (seeds v1) run and read: A caught 8/10 (missed S4 twice), B 10/10 but 2/4 false rejections; **confound found** (B's artifacts described different code) → seeds v2 built from the real PRs with one injected defect (suite green, hidden tests fail); pilot kept in `results/exp2_pilot_v1/`
-- [ ] Run Exp 2 on seeds v2 (both variants, 2 runs each) and score
+- [x] Exp 2 on seeds v2 (both variants, 2 runs each) scored and read: A (independent Sonnet) 8/10 caught (missed S4 twice), B (Haiku + author's artifacts) 10/10, 0 false rejections each; A $0.551 vs B $0.046. Hypothesis NOT supported. A tooling bug invalidated S3 in the first dispatch (stale branch) → re-run + runner guard. → ADR-014 (Proposed)
+- [ ] Test ADR-014 on NEW seeds (S6 sibling inconsistency, S7 removed assertion, C3 control) with the success criterion fixed in the ADR
 - [ ] Run Exp 1 on the 5 issues; **repeat each variant at least twice** to show variance
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [ ] `results/results.csv`; total tokens and cost from the console

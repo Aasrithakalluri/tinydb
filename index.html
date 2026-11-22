@@ -105,10 +105,10 @@
   <p><b>Phases 0 to 2 are done, and Phase 3 is proven except the review and redesign back-edges, which the seeded PRs will exercise. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
 
   <div class="stats">
-    <div class="stat"><b>≈ $0.75</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
-    <div class="stat"><b>≈ 3.8M / 270k</b><span>input / output tokens so far</span></div>
+    <div class="stat"><b>≈ $1.9</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
+    <div class="stat"><b>≈ 7M / 450k</b><span>input / output tokens so far</span></div>
     <div class="stat"><b>5 of 5</b><span>issues have a completed pipeline run</span></div>
-    <div class="stat"><b>13</b><span>ADRs written (D1 to D10, plus ADR-011, 012, 013)</span></div>
+    <div class="stat"><b>14</b><span>ADRs written (D1 to D10, plus ADR-011 to 014)</span></div>
   </div>
 
   <div class="card banner">
@@ -161,6 +161,7 @@
       <li><b>Budget cap left an unreviewed PR looking finished</b>; now the orchestrator comments on the PR when a run stops early.</li>
       <li><b>A fake failure caused churn:</b> the diff grew from 18 to 201 lines when the Builder was told tests failed although they had not.</li>
       <li><b>Issue #2 asks to break a documented, tested contract</b> (<code>Table.search</code> docstring and <code>test_query_cache_documents_are_shared_with_cache</code>). The pipeline rewrote that test and the reviewer approved; any valid fix must change it. Only 1 of 8 PRs removed assertions from existing tests.</li>
+      <li><b>Independence did not buy detection (Exp 2):</b> the independent Sonnet reviewer missed the one defect class where the issue is silent but sibling code and the author's spec are not (S4); Haiku with the spec caught it. Independence is kept (assignment rule); ADR-014 adds a compare-with-siblings step. Neither reviewer escalated the reversal of a documented contract.</li>
       <li><b>Cost is small:</b> about $0.06 to $0.09 per clean run. The vague issue costs 2 to 3 times more.</li>
     </ol>
   </div>
@@ -254,7 +255,8 @@ const PHASES = [
     ["x", "Exp 2 variants implemented: <code>review_seeded.py</code> runs variant A (independent Sonnet) or B (Haiku that also sees the author's spec, design and test report); scorer and workflow ready, tested offline"],
     ["x", "7 seeded PRs built and verified (S1 to S5 defective, C1 and C2 correct controls): suite green on all, hidden tests fail on defective and pass on controls; branches <code>seeded/*</code> pushed"],
     ["x", "Exp 2 pilot (seeds v1): A caught 8/10 (missed S4 twice), B caught 10/10 but falsely rejected a correct control 2/4. Found a confound (B was given artifacts of different code), so seeds v2 were built from the real pipeline PRs with one injected defect each; the pilot is kept as evidence."],
-    ["o", "Run Exp 2 on seeds v2 (both variants, 2 runs each) and score"],
+    ["x", "Exp 2 on seeds v2 scored: independent Sonnet caught 8/10 (missed S4 twice), Haiku with the author's artifacts 10/10, no false rejections; $0.551 vs $0.046. Hypothesis NOT supported (negative result). A tooling bug invalidated S3 in the first dispatch; re-run with a runner guard. Leads to ADR-014 (Proposed)."],
+    ["o", "Test ADR-014 on NEW seeds (S6 sibling inconsistency, S7 removed assertion, C3 control); success criterion fixed in the ADR"],
     ["o", "Run Exp 1 on the 5 issues, repeating each variant at least twice to show variance"],
     ["x", "Hidden tests validated with a reference fix and an alternative fix per issue (<code>experiment/validation/</code>). Finding: issue #2 conflicts with a documented contract and an existing test."],
     ["o", "<code>results/results.csv</code>; total tokens and cost from the console"],
