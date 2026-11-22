@@ -1,7 +1,7 @@
 # ADR-012: Lenient AC parsing, and vague issues proceed on stated assumptions
 
 - **Decision area:** D7 Checks and D2 Control flow (refines ADR-007 and ADR-002; neither is superseded)
-- **Status:** Accepted
+- **Status:** Accepted for AC parsing. The rule "vague issues proceed on assumptions" is superseded by ADR-013 as the only behaviour: it remains the default in auto mode, and ask mode is added.
 
 ## Context
 The first batch of runs on issues #1, #2, #4, #5 (runs 44996285044, 44996288135, 44996291011, 44996293511) produced two failures that were caused by the pipeline, not by the model:
