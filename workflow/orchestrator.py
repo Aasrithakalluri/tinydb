@@ -295,6 +295,12 @@ class Run:
         sha = self.commit(f"AutoSE: {self.issue['title']} (#{self.n})")
         git_push(self.repo, self.branch)
         self.st["head_sha"] = sha
+        if not self.st["pr"]:                      # restart: reuse an open PR for this branch instead of creating a second
+            prs = json.loads(gh("pr", "list", "--head", self.branch, "--state", "open", "--json", "url", check=False) or "[]")
+            if prs:
+                self.st["pr"] = prs[0]["url"]
+                self.write("pr.md", f"# PR\n\n{self.st['pr']}\n")
+                self.save()
         if not self.st["pr"]:
             body = (f"Closes #{self.n}\n\nAutomated by AutoSE (Planner/Builder: Haiku, Reviewer: Sonnet). "
                     f"A human decides whether to merge.\n\nArtifacts are attached to the workflow run: "
@@ -303,6 +309,7 @@ class Run:
             title = f"[AutoSE] {self.issue['title']}"
             url = gh("pr", "create", "--base", "master", "--head", self.branch, "--title", title, "--body-file", "-", input=body).strip().splitlines()[-1]
             self.st["pr"] = url
+            self.save()
             self.write("pr.md", f"# {title}\n\n{url}\n\n{body}")
         self.status("pull request open, waiting for CI")
         ok, detail = self.wait_ci(sha)
