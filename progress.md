@@ -101,7 +101,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [x] `results/results.csv` (from final states, `results/aggregate.py`)
 - [ ] Total tokens and cost from the Anthropic console (maintainer reads it at the end)
-- [ ] Update the design from results (supersede ADRs that turned out wrong)
+- [x] Design updated from results: `architecture/decisions/README.md` (summary table of all 14 ADRs, what each experiment changed, notes on the top 3 decisions); ADR-001 untested, ADR-009 addendum
 - [ ] Capture one clean run for the sequence view and the demo
 
 ## Phase 5 — Results analysis
