@@ -89,7 +89,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [x] Hidden tests run against every finished PR (#10, #15, #14, #17, #18)
 - [x] Every run logged in `results/runs.md` (needs rows for the later runs: #4 and #5 reruns, ask-mode run)
 - [x] Ask-mode run on #5 finished (PR #26, $0.092, hidden 5/6 = same as auto; answers chosen by the assistant on delegation)
-- [ ] Implement the Exp 1 variant (single-agent mode flag in the orchestrator)
+- [x] Exp 1 tooling built and tested offline (single-agent mode, stop after stage 4, budgeted driver `workflow/exp1.py`, local scorer `experiment/exp1/score.py`)
 - [x] Exp 2 variants implemented (`workflow/review_seeded.py`, variant A Sonnet independent / B Haiku with the author's artifacts; scorer `experiment/seeded_prs/score.py`; workflow `seeded-review.yml`), tested offline
 - [x] 7 seeded PRs built and verified (S1–S5 defective, C1–C2 correct): suite green on all, hidden tests fail on defective / pass on controls; branches `seeded/*` pushed
 - [x] Exp 2 pilot (seeds v1) run and read: A caught 8/10 (missed S4 twice), B 10/10 but 2/4 false rejections; **confound found** (B's artifacts described different code) → seeds v2 built from the real PRs with one injected defect (suite green, hidden tests fail); pilot kept in `results/exp2_pilot_v1/`

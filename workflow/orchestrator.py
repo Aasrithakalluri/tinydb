@@ -24,6 +24,12 @@ import checks  # noqa: E402
 # --- limits (ADR-009) -------------------------------------------------------
 RUN_BUDGET_USD = float(os.environ.get("AUTOSE_RUN_BUDGET_USD") or "0.60")   # repo variable AUTOSE_RUN_BUDGET_USD overrides (used to test the cap)
 # Fault injection for testing back-edges ONLY. Set through the repo variable AUTOSE_INJECT; every injected run is labelled in results/runs.md.
+# Experiment 1 (ADR-001) controls, all unset in production: MODE=single runs stages 1-4 in ONE agent session, STOP_AFTER=TEST ends the
+# run after stage 4 (no PR, no CI, no reviewer), QUIET=1 posts no comments, ISSUES_DIR reads issue text from files instead of the API.
+MODE = os.environ.get("AUTOSE_MODE") or "multi"
+STOP_AFTER = os.environ.get("AUTOSE_STOP_AFTER") or ""
+QUIET = bool(os.environ.get("AUTOSE_QUIET"))
+ISSUES_DIR = os.environ.get("AUTOSE_ISSUES_DIR") or ""
 INJECT = {x.strip() for x in (os.environ.get("AUTOSE_INJECT") or "").split(",") if x.strip()}
 STAGE_RETRIES = 1          # re-ask the same stage once when its lint fails
 TEST_RETRIES = 2           # TEST -> IMPLEMENT
@@ -75,7 +81,14 @@ class Run:
             self.st.update(json.loads(self.state_file.read_text()))
             if self.st["state"] == "FAILED":          # restart: resume at the failed stage; counters/budget are kept (ADR-004)
                 self.st.update(state=self.st.get("failed_stage") or "REQ", stage_tries=0)
-        self.issue = json.loads(gh("api", f"repos/{REPO}/issues/{issue_no}"))
+        if ISSUES_DIR:
+            text = (Path(ISSUES_DIR) / f"issue-{issue_no}.md").read_text()
+            first, _, rest = text.partition("\n")
+            self.issue = {"title": first.lstrip("# ").strip(), "body": rest.strip()}
+        else:
+            self.issue = json.loads(gh("api", f"repos/{REPO}/issues/{issue_no}"))
+        if MODE == "single" and self.st["state"] == "REQ":
+            self.st["state"] = "SINGLE"
 
     # ---------------------------------------------------------------- helpers
     def save(self):
@@ -99,6 +112,8 @@ class Run:
         return f"<untrusted_issue>\n# {title}\n\n{body}\n</untrusted_issue>"
 
     def status(self, headline: str):
+        if QUIET:
+            return
         rows = [f"**AutoSE run for #{self.n}**: {headline}", "", f"- state: `{self.st['state']}`",
                 f"- cost so far: ${self.st['cost_usd']:.3f} ({self.st['input_tokens']} in / {self.st['output_tokens']} out tokens)"]
         if self.st["pr"]:
@@ -273,8 +288,8 @@ class Run:
             report += "\n## Coverage gaps\n" + "\n".join(f"- {c}" for c in cov) + "\n"
         self.write("test_report.md", report)
         if ok and not cov:
-            self.st.update(state="RELEASE", feedback="", stage_tries=0)
-            self.log("all tests pass, every acceptance criterion has a test")
+            self.st.update(state="DONE" if STOP_AFTER == "TEST" else "RELEASE", feedback="", stage_tries=0)
+            self.log("all tests pass, every acceptance criterion has a test" + (" (experiment: stopping after stage 4)" if STOP_AFTER == "TEST" else ""))
             return
         why = ("The full suite fails:\n" + out[-2500:]) if not ok else "\n".join(cov)
         if self.st["test_retries"] < TEST_RETRIES:
@@ -310,6 +325,48 @@ class Run:
             sh(["git", "apply", "--index", str(patch)], cwd=self.repo)
             self.st["base_sha"] = base
             self.log(f"restart: restored the working tree from diff.patch on {base[:8]}" + (" (rebased onto the current default branch)" if base == cur and cur != self.st.get("head_base") else ""))
+
+
+    # ---------------------------------------------------------------- Experiment 1 variant: one agent for stages 1-4
+    @staticmethod
+    def section(text: str, name: str) -> str:
+        m = re.search(rf"=== {re.escape(name)} ===\s*\n(.*?)(?=\n=== [\w.]+ ===|\Z)", text or "", re.S)
+        return m.group(1).strip() if m else ""
+
+    def stage_single(self):
+        self.ensure_branch()
+        prompt = (f"Issue #{self.n} of repository {REPO}. Do stages 1 to 4 yourself, in one session.\n\n{self.untrusted_issue()}\n\n"
+                  f"## ARCHITECTURE.md\n{(self.repo / 'ARCHITECTURE.md').read_text()}\n{self.st['feedback']}")
+        res = self.agent("single", ["prompts/common.md", "prompts/single.md", "skills/requirements-spec/SKILL.md"], prompt, self.repo)
+        spec, design = self.section(res.text, "spec.md"), self.section(res.text, "design.md")
+        self.write("spec.md", spec); self.write("design.md", design)
+        diff = self.make_diff()
+        problems = []
+        problems += ["Missing the '=== spec.md ===' section in the final message."] if not spec else checks.spec_check(spec)
+        problems += ["Missing the '=== design.md ===' section in the final message."] if not design else checks.design_check(design, self.repo)
+        problems += checks.build_check(self.repo)
+        if design:
+            problems += checks.scope_check(self.changed_files(), design)
+        if not diff.strip():
+            problems.append("The diff is empty: nothing was changed.")
+        ok, out = checks.run_pytest(self.repo)
+        cov = checks.ac_coverage_check(checks.parse_acs(spec), "\n".join((self.repo / f).read_text() for f in self.changed_files()
+                                                                      if f.startswith("tests/") and (self.repo / f).exists()))
+        report = f"# Test report (single agent, attempt {self.st['test_retries'] + 1})\n\n- full suite passed: **{ok}**\n\n```\n{out}\n```\n"
+        self.write("test_report.md", report)
+        if not ok:
+            problems.append("The full suite fails:\n" + out[-1500:])
+        problems += cov
+        if not problems:
+            self.st.update(state="DONE", feedback="")
+            self.log("single agent: spec, design, build, scope and tests all pass")
+            return
+        if self.st["test_retries"] < TEST_RETRIES:
+            self.st["test_retries"] += 1
+            self.st["feedback"] = "\n\nYour previous attempt failed these checks, fix them (the working tree still has your changes):\n- " + "\n- ".join(problems)
+            self.log("single agent: checks failed, retrying: " + "; ".join(problems)[:300])
+            return
+        self.fail("TEST", "The single agent did not pass the checks after retries:\n- " + "\n- ".join(problems))
 
     # ---------------------------------------------------------------- stage 5
     def commit(self, msg: str) -> str:

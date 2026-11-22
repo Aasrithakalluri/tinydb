@@ -102,7 +102,7 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three) is not run yet. Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
+  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test done (not adopted). Experiment 1 (single agent vs three) tooling is ready and the run is next, capped at $0.50. Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
 
   <div class="stats">
     <div class="stat"><b>≈ $2.6</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
@@ -254,7 +254,7 @@ const PHASES = [
     ["x", "Hidden tests run against every finished PR (#10, #15, #14, #17, #18, #26)"],
     ["x", "Every run logged in <code>results/runs.md</code>"],
     ["x", "Ask-mode run on #5 finished (PR #26, $0.092, hidden tests 5/6, the same as auto mode); answers were chosen by the assistant on the maintainer's delegation"],
-    ["o", "Implement the Exp 1 variant (single-agent mode flag in the orchestrator, ADR-001)"],
+    ["x", "Exp 1 tooling built and tested offline: single-agent mode, runs that stop after stage 4 (no PR, CI or Sonnet reviewer, to save cost), a driver with a hard budget, and a local scorer for the hidden tests"],
     ["o", "Exercise the reviewer-\"changes\" back-edge through the orchestrator itself (fault-injected review verdict, labelled), since the seeded runs only measure verdicts"],
     ["x", "Exp 2 variants implemented: <code>review_seeded.py</code> runs variant A (independent Sonnet) or B (Haiku that also sees the author's spec, design and test report); scorer and workflow ready, tested offline"],
     ["x", "7 seeded PRs built and verified (S1 to S5 defective, C1 and C2 correct controls): suite green on all, hidden tests fail on defective and pass on controls; branches <code>seeded/*</code> pushed"],
