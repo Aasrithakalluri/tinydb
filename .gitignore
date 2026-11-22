@@ -41,4 +41,9 @@ nosetests.xml
 
 *.db.yml
 
-.DS_Store
+.DS_Store.venv/
+__pycache__/
+.env
+*.pyc
+.pytest_cache/
+.coverage
