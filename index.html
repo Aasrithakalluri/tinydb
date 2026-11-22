@@ -280,11 +280,11 @@ const PHASES = [
     ["o", "Experiments (1.5 pp)", true], ["o", "Results (1 pp)", true],
     ["o", "Hindsight (0.5 pp)", true], ["o", "Limitations and threats to validity (at least 3)", true],
     ["o", "<b>Demo video</b> of at most 5 minutes: one full run from the issue page to the posted review"],
-    ["o", "README.md in final form: fork URL and commit, models, how to trigger, AI-use disclosure (currently <code>README_AUTOSE.md</code>)"],
-    ["o", "Repo layout matches the spec (architecture/, workflow/, experiment/, results/)"],
-    ["o", "Fork public; every link in <code>runs.md</code> opens"],
-    ["o", "No secrets in code, logs or prompts (check artifacts and logs)"],
-    ["o", "Workflow touches only our fork, never upstream; never merges"],
+    ["x", "Final <code>README.md</code>: fork URL and commit, models, how to trigger, layout, results, honest limits, AI-use disclosure (the author still has to confirm what they reviewed and rewrite the ADRs in their own words)"],
+    ["x", "Repo layout matches the spec (only <code>report.pdf</code> and <code>demo.mp4</code> are missing; hidden tests are copied in at the end)"],
+    ["x", "Fork is public; all 39 run, PR and issue links in the results documents resolve"],
+    ["x", "No secrets: scanned the working tree, the whole git history (all branches) and 29 workflow run logs for key and token patterns; 0 matches"],
+    ["x", "Touches only our fork and never merges: 0 issues or PRs by us in the upstream repo, no merge call in the pipeline code, all AutoSE PRs left open, least-privilege permissions per workflow"],
     ["o", "<code>roll_number_a3_AutoSE.txt</code> containing only the GitHub repo link"],
     ["o", "Submit"]]]
 ];
