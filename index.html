@@ -102,7 +102,7 @@
   </div>
 
   <h2>Where we are</h2>
-  <p><b>Phases 0 to 2 are done, and Phase 3 is proven except the review and redesign back-edges, which the seeded PRs will exercise. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) has started. Analysis, report, video and submission (Phases 5 and 6) have not.</p>
+  <p><b>Phases 0 to 2 are done. Phase 3 is proven except the redesign back-edge, the job timeout, and the reviewer-"changes" loop run through the orchestrator itself. The pipeline works end to end on all five issues.</b> Phase 4 (experiments) is well under way: hidden tests validated, 3 sets of seeded PRs built, Experiment 2 done (a negative result), Experiment 3 done, and the ADR-014 test running. Experiment 1 (single agent vs three) is not run yet. Analysis, report, video and submission (Phases 5 and 6) have not started.</p>
 
   <div class="stats">
     <div class="stat"><b>≈ $1.9</b><span>of the $5 cap, orchestrator-tracked. The Anthropic console is authoritative.</span></div>
@@ -114,7 +114,7 @@
   <div class="card banner">
     <h3>Waiting for a decision from the maintainer</h3>
     <p><b>1.</b> Decide the human-escalation policy (see open decisions below).</p>
-    <p><b>2.</b> Choose how to continue Phase 4: build the Exp 1 and Exp 2 variants and the 5 seeded PRs.</p>
+    <p><b>2.</b> Say go for Experiment 1 (single agent vs three agents for stages 1 to 4; about $0.8) once the ADR-014 test is scored.</p>
   </div>
 
   <div class="card table-wrap">
@@ -162,6 +162,8 @@
       <li><b>A fake failure caused churn:</b> the diff grew from 18 to 201 lines when the Builder was told tests failed although they had not.</li>
       <li><b>Issue #2 asks to break a documented, tested contract</b> (<code>Table.search</code> docstring and <code>test_query_cache_documents_are_shared_with_cache</code>). The pipeline rewrote that test and the reviewer approved; any valid fix must change it. Only 1 of 8 PRs removed assertions from existing tests.</li>
       <li><b>Independence did not buy detection (Exp 2):</b> the independent Sonnet reviewer missed the one defect class where the issue is silent but sibling code and the author's spec are not (S4); Haiku with the spec caught it. Independence is kept (assignment rule); ADR-014 adds a compare-with-siblings step. Neither reviewer escalated the reversal of a documented contract.</li>
+      <li><b>My tooling hid its own failure:</b> a stale local branch was pushed instead of the new seed commit and the build output filtered out the error, so S3 was reviewed against the wrong defect. Fixed with an explicit <code>HEAD:refs/heads/...</code> push, visible errors, and a runner guard that compares each branch diff with its patch file. The invalid reviews are kept and flagged.</li>
+      <li><b>Two confounds found in my own experiment design</b> (variant B given artifacts of different code; v2 mutations that made the PR's own suite fail) and removed before the main result, with the pilot kept as evidence.</li>
       <li><b>Cost is small:</b> about $0.06 to $0.09 per clean run. The vague issue costs 2 to 3 times more.</li>
     </ol>
   </div>
@@ -251,7 +253,8 @@ const PHASES = [
     ["x", "Hidden tests run against every finished PR (#10, #15, #14, #17, #18, #26)"],
     ["x", "Every run logged in <code>results/runs.md</code>"],
     ["x", "Ask-mode run on #5 finished (PR #26, $0.092, hidden tests 5/6, the same as auto mode); answers were chosen by the assistant on the maintainer's delegation"],
-    ["o", "Implement the Exp 1 variant (single-agent mode flag in the orchestrator)"],
+    ["o", "Implement the Exp 1 variant (single-agent mode flag in the orchestrator, ADR-001)"],
+    ["o", "Exercise the reviewer-\"changes\" back-edge through the orchestrator itself (fault-injected review verdict, labelled), since the seeded runs only measure verdicts"],
     ["x", "Exp 2 variants implemented: <code>review_seeded.py</code> runs variant A (independent Sonnet) or B (Haiku that also sees the author's spec, design and test report); scorer and workflow ready, tested offline"],
     ["x", "7 seeded PRs built and verified (S1 to S5 defective, C1 and C2 correct controls): suite green on all, hidden tests fail on defective and pass on controls; branches <code>seeded/*</code> pushed"],
     ["x", "Exp 2 pilot (seeds v1): A caught 8/10 (missed S4 twice), B caught 10/10 but falsely rejected a correct control 2/4. Found a confound (B was given artifacts of different code), so seeds v2 were built from the real pipeline PRs with one injected defect each; the pilot is kept as evidence."],

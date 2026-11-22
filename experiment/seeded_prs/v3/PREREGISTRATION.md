@@ -13,3 +13,6 @@
 **Decision rule.** All of 1 to 3 hold → ADR-014 becomes *Accepted* and the production reviewer prompt is switched to v2. S4 caught but S6 or S7 missed → the change is overfitted to S4: ADR-014 is *Superseded* and the production prompt stays. Any false rejection → reported as a cost of the change; the ADR stays *Proposed*.
 
 **Things that bias this test in favour of the change (declared in advance).** The seeds and the prompt were written by the same person in the same session, and the seeds exercise the two classes the prompt names. A baseline run of the old prompt on the same seeds is the only counterfactual. Two reviews per seed give coarse rates. The seeds are small, which favours any reviewer.
+
+## Outcome (added after the runs; the text above was not changed)
+Criteria 1 and 2 met; criterion 3 not met (C2 rejected 2/2). By the decision rule the ADR stays **Proposed** and the production prompt is unchanged. Details and caveats: `results/adr014_test/README.md`.
