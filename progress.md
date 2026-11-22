@@ -1,6 +1,6 @@
 # A3 AutoSE — Progress Tracker
 
-Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
+Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go. `[~]` = code written, not yet verified by a real run.
 
 > **Deadline note:** Due 21 Nov 23:59 IST; portal shows "Closed". Check whether an extension was requested/approved (max 3 days total across assignments, must be asked before deadline).
 
@@ -53,27 +53,27 @@ Reference: [assignment.md](assignment.md). Tick boxes (`[x]`) as we go.
 - [ ] Rule: wrong ADRs are marked *Superseded* (kept), plus a new ADR explaining what was learned
 
 ## Phase 3 — Build the workflow (Part 3)
-- [ ] `.github/workflows/autose.yml` with triggers: `issues: labeled`, `issue_comment: created`
-- [ ] Trigger auth: only maintainers/collaborators can start; ignore fork PRs / untrusted actors
-- [ ] Concurrency control (two simultaneous runs on the same issue)
-- [ ] Least-privilege `permissions:` per job
-- [ ] Treat issue/comment text as **untrusted** (prompt-injection defenses, delimiting, no shell interpolation of issue text)
-- [ ] **Stage 1 Requirements** → `spec.md`; check: all acceptance criteria testable
-- [ ] **Stage 2 Design** → `design.md`; check: names files and functions to change
-- [ ] **Stage 3 Implementation** → `diff.patch` on new branch; check: code builds
-- [ ] **Stage 4 Testing** → `test_report.md`; check: new + existing tests all pass; loop back to stage 3 within budget
-- [ ] **Stage 5 Release** → `pr.md` + PR link; check: PR open and CI passes
-- [ ] **Stage 6 Review** (independent) → `review.md`; check: approve or 2 rounds used
-  - [ ] Reviewer sees only: issue + diff + repo at PR head commit
-  - [ ] Reviewer does NOT see implementer conversation/reasoning
-  - [ ] Own prompt; read + run permission; **no push**
-  - [ ] Anti-rubber-stamp mechanism (e.g. adversarial prompt, must-run-tests, different model)
-- [ ] Back-edges: tests fail → stage 3 (or 2); review code issue → 3; approach issue → 2; max 2 review rounds
-- [ ] Failing stage writes explanation in its artifact and stops the run
-- [ ] Budgets/timeouts per stage and per run; token usage logged
-- [ ] Workflow **never merges**; final decision left to human
-- [ ] Run is followable on GitHub (artifacts uploaded, PR, review comment)
-- [ ] Copy workflow + agent code + prompts into `workflow/`
+- [~] `.github/workflows/autose.yml` with triggers: `issues: labeled`, `issue_comment: created`
+- [~] Trigger auth: only maintainers/collaborators can start; ignore fork PRs / untrusted actors
+- [~] Concurrency control (two simultaneous runs on the same issue)
+- [~] Least-privilege `permissions:` per job
+- [~] Treat issue/comment text as **untrusted** (prompt-injection defenses, delimiting, no shell interpolation of issue text)
+- [~] **Stage 1 Requirements** → `spec.md`; check: all acceptance criteria testable
+- [~] **Stage 2 Design** → `design.md`; check: names files and functions to change
+- [~] **Stage 3 Implementation** → `diff.patch` on new branch; check: code builds
+- [~] **Stage 4 Testing** → `test_report.md`; check: new + existing tests all pass; loop back to stage 3 within budget
+- [~] **Stage 5 Release** → `pr.md` + PR link; check: PR open and CI passes
+- [~] **Stage 6 Review** (independent) → `review.md`; check: approve or 2 rounds used
+  - [~] Reviewer sees only: issue + diff + repo at PR head commit
+  - [~] Reviewer does NOT see implementer conversation/reasoning
+  - [~] Own prompt; read + run permission; **no push**
+  - [~] Anti-rubber-stamp mechanism (e.g. adversarial prompt, must-run-tests, different model)
+- [~] Back-edges: tests fail → stage 3 (or 2); review code issue → 3; approach issue → 2; max 2 review rounds
+- [~] Failing stage writes explanation in its artifact and stops the run
+- [~] Budgets/timeouts per stage and per run; token usage logged
+- [~] Workflow **never merges**; final decision left to human
+- [~] Run is followable on GitHub (artifacts uploaded, PR, review comment)
+- [~] Copy workflow + agent code + prompts into `workflow/`
 
 ## Phase 4 — Experiments
 - [ ] Prepare **5 seeded PRs** for reviewer check (diffs + labels) → `experiment/seeded_prs/`

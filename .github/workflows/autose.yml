@@ -1,0 +1,59 @@
+name: AutoSE
+
+# ADR-010: label `autose` on an issue, or a `/autose` comment, by someone with write access
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+# One job, only what the orchestrator needs (ADR-005). The model key is passed to the
+# orchestrator process; the orchestrator removes GITHUB_TOKEN from the environment before
+# any agent starts.
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write        # to dispatch the repository CI for the PR head commit (ADR-007)
+
+# One run per issue at a time; a second trigger waits (never cancels a run that may be pushing).
+concurrency:
+  group: autose-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  autose:
+    # cheap filter; the real authorization check (write permission) is in orchestrator.py
+    if: >
+      (github.event_name == 'issues' && github.event.label.name == 'autose') ||
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autose'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      AUTOSE_ARTIFACT_DIR: ${{ runner.temp }}/autose
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+          persist-credentials: false      # no token left in .git/config for agents to find
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest pytest-cov pyyaml claude-agent-sdk
+      - name: Run AutoSE orchestrator
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python workflow/orchestrator.py
+      - name: Upload stage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autose-issue-${{ github.event.issue.number }}
+          path: ${{ runner.temp }}/autose/
+          retention-days: 30
+          if-no-files-found: ignore
