@@ -1,0 +1,44 @@
+diff --git a/tests/test_seed_c1.py b/tests/test_seed_c1.py
+new file mode 100644
+index 0000000..9f0274b
+--- /dev/null
++++ b/tests/test_seed_c1.py
+@@ -0,0 +1,17 @@
++from tinydb import TinyDB, where
++from tinydb.storages import MemoryStorage
++
++
++def test_count_without_condition():
++    db = TinyDB(storage=MemoryStorage)
++    assert db.count() == 0
++    db.insert_multiple([{'a': 1}, {'a': 2}, {}])
++    assert db.count() == 3
++
++
++def test_count_is_per_table():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert({'a': 1})
++    other = db.table('other')
++    other.insert_multiple([{'a': 1}, {'a': 2}])
++    assert db.count() == 1 and other.count() == 2
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..28dd290 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -706,13 +706,15 @@ class Table:
+         # Reset document ID counter
+         self._next_id = None
+ 
+-    def count(self, cond: QueryLike) -> int:
++    def count(self, cond: Optional[QueryLike] = None) -> int:
+         """
+         Count the documents matching a query.
+ 
+         :param cond: the condition use
+         """
+ 
++        if cond is None:
++            return len(self)
+         return len(self.search(cond))
+ 
+     def clear_cache(self) -> None:

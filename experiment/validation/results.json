@@ -1,0 +1,150 @@
+[
+ {
+  "issue": 1,
+  "fix": "baseline",
+  "hidden": "3 failed in 0.02s",
+  "hidden_failed": [
+   "test_ne_includes_docs_without_field",
+   "test_ne_equals_negated_eq",
+   "test_ne_still_excludes_equal_and_nested_missing"
+  ],
+  "suite": "228 passed in 0.34s",
+  "suite_failed": []
+ },
+ {
+  "issue": 1,
+  "fix": "A",
+  "hidden": "3 passed in 0.01s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.33s",
+  "suite_failed": []
+ },
+ {
+  "issue": 1,
+  "fix": "B",
+  "hidden": "3 passed in 0.01s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.27s",
+  "suite_failed": []
+ },
+ {
+  "issue": 2,
+  "fix": "baseline",
+  "hidden": "2 failed, 1 passed in 0.04s",
+  "hidden_failed": [
+   "test_scalar_mutation_does_not_leak",
+   "test_nested_mutation_does_not_leak"
+  ],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 2,
+  "fix": "A",
+  "hidden": "3 passed in 0.03s",
+  "hidden_failed": [],
+  "suite": "1 failed, 227 passed in 0.28s",
+  "suite_failed": [
+   "test_query_cache_documents_are_shared_with_cache"
+  ]
+ },
+ {
+  "issue": 2,
+  "fix": "B",
+  "hidden": "3 passed in 0.03s",
+  "hidden_failed": [],
+  "suite": "2 failed, 226 passed in 0.29s",
+  "suite_failed": [
+   "test_query_cache",
+   "test_query_cache_documents_are_shared_with_cache"
+  ]
+ },
+ {
+  "issue": 3,
+  "fix": "baseline",
+  "hidden": "3 failed in 0.02s",
+  "hidden_failed": [
+   "test_count_empty_is_zero",
+   "test_count_all_after_inserts_and_removes",
+   "test_count_with_cond_and_on_named_table"
+  ],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 3,
+  "fix": "A",
+  "hidden": "3 passed in 0.01s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.27s",
+  "suite_failed": []
+ },
+ {
+  "issue": 3,
+  "fix": "B",
+  "hidden": "3 passed in 0.01s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 4,
+  "fix": "baseline",
+  "hidden": "4 failed in 0.02s",
+  "hidden_failed": [
+   "test_multiply_ints_and_floats",
+   "test_multiply_only_matching_docs",
+   "test_multiply_missing_field_raises_like_add",
+   "test_multiply_by_zero_and_negative"
+  ],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 4,
+  "fix": "A",
+  "hidden": "4 passed in 0.01s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 4,
+  "fix": "B",
+  "hidden": "4 passed in 0.01s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 5,
+  "fix": "baseline",
+  "hidden": "4 failed, 2 passed in 0.04s",
+  "hidden_failed": [
+   "test_all_and_search_sorted_by_doc_id_memory",
+   "test_order_consistent_after_reload",
+   "test_extra_update_returns_ids_ascending_and_iter_matches",
+   "test_numeric_not_lexical_order_with_sorted_keys_storage"
+  ],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 5,
+  "fix": "A",
+  "hidden": "6 passed in 0.03s",
+  "hidden_failed": [],
+  "suite": "228 passed in 0.29s",
+  "suite_failed": []
+ },
+ {
+  "issue": 5,
+  "fix": "B",
+  "hidden": "1 failed, 5 passed in 0.04s",
+  "hidden_failed": [
+   "test_extra_update_returns_ids_ascending_and_iter_matches"
+  ],
+  "suite": "228 passed in 0.27s",
+  "suite_failed": []
+ }
+]

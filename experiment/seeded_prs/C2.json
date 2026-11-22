@@ -1,0 +1,13 @@
+{
+ "id": "C2",
+ "issue": 4,
+ "defect": null,
+ "expected_verdict": "approve",
+ "expected_issue_type": "none",
+ "description": "Correct control (multiply, raises KeyError on a missing field like add).",
+ "how_to_find": "n/a",
+ "branch": "seeded/c2",
+ "suite": "230 passed in 0.31s",
+ "hidden_tests": "4 passed in 0.01s",
+ "hidden_failed": []
+}

@@ -1,0 +1,13 @@
+{
+ "id": "C1",
+ "issue": 3,
+ "defect": null,
+ "expected_verdict": "approve",
+ "expected_issue_type": "none",
+ "description": "Correct control (count() per table).",
+ "how_to_find": "n/a",
+ "branch": "seeded/c1",
+ "suite": "230 passed in 0.29s",
+ "hidden_tests": "3 passed in 0.01s",
+ "hidden_failed": []
+}

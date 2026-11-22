@@ -1,0 +1,15 @@
+{
+ "id": "S3",
+ "issue": 3,
+ "defect": "counts-all-tables",
+ "expected_verdict": "changes",
+ "expected_issue_type": "code",
+ "description": "`count()` without a condition sums the documents of every table in the database, not just this table.",
+ "how_to_find": "insert into a second named table and compare `db.count()`",
+ "branch": "seeded/s3",
+ "suite": "229 passed in 0.29s",
+ "hidden_tests": "1 failed, 2 passed in 0.01s",
+ "hidden_failed": [
+  "test_count_with_cond_and_on_named_table"
+ ]
+}
