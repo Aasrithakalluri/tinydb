@@ -17,7 +17,7 @@ Experiment 2 (`results/exp2_v2/README.md`) compared the independent Sonnet revie
 - **Do nothing and accept the miss:** the S4 class (silent behaviour that differs from sibling code) is common in real changes.
 
 ## How this will be tested
-New seeds not used to design the change: S6 (a different sibling-consistency defect, in another operation or method), S7 (a removed assertion in an existing test), C3 (a correct change). Success criterion fixed before the run: the independent reviewer catches S4, S6, S7 with no false rejection of the controls. If S4 is caught but S6/S7 are not, the change is overfitted to S4 and this ADR is superseded.
+Pre-registered in `experiment/seeded_prs/v3/PREREGISTRATION.md` (committed before any result). New seeds not used to design the change: **S6** (hash tag copied from a sibling operator), **S7** (unrequested reversal of the documented `remove(doc_ids=...)` rule with the three pinning tests rewritten), **C3** (correct control); plus S4, C1, C2. Two reviews per seed. Criterion: the new prompt (variant A2) returns `changes` on S4, S6 and S7 in both runs, identifies S7 as a reversal of documented behaviour (`issue_type: approach` or an explicit finding), and approves C1, C2, C3 in both runs. The current prompt (A) is run on S6, S7, C3 as the counterfactual. If S4 is caught but S6 or S7 is not, the change is overfitted to S4 and this ADR is superseded.
 
 ## Consequences
 + Keeps independence while covering the one defect class the experiment showed it missing.

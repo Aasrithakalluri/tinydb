@@ -1,0 +1,17 @@
+{
+ "id": "S6",
+ "set": "v3",
+ "issue": 1,
+ "defect": "hash-tag-collision-with-sibling",
+ "expected_verdict": "changes",
+ "expected_issue_type": "code",
+ "description": "`!=` is fixed for missing fields, but its hash tuple uses the tag of `==`, so `where('a') != 1` and `where('a') == 1` share a cache entry and the second search returns the first's result. Violates the per-operator hash convention of every sibling operator (and ARCHITECTURE.md constraint 5).",
+ "how_to_find": "compare `__ne__` with `__eq__`/`__lt__` (each has its own hash tag), or run `==` then `!=` on the same table",
+ "branch": "seeded3/s6",
+ "base": "parent",
+ "built_on": "5710e7334cc10572ccd28c0c0fd4016cac319833",
+ "suite": "230 passed in 0.28s",
+ "hidden_tests_of_the_issue": "3 passed in 0.01s",
+ "defect_demonstration": "DEFECT ne returned [{'a': 1}]",
+ "existing_tests_that_fail_before_rewrite": []
+}

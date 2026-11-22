@@ -5,16 +5,16 @@ on:
   workflow_dispatch:
     inputs:
       variant:
-        description: "A = independent Sonnet reviewer (production), B = Haiku reviewer that also sees the author's artifacts"
+        description: "A = independent Sonnet reviewer (production prompt), A2 = same with the ADR-014 prompt, B = Haiku reviewer that also sees the author's artifacts"
         required: true
         type: choice
-        options: ["A", "B"]
+        options: ["A", "A2", "B"]
       seedset:
-        description: "v2 = real pipeline PRs with one injected defect (main experiment), v1 = pilot seeds built from my reference fixes"
+        description: "v2 = real pipeline PRs with one injected defect, v3 = new seeds S6/S7/C3 for ADR-014, v1 = pilot seeds"
         required: false
         type: choice
         default: "v2"
-        options: ["v2", "v1"]
+        options: ["v2", "v3", "v1"]
       runs:
         description: "How many times to review each seed"
         required: false

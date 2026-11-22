@@ -1,0 +1,111 @@
+diff --git a/tests/test_seed_s7.py b/tests/test_seed_s7.py
+new file mode 100644
+index 0000000..a8121c0
+--- /dev/null
++++ b/tests/test_seed_s7.py
+@@ -0,0 +1,8 @@
++from tinydb import TinyDB
++from tinydb.storages import MemoryStorage
++
++
++def test_update_returns_ids_ascending():
++    db = TinyDB(storage=MemoryStorage)
++    db.insert_multiple([{'a': 1}, {'a': 2}, {'a': 3}])
++    assert db.update({'a': 9}, doc_ids=[3, 1, 2]) == [1, 2, 3]
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..462a170 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -227,7 +227,8 @@ def test_remove_ids_missing(db: TinyDB):
+     # Removing by a non-existent doc_id should not raise; the returned list
+     # only contains IDs that were actually removed. This mirrors the silent
+     # behaviour of ``get(doc_id=N)`` / ``get(doc_ids=[N])``.
+-    assert db.remove(doc_ids=[99]) == []
++    with pytest.raises(KeyError):
++        db.remove(doc_ids=[99])
+     assert len(db) == 3
+ 
+ 
+@@ -236,9 +237,10 @@ def test_remove_ids_mixed(db: TinyDB):
+     # documents should be removed and the missing IDs ignored. The removal
+     # must be atomic - either every existing target is removed or none is
+     # (no partial state on failure).
+-    assert sorted(db.remove(doc_ids=[1, 99])) == [1]
+-    assert len(db) == 2
+-    assert db.get(doc_id=1) is None
++    with pytest.raises(KeyError):
++        db.remove(doc_ids=[1, 99])
++    assert len(db) == 3
++    assert db.get(doc_id=1) is not None
+     assert db.get(doc_id=2) is not None
+ 
+ 
+@@ -361,7 +363,8 @@ def test_doc_id_missing_consistency(db: TinyDB):
+     assert db.get(doc_id=99) is None
+     assert db.get(doc_ids=[99]) == []
+     assert db.update({'int': 9}, doc_ids=[99]) == []
+-    assert db.remove(doc_ids=[99]) == []
++    with pytest.raises(KeyError):
++        db.remove(doc_ids=[99])
+ 
+ 
+ def test_update_multiple(db: TinyDB):
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..39ff818 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -271,7 +271,7 @@ class Table:
+         # to the document class and document ID class.
+         docs = [
+             self.document_class(doc, self.document_id_class(doc_id))
+-            for doc_id, doc in self._read_table().items()
++            for doc_id, doc in sorted(self._read_table().items(), key=lambda kv: int(kv[0]))
+             if cond(doc)
+         ]
+ 
+@@ -478,7 +478,7 @@ class Table:
+             # Perform the update operation (see _update_table for details)
+             self._update_table(updater)
+ 
+-            return updated_ids
++            return sorted(updated_ids)
+ 
+         elif cond is not None:
+             # Perform the update operation for documents specified by a query
+@@ -507,7 +507,7 @@ class Table:
+             # Perform the update operation (see _update_table for details)
+             self._update_table(updater)
+ 
+-            return updated_ids
++            return sorted(updated_ids)
+ 
+         else:
+             # Update all documents unconditionally
+@@ -526,7 +526,7 @@ class Table:
+             # Perform the update operation (see _update_table for details)
+             self._update_table(updater)
+ 
+-            return updated_ids
++            return sorted(updated_ids)
+ 
+     def update_multiple(
+         self,
+@@ -649,6 +649,9 @@ class Table:
+             removed_ids: list[int] = []
+ 
+             def updater(table: dict):
++                missing = [doc_id for doc_id in requested_ids if doc_id not in table]
++                if missing:
++                    raise KeyError(missing[0])
+                 # Filter to IDs that exist *before* performing any removals,
+                 # so the operation is atomic: either every existing target is
+                 # removed, or none is.
+@@ -737,7 +740,7 @@ class Table:
+         """
+ 
+         # Iterate all documents and their IDs
+-        for doc_id, doc in self._read_table().items():
++        for doc_id, doc in sorted(self._read_table().items(), key=lambda kv: int(kv[0])):
+             # Convert documents to the document class
+             yield self.document_class(doc, self.document_id_class(doc_id))
+ 
