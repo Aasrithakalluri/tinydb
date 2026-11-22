@@ -7,4 +7,6 @@
 - **Models:** Planner + Builder `claude-haiku-5-5`, Reviewer `claude-sonnet-5-5` (see architecture/decisions/ADR-006)
 - **AI assistance:** Claude Code helped with scaffolding; ADRs and reasoning are the author's own. (Updated as work proceeds.)
 
-Status: setup phase. See `assignment.md` and `progress.md` for the plan.
+**How to trigger:** add the label `autose` to an issue, or comment `/autose` (maintainers only). `/autose fresh` ignores state from earlier runs of the same issue.
+
+Status: pipeline built and running; see `results/runs.md`. See `assignment.md` and `progress.md` for the plan.

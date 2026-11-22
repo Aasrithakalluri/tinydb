@@ -6,7 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-AC_RE = re.compile(r"^\s*[-*]\s*((?:N?FR)-\d+-AC\d+)\s*:\s*(.+?)\s*$", re.M)
+# accepts "- FR-01-AC1: ..." and the skill's tagged form "- FR-01-AC3 (boundary): ..."
+AC_RE = re.compile(r"^\s*[-*]\s*\**((?:N?FR)-\d+-AC\d+)\**(?:\s*\([^)]*\))?\s*:\s*(.+?)\s*$", re.M)
 REQ_RE = re.compile(r"^#{2,4}\s*((?:N?FR)-\d+)\b", re.M)
 BANNED = re.compile(r"\b(etc\.?|and/or|user-friendly|as appropriate)\b|\bfast\b", re.I)
 ARROW = ("→", "->")

@@ -305,7 +305,10 @@ class Run:
             body = (f"Closes #{self.n}\n\nAutomated by AutoSE (Planner/Builder: Haiku, Reviewer: Sonnet). "
                     f"A human decides whether to merge.\n\nArtifacts are attached to the workflow run: "
                     f"https://github.com/{REPO}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}\n\n"
-                    f"## Acceptance criteria\n{self.acs_text()}\n")
+                    f"## Acceptance criteria\n{self.acs_text()}\n\n"
+                    f"<details><summary>Spec incl. assumptions and open questions (spec.md, truncated)</summary>\n\n"
+                    f"{self.read('spec.md')[:9000]}\n\n</details>\n\n"
+                    f"<details><summary>Design (design.md)</summary>\n\n{self.read('design.md')[:5000]}\n\n</details>\n")
             title = f"[AutoSE] {self.issue['title']}"
             url = gh("pr", "create", "--base", "master", "--head", self.branch, "--title", title, "--body-file", "-", input=body).strip().splitlines()[-1]
             self.st["pr"] = url
@@ -429,7 +432,9 @@ def main():
         print("[autose] not a valid trigger; exiting")
         return
     art = Path(os.environ.get("AUTOSE_ARTIFACT_DIR", tempfile.gettempdir())) / f"issue-{number}"
-    restore_state(number, art)
+    fresh = "comment" in event and "fresh" in event["comment"]["body"].split("\n")[0]
+    if not fresh:                                    # '/autose fresh' ignores earlier state
+        restore_state(number, art)
     Run(number, Path.cwd(), art).run()
 
 
