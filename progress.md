@@ -90,11 +90,11 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 - [x] Every run logged in `results/runs.md` (needs rows for the later runs: #4 and #5 reruns, ask-mode run)
 - [x] Ask-mode run on #5 finished (PR #26, $0.092, hidden 5/6 = same as auto; answers chosen by the assistant on delegation)
 - [ ] Implement the Exp 1 variant (single-agent mode flag in the orchestrator)
-- [ ] Implement the Exp 2 variant (shared-context Haiku reviewer flag)
-- [ ] Prepare **5 seeded PRs** with known defects (+ ideally 1–2 clean ones) → `experiment/seeded_prs/`
+- [x] Exp 2 variants implemented (`workflow/review_seeded.py`, variant A Sonnet independent / B Haiku with the author's artifacts; scorer `experiment/seeded_prs/score.py`; workflow `seeded-review.yml`), tested offline
+- [x] 7 seeded PRs built and verified (S1–S5 defective, C1–C2 correct): suite green on all, hidden tests fail on defective / pass on controls; branches `seeded/*` pushed
 - [ ] Run Exp 2 on the seeded PRs (catch rate, false approve, false reject, cost)
 - [ ] Run Exp 1 on the 5 issues; **repeat each variant at least twice** to show variance
-- [ ] Validate the hidden tests (reference solution + alternative valid fix per issue)
+- [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
 - [ ] `results/results.csv`; total tokens and cost from the console
 - [ ] Update the design from results (supersede ADRs that turned out wrong)
 - [ ] Capture one clean run for the sequence view and the demo
@@ -132,6 +132,7 @@ Spend so far (orchestrator-tracked, approximate): **≈ $0.75 of the $5 cap**, �
 12. **Ask vs assume (#5):** same score (5/6), asking cheaper ($0.092 vs $0.163); null result, answers chosen by the assistant.
 13. **Prompt injection resisted** (one direct attack); denied calls were benign formatting.
 14. **Budget cap left an unreviewed PR looking finished** → PR notice added. **A fake failure made the Builder inflate the diff** 18 → 201 lines.
+15. **Issue #2 asks to break a documented, tested contract** (`Table.search` docstring + `test_query_cache_documents_are_shared_with_cache`); the pipeline rewrote that test, the reviewer approved; any valid fix must change it. 1 of 8 PRs removed assertions from existing tests.
 10. **Cost is small:** ≈ $0.06–0.09 per clean run; the vague issue costs 2–3× more.
 
 ## Notes / Log
