@@ -269,9 +269,13 @@ class Table:
         # Perform the search by applying the query to all documents.
         # Then, only if the document matches the query, convert it
         # to the document class and document ID class.
+        # Results are returned in ascending document ID order.
         docs = [
             self.document_class(doc, self.document_id_class(doc_id))
-            for doc_id, doc in self._read_table().items()
+            for doc_id, doc in sorted(
+                self._read_table().items(),
+                key=lambda item: item[0]
+            )
             if cond(doc)
         ]
 
@@ -736,8 +740,11 @@ class Table:
         :returns: an iterator over all documents.
         """
 
-        # Iterate all documents and their IDs
-        for doc_id, doc in self._read_table().items():
+        # Iterate all documents and their IDs in ascending document ID order
+        for doc_id, doc in sorted(
+            self._read_table().items(),
+            key=lambda item: item[0]
+        ):
             # Convert documents to the document class
             yield self.document_class(doc, self.document_id_class(doc_id))
 
