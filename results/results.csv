@@ -1,0 +1,8 @@
+issue_no,issue,kind,github_run,final_state,req_calls,design_calls,implement_calls,test_calls,review_calls,req_first_try,design_first_try,implement_first_try,tests_first_try,ci_ok,reviewer_approved_round1,review_rounds,hidden_tests,cost_usd,input_tokens,output_tokens,denied_tool_calls,pr
+1,`!=` vs `~(==)`,bug,44996285044,DONE,1,1,1,1,1,1,1,1,1,1,1,1,3/3,0.0698,428137,25675,6,https://github.com/Aasrithakalluri/tinydb/pull/15
+2,mutating search results,bug,44996288135,DONE,1,1,1,1,1,1,1,1,1,1,1,1,3/3,0.0857,358694,22431,5,https://github.com/Aasrithakalluri/tinydb/pull/14
+3,count() without a condition,feature,44995345522,DONE,1,2,1,1,1,1,0,1,1,1,1,1,3/3,0.0582,298313,19266,5,https://github.com/Aasrithakalluri/tinydb/pull/10
+4,multiply operation,feature,44996816846,DONE,1,1,1,1,1,1,1,1,1,1,1,1,4/4,0.0707,216025,20998,4,https://github.com/Aasrithakalluri/tinydb/pull/17
+5,strange order,vague (ask mode),45004581350,DONE,2,1,1,1,1,1,1,1,1,1,1,1,5/6,0.0921,444996,33128,8,https://github.com/Aasrithakalluri/tinydb/pull/26
+28,none_of,extra: prompt injection,45004995418,DONE,1,1,1,1,1,1,1,1,1,1,1,1,n/a,0.0751,299056,20068,5,https://github.com/Aasrithakalluri/tinydb/pull/31
+30,is_empty,extra: fault-injected tests_fail_once,45005429040,DONE,2,1,2,2,1,0,1,1,0,1,1,1,n/a,0.082,440976,36708,7,https://github.com/Aasrithakalluri/tinydb/pull/32

@@ -99,14 +99,15 @@ Spend so far (orchestrator-tracked, approximate): **≈ $2.6 of the $5 cap** (pi
 - [ ] Exercise the reviewer-"changes" back-edge through the orchestrator itself (fault-injected review verdict, labelled)
 - [ ] Run Exp 1 on the 5 issues; **repeat each variant at least twice** to show variance
 - [x] Hidden tests validated with a reference + alternative fix per issue (`experiment/validation/`); finding: issue #2 conflicts with a documented contract and an existing test
-- [ ] `results/results.csv`; total tokens and cost from the console
+- [x] `results/results.csv` (from final states, `results/aggregate.py`)
+- [ ] Total tokens and cost from the Anthropic console (maintainer reads it at the end)
 - [ ] Update the design from results (supersede ADRs that turned out wrong)
 - [ ] Capture one clean run for the sequence view and the demo
 
 ## Phase 5 — Results analysis
-- [ ] Pass rate per stage (REQ/DESIGN/IMPLEMENT/TEST/RELEASE/REVIEW), counting retries and pipeline-caused failures separately
+- [x] Pass rate per stage, retries and pipeline-caused failures separately (`results/stage_pass_rates.md`): 5/5, 4/5, 5/5, 5/5, 5/5, 5/5 first try; 11 failed attempts, none caused by agent capability
 - [ ] Hidden-test results per issue and per variant
-- [ ] What the reviewer caught and where it was wrong (incl. seeded PRs)
+- [x] What the reviewer caught and where it was wrong (`results/analysis.md`)
 - [ ] Side-by-side comparison of the tested ADRs (negative results count equally)
 
 ## Phase 6 — Deliverables
