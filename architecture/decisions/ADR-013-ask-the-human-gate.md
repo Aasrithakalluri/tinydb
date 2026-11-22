@@ -1,8 +1,9 @@
 # ADR-013: A maintainer can choose "ask first": the run pauses, posts questions, and resumes on `/autose go`
 
+- **Author:** Aasritha Kalluri
 - **Decision area:** D2 Control flow, D10 Triggers (refines ADR-002 and ADR-010; supersedes the vague-issue rule of ADR-012)
 - **Status:** Accepted (compared against the "assume" behaviour on issue #5; see `experiment/variants.md`)
-- **Decided by:** **the author.** Their words: "I am the human, ask me, I will give the green flag for issue 5"; the reasons below are the author's, selected in the interview of 2026-11-22. The mechanism (`/autose ask`, `/autose go`) was built by the assistant.
+- **Decided by:** me (Aasritha Kalluri). My words were: "I am the human, ask me, I will give the green flag for issue 5". The reasons below are mine, selected in the design interview of 2026-11-22. My coding assistant built the mechanism (`/autose ask`, `/autose go`).
 
 ## Context
 ADR-012 made vague issues proceed on a stated assumption, because during a run nobody can answer. The maintainer (the human in the loop) pointed out the better design: the pipeline should **ask them**, and they will give the green flag. This also matches the A1 skill (ask the P1 questions when a stakeholder is present) and the assignment's principle that humans own the decisions that matter. The cost of guessing is real: a wrong assumption turns into a wrong PR, and the reviewer does not see the spec (ADR-003), so it may not catch it.
@@ -16,8 +17,8 @@ ADR-012 made vague issues proceed on a stated assumption, because during a run n
 - The gate happens once per issue (`asked` flag), so a run cannot ask forever.
 
 
-## Why (the author's reasons)
-Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+## Why (my reasons)
+Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
 - **A wrong guess becomes a wrong pull request.** And the reviewer does not see the spec, so it may not notice a wrong assumption.
 - **The human owns what the issue means.** The maintainer decides the intent of an unclear request.
 - **It matches the A1 skill.** The skill says to ask the priority-1 questions when a stakeholder is available.

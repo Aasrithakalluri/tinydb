@@ -1,8 +1,9 @@
 # ADR-009: Hard budgets at every level; issue text is untrusted data
 
+- **Author:** Aasritha Kalluri
 - **Decision area:** D9 Safety and failures
 - **Status:** Accepted
-- **Decided by:** the assistant proposed the numbers (PR #7); the author set the hard $5 provider limit and asked repeatedly to keep the cost low; **the reasons below are the author's**, selected in the interview of 2026-11-22.
+- **Decided by:** my coding assistant proposed the numbers and I accepted them (PR #7). I set the hard $5 provider limit and asked repeatedly to keep the cost low. The reasons below are mine, selected in the design interview of 2026-11-22.
 
 ## Context
 $5 total spend, Actions timeouts, loops that can spin, and issue/comment text written by anyone.
@@ -23,8 +24,8 @@ $5 total spend, Actions timeouts, loops that can spin, and issue/comment text wr
 **Actions limits:** one job, artifacts kept ≤ a few MB, concurrency group per issue.
 
 
-## Why (the author's reasons)
-Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+## Why (my reasons)
+Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
 - **A worst case per run for the $5 budget.** The per-run cap bounds what one run can cost.
 - **Loops must be bounded.** Test retries, redesigns and review rounds have fixed limits, and the counters survive a restart.
 - **Anyone can write an issue.** So issue and comment text is data inside tags: never an instruction, and never put into shell commands or YAML.

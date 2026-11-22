@@ -1,8 +1,9 @@
 # ADR-004: State in stage-artifact files, branch, and an issue status comment
 
+- **Author:** Aasritha Kalluri
 - **Decision area:** D4 State
 - **Status:** Superseded by ADR-011 (restart rule was wrong: restoring state.json alone does not restore the code)
-- **Decided by:** the assistant proposed the mechanism (PR #7); **the reasons below are the author's**, selected in the interview of 2026-11-22. Superseded by ADR-011 after real runs falsified the restart rule.
+- **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22. Superseded by ADR-011 after real runs falsified the restart rule.
 
 ## Context
 Runs can be restarted (re-labelled, `/autose` again, job cancelled by timeout). Humans must be able to follow progress on GitHub. Actions runners are ephemeral.
@@ -14,8 +15,8 @@ Runs can be restarted (re-labelled, `/autose` again, job cancelled by timeout). 
 - No cache is used for state (caches are evictable and not visible to humans).
 
 
-## Why (the author's reasons)
-Recorded from the author's answers in the design interview of 2026-11-22; each point below is a reason the author selected.
+## Why (my reasons)
+Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
 - **Anyone can follow a run on GitHub.** Status comment, artifacts, branch and pull request are all visible without special access.
 - **A cancelled run still leaves its work.** The artifacts are uploaded after every stage.
 - **The cache can be evicted.** For that reason the cache is not used as the place for state.
