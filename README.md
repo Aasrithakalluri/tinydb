@@ -50,4 +50,4 @@ Author: **Aasritha Kalluri**. I used Claude Code (Claude Sonnet 5.5) substantial
 `python experiment/validation/validate.py` (hidden-test validation), `python experiment/seeded_prs/build_v2.py` / `build_v3.py` (seeds), `python experiment/seeded_prs/score.py <results.jsonl>` (reviewer experiments), `python results/aggregate.py` (results.csv), `python -m pytest workflow/tests -c /dev/null` (30 tests of the checks, tool policy and rules). The hidden tests are in `experiment/hidden_tests/` once released.
 
 ## Still to do before submission
-The demo video (`demo.mp4`), the console figures for tokens and cost (the report uses the orchestrator's estimates and says so), and Submit.
+Recording my voice over the silent demo video (`demo.mp4`, 4:47; the exact lines with start times are in `video/script.pdf`), the console figures for tokens and cost (the report uses the orchestrator's estimates and says so), and Submit.
