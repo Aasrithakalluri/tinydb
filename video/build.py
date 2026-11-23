@@ -75,13 +75,13 @@ def add(scene, stitle, dur, caption, narration, body, extra_head="", center=Fals
 
 # ---- Scene 1: hook
 add(1, "The idea", 7, "One label in, one reviewed pull request out",
-    "Imagine reporting a bug on GitHub, adding one label, and minutes later getting a tested, reviewed fix to approve.",
+    "Hi, I'm Aasritha Kalluri. In this video I'll show how I built a small AI team that fixes a software bug, from start to finish.",
     """<div style="text-align:center;margin-top:70px"><div class="big" style="color:#1f6feb">AutoSE</div>
 <h1 style="margin-top:14px">Label an issue.<br>Get a tested, reviewed pull request.</h1>
 <p class="mut" style="margin-top:34px;font-size:26px">Aasritha Kalluri &middot; Roll no. 2025204019 &middot; Assignment 3</p>
 <p class="mono mut" style="margin-top:8px;font-size:20px">github.com/Aasrithakalluri/tinydb</p></div>""")
 add(1, "The idea", 9, "Five real issues, each started by one label",
-    "I'm Aasritha Kalluri. This is AutoSE, a small team of AI helpers, built on a copy of the open source library tinydb.",
+    "It's called AutoSE. You add one label to a bug report, and a few minutes later a tested fix is waiting for you to review. I built it on a copy of the library tinydb.",
     '<div class="row"><div>' + shot("issues", 255, 180, 800, 470, 0.62, "github.com/Aasrithakalluri/tinydb/issues") + '</div>'
     '<div class="col"><div class="card"><h3>A maintainer adds the label <span class="tag">autose</span></h3>'
     '<p class="mut">That is the whole interface.</p></div><div class="card" style="margin-top:16px"><h3>Then agents do the work</h3>'
