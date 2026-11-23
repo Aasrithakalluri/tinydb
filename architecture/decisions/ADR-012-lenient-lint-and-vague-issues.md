@@ -14,7 +14,7 @@ The first batch of runs on issues #1, #2, #4, #5 (runs 44996285044, 44996288135,
 ## Decision
 I decided as follows.
 
-- The AC pattern accepts the skill's optional tag after the ID (`FR-01-AC3 (boundary):`) and bold IDs. Unit tests for all checks live in `workflow/tests/test_checks.py`, so lint changes are tested before they can block a run.
+- The AC pattern accepts the skill's optional tag after the ID (`FR-01-AC3 (boundary):`) and bold IDs. Unit tests for the spec lint, the design lint, the scope check and the acceptance-criterion coverage check live in `workflow/tests/test_checks.py` (and for the reviewer-verdict rule and the tool policy in `test_policy_and_rules.py`), so lint changes are tested before they can block a run. The build check, the layering check and the pytest runner have no unit tests; real runs exercise them.
 - **Open questions never block a stage.** The design prompt forbids "wait/postpone" wording and requires the assumed interpretation to be listed under Risks; the Builder prompt says an empty diff is a failure and to implement the assumed interpretation.
 - The assumptions are made visible to the human instead of being resolved silently: the PR body embeds `spec.md` (which carries the ASM/open-question registers) and `design.md` in collapsible sections.
 - `/autose fresh` starts a run that ignores restored state, so a changed prompt or check can be tried without inheriting an old design.
