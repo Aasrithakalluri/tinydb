@@ -37,7 +37,7 @@ All five issues went from label to a tested, CI-green, reviewed PR (#10, #14, #1
 
 ## Honest notes and limits
 - **Experiment 1 (single agent vs three)** ran 20 times after a first attempt had failed for lack of API credit (run 45010442196, no result used). Result: 10/10 vs 9/10 runs pass the hidden tests (excluding the extra test), at $0.0202 vs $0.0118 per run (`results/exp1/README.md`). Samples are small.
-- **Cost:** the orchestrator tracked about $3.4 of spend; it is an estimate, and the Anthropic console figure is the authoritative one.
+- **Cost:** the Anthropic console shows $3.48 for the project's API key (within the $5 limit); the orchestrator's own tracking gave about $3.4. Token counts in the report are estimates from the SDK's per-call usage.
 - **Issue #5's questions were answered by the assistant** on the maintainer's delegation (`1a, 2a, 3a`), not independently by the maintainer.
 - **Hidden tests** are private while runs happen (agents read the repository). `experiment/hidden_tests/MANIFEST.sha256` holds their hashes from before the runs; the change log there records the one edit (issue 5, made before its ask-mode run was resumed).
 - **Extra issues #28 (prompt injection) and #30 (pipeline tests: budget cap, fault injection)** are not among the five experiment issues and are excluded from pass-rate statistics. The runs with fault injection are labelled in `results/runs.md`.
