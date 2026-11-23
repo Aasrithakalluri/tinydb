@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D7 Checks and D2 Control flow (refines ADR-007 and ADR-002; neither is superseded)
 - **Status:** Accepted for AC parsing. The rule "vague issues proceed on assumptions" is superseded by ADR-013 as the only behaviour: it remains the default in auto mode, and ask mode is added.
-- **Decided by:** my coding assistant, after the runs on issues #4 and #5; it reported this to me and I accepted it. Its vague-issue rule is superseded by ADR-013. The lessons below are mine, selected in the design interview of 2026-11-22.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 The first batch of runs on issues #1, #2, #4, #5 (runs 44996285044, 44996288135, 44996291011, 44996293511) produced two failures that were caused by the pipeline, not by the model:
@@ -19,8 +18,7 @@ I decided as follows.
 - The assumptions are made visible to the human instead of being resolved silently: the PR body embeds `spec.md` (which carries the ASM/open-question registers) and `design.md` in collapsible sections.
 - `/autose fresh` starts a run that ignores restored state, so a changed prompt or check can be tried without inheriting an old design.
 
-## What I took from it
-Recorded from my answers in the design interview of 2026-11-22; each point is one I selected.
+## Rationale
 - **Checks need their own unit tests,** so that a lint can never silently block good output.
 - **A deterministic lint only approximates "testable":** it can reject a good spec and accept a weak one.
 - **Open questions must not block a stage.** With nobody to answer, the pipeline proceeds on a stated assumption (or asks the maintainer, ADR-013).

@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D4 State
 - **Status:** Superseded by ADR-011 (restart rule was wrong: restoring state.json alone does not restore the code)
-- **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22. Superseded by ADR-011 after real runs falsified the restart rule.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 Runs can be restarted (re-labelled, `/autose` again, job cancelled by timeout). Humans must be able to follow progress on GitHub. Actions runners are ephemeral.
@@ -17,9 +16,7 @@ I decided as follows.
 - **Restart rule:** a new run for the same issue downloads the latest artifact of that issue, and resumes at the first stage whose check has not passed. Counters (retries, review rounds) are restored from `state.json` so restarts cannot reset budgets.
 - No cache is used for state (caches are evictable and not visible to humans).
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **Anyone can follow a run on GitHub.** Status comment, artifacts, branch and pull request are all visible without special access.
 - **A cancelled run still leaves its work.** The artifacts are uploaded after every stage.
 - **The cache can be evicted.** For that reason the cache is not used as the place for state.

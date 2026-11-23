@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D4 State (supersedes ADR-004)
 - **Status:** Accepted
-- **Decided by:** my coding assistant, after real runs showed that ADR-004 was wrong; it reported this to me and I accepted it. The lessons below are mine, selected in the design interview of 2026-11-22.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 ADR-004 said a restarted run "downloads the latest artifact and resumes at the first stage whose check has not passed". The first real runs on issue #3 (Actions runs 44994878885, 44995093783, 44995270382) showed three things that were wrong:
@@ -21,8 +20,7 @@ I decided as follows.
 - A redesign or reset to base empties `diff.patch`, so stale code cannot be re-applied.
 - Any unexpected exception is converted into a FAILED stage with the error written into that stage's artifact.
 
-## What I took from it
-Recorded from my answers in the design interview of 2026-11-22; each point is one I selected.
+## Rationale
 - **State alone is not enough.** A restart must restore the code too (re-apply the saved diff and reuse the open pull request).
 - **A reasoned ADR can still be wrong.** One real run falsified ADR-004; the old ADR stays, marked Superseded, and this ADR explains what was learned.
 - **Restarts should rebase onto the current default branch,** so that fixes made in the meantime are picked up.

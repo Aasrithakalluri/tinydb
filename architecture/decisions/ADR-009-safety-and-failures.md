@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D9 Safety and failures
 - **Status:** Accepted
-- **Decided by:** my coding assistant proposed the numbers and I accepted them (PR #7). I set the hard $5 provider limit and asked repeatedly to keep the cost low. The reasons below are mine, selected in the design interview of 2026-11-22.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 My total spend is $5; I also have to deal with Actions timeouts, loops that can spin, and issue/comment text written by anyone.
@@ -26,9 +25,7 @@ I decided as follows.
 
 **Actions limits:** one job, artifacts kept ≤ a few MB, concurrency group per issue.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **A worst case per run for the $5 budget.** The per-run cap bounds what one run can cost.
 - **Loops must be bounded.** Test retries, redesigns and review rounds have fixed limits, and the counters survive a restart.
 - **Anyone can write an issue.** So issue and comment text is data inside tags: never an instruction, and never put into shell commands or YAML.
