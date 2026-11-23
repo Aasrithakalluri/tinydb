@@ -108,8 +108,8 @@ Spend (orchestrator-tracked, approximate): **about $3.4 of the $5 cap**; the Ant
 - [x] Side-by-side comparison of the tested ADRs (Exp 1, Exp 2, ADR-014, ADR-013) in `results/analysis.md`
 
 ## Phase 6 — Deliverables
-- [x] Report inputs settled (drafts adopted by the author: top-3 decisions, ADR-001 and ADR-008 side by side; tracked cost with a caveat; roll number 2025204019); Hindsight left out by the author's choice
-- [x] **report.pdf** written: 7 pages (5 body + 2 appendix), diagrams from the real artifacts, ADR table, two experiments side by side, results, 10 limitations, AI-use appendix; source `report/report.html`
+- [x] Report inputs settled (drafts adopted by the author: top-3 decisions, ADR-001 and ADR-008 side by side; tracked cost with a caveat; roll number 2025204019); Hindsight written in report_v2.pdf at the author's request
+- [x] **report.pdf** written: 7 pages (5 body + 2 appendix), diagrams from the real artifacts, ADR table, two experiments side by side, results, 10 limitations, AI-use appendix; source `report/report.html`; **report_v2.pdf** (7 pages in total) adds the three views labelled explicitly (View 1 component, View 2 sequence, View 3 stage map), Section 5 Hindsight (ADR-004 first, drafted from the evidence at the author's request) and Appendix F, a requirements checklist; `report.pdf` is unchanged
 - [ ] **Demo video** ≤ 5 min: one full run from the issue page to the posted review
 - [x] **README.md** final (fork, commit, models, triggers, layout, results, honest limits, AI-use disclosure; the author must confirm and rewrite the ADRs in their own words)
 - [x] Repo layout matches the spec (only report.pdf and demo.mp4 missing; hidden tests copied at the end)
