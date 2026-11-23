@@ -5,7 +5,12 @@ A maintainer labels an issue `autose` (or comments `/autose`); agents write the 
 - **Fork:** https://github.com/Aasrithakalluri/tinydb (upstream `msiemens/tinydb` is never touched)
 - **Pinned commit:** `edff96aeb2616402e9489d46e90a592c05565621` (`edff96a`); the fork's default branch is `master`, protected (changes only by pull request)
 - **Models:** Planner and Builder `claude-haiku-5-5`; Reviewer `claude-sonnet-5-5` (via the Claude Agent SDK)
-- **Report:** `report.pdf` (8 pages including appendices). **Demo video:** `demo.mp4` (under 5 minutes).
+- **Report:** [report.pdf](https://github.com/Aasrithakalluri/tinydb/blob/master/report.pdf) ([direct download](https://github.com/Aasrithakalluri/tinydb/raw/master/report.pdf)), 8 pages including appendices.
+- **Demo video (under 5 minutes, with voice-over):** [demo.mp4](https://github.com/Aasrithakalluri/tinydb/blob/master/demo.mp4) ([direct download](https://github.com/Aasrithakalluri/tinydb/raw/master/demo.mp4)).
+- **Architecture:** [views](https://github.com/Aasrithakalluri/tinydb/tree/master/architecture/views) (component, sequence, stage map) and [ADR-001 to ADR-014](https://github.com/Aasrithakalluri/tinydb/tree/master/architecture/decisions).
+- **Workflow and agent code:** [workflow/](https://github.com/Aasrithakalluri/tinydb/tree/master/workflow) and [.github/workflows/](https://github.com/Aasrithakalluri/tinydb/tree/master/.github/workflows).
+- **Experiments:** [issues, hidden tests, seeded PRs, variants](https://github.com/Aasrithakalluri/tinydb/tree/master/experiment).
+- **Results:** [results.csv](https://github.com/Aasrithakalluri/tinydb/blob/master/results/results.csv) and [runs.md](https://github.com/Aasrithakalluri/tinydb/blob/master/results/runs.md) (links to every Actions run, PR and review), [analysis.md](https://github.com/Aasrithakalluri/tinydb/blob/master/results/analysis.md).
 
 ## How to trigger it
 | Action | Effect |
