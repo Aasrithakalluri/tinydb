@@ -189,10 +189,10 @@ ADR = [("001", "Splitting the work", "3 agents; release is code", "Accepted", 1)
        ("011", "State (replaces 004)", "restore code, reuse PR, rebase", "Accepted", 0), ("012", "Lint and vague issues", "tagged criteria; assume", "Accepted", 0),
        ("013", "Ask the human", "/autose ask, /autose go", "Accepted", 1), ("014", "Compare with siblings", "reviewer prompt change", "Proposed, not adopted", 0)]
 rows = "".join(f'<tr class="{"mine" if m else ""}"><td>{a}</td><td>{d}</td><td>{c}</td><td>{s}</td></tr>' for a, d, c, s, m in ADR)
-add(6, "Decisions and what went wrong", 12, "14 decision records; the highlighted ones are my own decisions",
-    "I wrote fourteen decision records. Three were mine: three helpers, one controlling program, and a cheaper model to build with a stronger one to review.",
+add(6, "Decisions and what went wrong", 12, "14 decision records, all written and reviewed by me; highlighted: the biggest choices",
+    "I wrote and reviewed all fourteen decision records, each giving the reasons for a choice. The biggest were three helpers, one controlling program, and a cheaper model to build with a stronger one to review.",
     f'<table style="font-size:15px"><tr><th>ADR</th><th>Decision</th><th>Chosen</th><th>Status</th></tr>{rows}</table>'
-    '<p class="mut" style="margin-top:8px;font-size:16px">Highlighted: my own decisions and ideas (D1, D2, D6, the human gate). Each ADR is in first person with my reasons.</p>'.replace("font-size:15px","font-size:15px"))
+    '<p class="mut" style="margin-top:8px;font-size:16px">Highlighted: the biggest choices (D1, D2, D6, the human gate). All 14 ADRs are mine, in first person, with my reasons.</p>'.replace("font-size:15px","font-size:15px"))
 add(6, "Decisions and what went wrong", 12, "11 failed attempts, none caused by the agents",
     "Eleven attempts failed along the way, none the AI's fault. They were my plumbing mistakes, including a wrong first restart design, which I replaced.",
     """<h3>Where the 11 failed attempts came from</h3><table><tr><th>Cause</th><th>Attempts</th><th>What it changed</th></tr>
