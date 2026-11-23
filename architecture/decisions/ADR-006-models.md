@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D6 Models
 - **Status:** Accepted
-- **Decided by:** me (Aasritha Kalluri). My decision was "Haiku for the others and Sonnet for the reviewer"; the reasons below are mine, from the design interview of 2026-11-22. I did **not** give cost or Haiku's capability as a reason for the choice; the $5 limit is a fact about the setting.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 Hard spend cap of $5 across setup, debugging, five issues and experiments (a fact about the setting). Roles differ in what a failure costs: a weak Builder costs retries (bounded by the orchestrator); a weak Reviewer lets bad code reach the human.
@@ -15,9 +14,7 @@ I decided as follows.
 - **Planner and Builder:** `claude-haiku-5-5`.
 - **Reviewer:** `claude-sonnet-5-5`.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **A different model for the reviewer.** The reviewer then does not share the implementer's bias, which gives a stronger independence argument than a different prompt alone.
 - **The reviewer runs rarely.** It runs once or twice per run, so the stronger model is affordable there.
 

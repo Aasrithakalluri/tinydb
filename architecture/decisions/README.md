@@ -37,10 +37,5 @@ Author: **Aasritha Kalluri**
 2. **ADR-008 (+014): reviewer independence.** The only decision tested with a pre-registered experiment; the result is a negative one and says what the independence rule costs.
 3. **ADR-007: deterministic checks decide pass/fail.** Stage checks caught real agent errors (design naming a missing symbol, spec without arrows) cheaply, and also produced one false rejection of mine (ADR-012), which unit tests now guard.
 
-## Who decided what (provenance)
-**What I decided directly, and my reasons** (the design discussion and a question-and-answer interview on 2026-11-22):
-- the decisions: **D1** three agents (my answer "1A"), **D2** a single Python orchestrator, **D6** Haiku for Planner and Builder and Sonnet for the Reviewer, my choice to test **D1 and D8**, the human gate of **ADR-013**, the $5 hard limit and my instruction to keep the cost low;
-- **the reasons** behind ADR-001, 002, 003, 004, 005, 006, 007, 008, 009, 010 and 013: for each, I selected the reasons that are mine from a list and could add my own words. Each of those ADRs has a section "Why (my reasons)" containing exactly the ones I selected (for D6 I did not select cost or Haiku's capability, so neither is given as my reason);
-- my note that stage 6 is not purely deterministic (ADR-007), my view after Experiment 2 (ADR-008), and **the lessons I took from the real runs and from the ADR-014 test** (ADR-011, ADR-012, ADR-014).
-
-**Drafted in detail by my coding assistant (Claude Code) and approved by me** (mostly by merging the design pull request #7 after being asked to read it): the mechanisms, numbers and wording. **My coding assistant's response to evidence, reported to me (the lessons are mine):** ADR-011, ADR-012 and ADR-014. The text of the ADRs was written by my coding assistant from my answers above; each ADR header has a "Decided by" line saying who decided what. I read all 14 ADRs and adopted them on 2026-11-22; each carries a "Reviewed and adopted by" line with that date.
+## Authorship
+All 14 ADRs are mine (Aasritha Kalluri): I read, reviewed and adopted each one. Each follows the same format: Context, Decision, Rationale where I give reasons, Alternatives considered and Consequences. I used Claude Code as a coding assistant to draft the wording and the detailed mechanisms; the full AI-use disclosure is in the top-level `README.md`.

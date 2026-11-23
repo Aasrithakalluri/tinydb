@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D2 Control flow, D10 Triggers (refines ADR-002 and ADR-010; supersedes the vague-issue rule of ADR-012)
 - **Status:** Accepted (compared against the "assume" behaviour on issue #5; see `experiment/variants.md`)
-- **Decided by:** me (Aasritha Kalluri). My words were: "I am the human, ask me, I will give the green flag for issue 5". The reasons below are mine, selected in the design interview of 2026-11-22. My coding assistant built the mechanism (`/autose ask`, `/autose go`).
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 ADR-012 made vague issues proceed on a stated assumption, because during a run nobody can answer. I pointed out the better design: the pipeline should **ask me** (the human in the loop), and I will give the green flag. This also matches the A1 skill (ask the P1 questions when a stakeholder is present) and the assignment's principle that humans own the decisions that matter. The cost of guessing is real: a wrong assumption turns into a wrong PR, and the reviewer does not see the spec (ADR-003), so it may not catch it.
@@ -19,9 +18,7 @@ I decided as follows.
 - Only users with write access can answer (same authorization as ADR-010). The answers are wrapped as data (`<maintainer_answers>`) and cannot change the Planner's output rules.
 - The gate happens once per issue (`asked` flag), so a run cannot ask forever.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **A wrong guess becomes a wrong pull request.** And the reviewer does not see the spec, so it may not notice a wrong assumption.
 - **The human owns what the issue means.** The maintainer decides the intent of an unclear request.
 - **It matches the A1 skill.** The skill says to ask the priority-1 questions when a stakeholder is available.

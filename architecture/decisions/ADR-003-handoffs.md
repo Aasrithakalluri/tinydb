@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D3 Hand-offs
 - **Status:** Accepted
-- **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 Agents have limited context and small budgets. What an agent sees also determines its bias: an implementer's reasoning primes a reviewer to agree.
@@ -23,9 +22,7 @@ Every agent starts with a fresh context and receives only files:
 
 Artifacts are the contract; no agent receives another agent's chat transcript.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **It keeps the reviewer independent.** The reviewer never receives the implementer's conversation or reasoning.
 - **Smaller prompts and lower cost.** Passing full transcripts would be huge and expensive.
 - **Humans can inspect the artifacts.** `spec.md`, `design.md`, `diff.patch` and the others are the contract between stages and are readable by anyone following the run.

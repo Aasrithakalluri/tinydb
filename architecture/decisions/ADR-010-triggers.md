@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D10 Triggers
 - **Status:** Accepted
-- **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 Anyone can open issues or comment on a public fork. Starting the pipeline spends money and opens PRs, so it must be restricted. Duplicate triggers (label added twice, comment spam) must not run in parallel on the same branch.
@@ -17,9 +16,7 @@ I decided as follows.
 - **Concurrency:** `concurrency: group: autose-issue-${{ number }}, cancel-in-progress: false` so a second trigger queues behind the first rather than cancelling or racing; a queued run first reads `state.json` and exits as no-op if the issue is already DONE.
 - **Fork safety:** the workflow only triggers on the fork's own events, never on pull requests from other repositories, so secrets are available and untrusted PR code is not executed with them.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **Only maintainers may spend money and open pull requests.** Anyone can comment on a public repository, so the triggering user's permission is checked before anything else.
 - **Two runs on one issue must not race.** A second trigger waits instead of running in parallel or cancelling a run that may be pushing.
 - **Labels and comments are how maintainers work.** It matches the assignment's trigger and needs no extra tool.

@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D2 Control flow
 - **Status:** Accepted
-- **Decided by:** me (Aasritha Kalluri). My decision was "use a single Python orchestrator script"; the reasons below are mine, from the design interview of 2026-11-22. My coding assistant proposed the retry counts and routing rules (2 test retries, 1 redesign, 2 review rounds) and I accepted them (PR #7).
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 The flow has loops (test retries, review rounds) and back-edges (to implementation or design). Someone must decide when to go back and when to stop, and that decision must be inspectable and bounded. GitHub Actions is good at triggering and permissions, poor at loops with counters.
@@ -18,9 +17,7 @@ I use a single script, `workflow/orchestrator.py`, that runs the stages as a sta
 - Stage 6 verdict `changes/code` → 3, `changes/approach` → 2; at most 2 review rounds in total, then stop and hand to the human with `review.md`.
 The agents may *recommend* (reviewer labels an issue `code` or `approach`) but the orchestrator applies counters and budgets.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **Code, not an agent, decides who goes back.** Loops and counters must be bounded and predictable.
 - **One job, one place for state.** It is easier to follow and debug, and there is a single concurrency group.
 - **No tokens spent on routing.** An LLM orchestrator would spend tokens on routing and could keep itself in a loop.

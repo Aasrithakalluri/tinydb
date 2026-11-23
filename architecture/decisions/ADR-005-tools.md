@@ -3,8 +3,7 @@
 - **Author:** Aasritha Kalluri
 - **Decision area:** D5 Tools
 - **Status:** Accepted
-- **Decided by:** my coding assistant proposed the mechanism and I accepted it (PR #7). The reasons below are mine, selected in the design interview of 2026-11-22.
-- **Reviewed and adopted by:** Aasritha Kalluri, 2026-11-22
+- **Decided by:** Aasritha Kalluri
 
 ## Context
 Agents read untrusted issue text and run code in a CI runner that holds secrets. The strongest safeguard is that an agent cannot do harm even when fooled.
@@ -22,9 +21,7 @@ Agents are run with the Claude Agent SDK. Tools are granted per agent by `allowe
 
 No agent gets `WebFetch`/MCP servers (the A1 skill's optional fetch tool is disabled here: not needed for code tasks and a prompt-injection channel). GitHub operations (clone, push, `gh pr create`, comments) are plain code in the orchestrator via the `gh` CLI. Agent subprocesses get a **stripped environment**: `ANTHROPIC_API_KEY` yes, `GITHUB_TOKEN` no; checkout uses `persist-credentials: false` so no token sits in `.git/config`.
 
-
-## Why (my reasons)
-Recorded from my answers in the design interview of 2026-11-22; each point below is a reason I selected.
+## Rationale
 - **A fooled agent can do little harm.** Issue text is untrusted, so even a successful prompt injection should only reach the working tree and the tests.
 - **Agents never see the GitHub token.** It is removed from their environment, and checkout does not leave it in `.git/config`.
 - **The Reviewer cannot push or edit.** It can read and run code but has no way to change the pull request.
