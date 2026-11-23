@@ -32,7 +32,7 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
 <script>
   mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose",
-    flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis", subGraphTitleMargin: { top: 8, bottom: 46 } },
     sequence: { useMaxWidth: true, actorMargin: 30, width: 130, messageMargin: 18, boxMargin: 4, noteMargin: 6, mirrorActors: false, messageFontSize: 13, actorFontSize: 13, noteFontSize: 12, wrap: false },
     themeVariables: { fontSize: "14px" } });
 </script>
@@ -52,7 +52,12 @@ Fork <code>github.com/Aasrithakalluri/tinydb</code> (pinned at <code>edff96a</co
 <pre class="mermaid">
 flowchart LR
   T(["<b>Maintainer</b> labels an issue<br/>autose, or comments /autose<br/>then autose.yml starts<br/>one job, one run per issue"]) --> O
-  O["<b>Orchestrator</b><br/>Python state machine<br/>the only holder of the GitHub token<br/><br/>Checks, in code: spec and design lint,<br/>build, pytest, CI<br/>State: state.json and artifacts<br/>Release, in code: push, open PR"]
+  subgraph O["<b>Orchestrator</b> (Python state machine)<br/>the only holder of the GitHub token"]
+    direction TB
+    C["Checks, in code:<br/>spec and design lint,<br/>build, pytest, CI"]
+    S[("state.json<br/>and artifacts")]
+    R["Release, in code:<br/>push, open PR"]
+  end
   O <--> P["<b>Planner</b> (Haiku)<br/>stages 1-2<br/>Read, Grep, Glob"]
   O <--> B["<b>Builder</b> (Haiku)<br/>stages 3-4<br/>Edit tinydb/ and tests/<br/>Bash allowlist"]
   O <--> V["<b>Reviewer</b> (Sonnet)<br/>stage 6<br/>read and run, no push"]
