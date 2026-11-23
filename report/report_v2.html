@@ -52,12 +52,7 @@ Fork <code>github.com/Aasrithakalluri/tinydb</code> (pinned at <code>edff96a</co
 <pre class="mermaid">
 flowchart LR
   T(["<b>Maintainer</b> labels an issue<br/>autose, or comments /autose<br/>then autose.yml starts<br/>one job, one run per issue"]) --> O
-  subgraph O["<b>Orchestrator</b> (Python state machine)<br/>the only holder of the GitHub token"]
-    direction TB
-    C["Checks, in code:<br/>spec and design lint,<br/>build, pytest, CI"]
-    S[("state.json<br/>and artifacts")]
-    R["Release, in code:<br/>push, open PR"]
-  end
+  O["<b>Orchestrator</b><br/>Python state machine<br/>the only holder of the GitHub token<br/><br/>Checks, in code: spec and design lint,<br/>build, pytest, CI<br/>State: state.json and artifacts<br/>Release, in code: push, open PR"]
   O <--> P["<b>Planner</b> (Haiku)<br/>stages 1-2<br/>Read, Grep, Glob"]
   O <--> B["<b>Builder</b> (Haiku)<br/>stages 3-4<br/>Edit tinydb/ and tests/<br/>Bash allowlist"]
   O <--> V["<b>Reviewer</b> (Sonnet)<br/>stage 6<br/>read and run, no push"]
@@ -100,7 +95,7 @@ sequenceDiagram
   B-->>O: edit to tinydb/table.py, build and scope checks pass
   O->>B: TEST, write one test per criterion
   B-->>O: tests written, orchestrator runs full pytest itself, pass
-  Note over O,GH: first run died at release (setup bug), restarts restored state and re-applied the diff (ADR-011)
+  Note over GH,P: first run died at release (setup bug),<br/>restarts restored the state and re-applied<br/>the saved diff (ADR-011)
   O->>GH: push branch, reuse PR 10, dispatch CI: success
   O->>R: issue + diff + clean checkout
   R-->>O: ran pytest (248 pass) and own experiments, approve ($0.038)
