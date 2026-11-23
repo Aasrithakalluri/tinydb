@@ -5,7 +5,7 @@ A maintainer labels an issue `autose` (or comments `/autose`); agents write the 
 - **Fork:** https://github.com/Aasrithakalluri/tinydb (upstream `msiemens/tinydb` is never touched)
 - **Pinned commit:** `edff96aeb2616402e9489d46e90a592c05565621` (`edff96a`); the fork's default branch is `master`, protected (changes only by pull request)
 - **Models:** Planner and Builder `claude-haiku-5-5`; Reviewer `claude-sonnet-5-5` (via the Claude Agent SDK)
-- **Report:** `report.pdf` (version 1) and `report_v2.pdf` (version 2: the three architecture views labelled explicitly, a Hindsight section, a requirements checklist, an expanded Design decisions section; 6 body pages + 2 appendix pages, 8 in total; sources `report/report.html` and `report/report_v2.html`, rendered with headless Chrome). The assignment names the file `report.pdf`; the version to submit is chosen by renaming. **Video:** `demo.mp4` (still to record). Submission file: `2025204019_a3_AutoSE.txt`.
+- **Report:** `report.pdf` (8 pages including appendices). **Demo video:** `demo.mp4` (under 5 minutes).
 
 ## How to trigger it
 | Action | Effect |
@@ -27,16 +27,17 @@ workflow/                orchestrator.py (state machine), agents.py (per-role to
 .github/workflows/       autose.yml, seeded-review.yml, exp1.yml (+ the upstream CI)
 experiment/              issues/ (the 5 issues), hidden_tests/ (hashes now, files at the end), seeded_prs/, validation/, security/, variants.md, exp1/
 results/                 results.csv, runs.md (every run, PR and review link, failures included), analysis.md, stage_pass_rates.md, per-experiment folders
+report.pdf, demo.mp4     the report and the demo video
 ARCHITECTURE.md          the A2 architecture document the Design stage uses
 ```
 Design: three agents (Planner stages 1-2, Builder 3-4, Reviewer 6; release is plain code), one deterministic Python orchestrator that decides every transition, deterministic checks that decide every pass or fail, least-privilege tools per role, a GitHub token that agents never see, and hard budgets (ADR-001 to ADR-010).
 
 ## Results in one paragraph
-All five issues went from label to a tested, CI-green, reviewed PR (#10, #14, #15, #17, #26) for about $0.06 to $0.09 each; hidden tests pass 3/3, 3/3, 3/3, 4/4 and (vague issue) 5/6 (`results/analysis.md`). **11 attempts failed along the way and none was caused by the agents' capability** (10 were defects in my pipeline or setup, 1 was a deliberate budget test), which is why ADR-004 was superseded by ADR-011 and ADR-012/013 were written. Experiment 2 (independent Sonnet reviewer vs a Haiku reviewer that also sees the author's artifacts, 14 reviews each) gave a negative result for independence: 8/10 vs 10/10 defects caught, at $0.55 vs $0.05. The pre-registered test of the prompt change (ADR-014) was partly met and the change was **not adopted**. A prompt-injection issue and a budget-cap test were resisted/verified.
+All five issues went from label to a tested, CI-green, reviewed PR (#10, #14, #15, #17, #26) for about $0.06 to $0.09 each; hidden tests pass 3/3, 3/3, 3/3, 4/4 and (vague issue) 5/6 (`results/analysis.md`). **11 attempts failed along the way and none was caused by the agents' capability** (10 were defects in my pipeline or setup, 1 was a deliberate budget test), which is why ADR-004 was superseded by ADR-011 and ADR-012/013 were written. Experiment 1 (one agent vs three) showed no quality difference and about 70% more cost for the split. Experiment 2 (independent Sonnet reviewer vs a Haiku reviewer that also sees the author's artifacts, 14 reviews each) gave a negative result for independence: 8/10 vs 10/10 defects caught, at $0.55 vs $0.05. The pre-registered test of the prompt change (ADR-014) was partly met and the change was **not adopted**. A prompt-injection issue and a budget-cap test were resisted/verified.
 
 ## Honest notes and limits
-- **Experiment 1 (single agent vs three) was not run.** The API returned "Credit balance is too low" on 18 of 20 runs (run 45010442196); no result is reported from it, and ADR-001 is marked untested.
-- **Cost:** the orchestrator tracked about $2.6 of spend, but the provider ran out of credit earlier than that; the console number is the authoritative one.
+- **Experiment 1 (single agent vs three)** ran 20 times after a first attempt had failed for lack of API credit (run 45010442196, no result used). Result: 10/10 vs 9/10 runs pass the hidden tests (excluding the extra test), at $0.0202 vs $0.0118 per run (`results/exp1/README.md`). Samples are small.
+- **Cost:** the orchestrator tracked about $3.4 of spend; it is an estimate, and the Anthropic console figure is the authoritative one.
 - **Issue #5's questions were answered by the assistant** on the maintainer's delegation (`1a, 2a, 3a`), not independently by the maintainer.
 - **Hidden tests** are private while runs happen (agents read the repository). `experiment/hidden_tests/MANIFEST.sha256` holds their hashes from before the runs; the change log there records the one edit (issue 5, made before its ask-mode run was resumed).
 - **Extra issues #28 (prompt injection) and #30 (pipeline tests: budget cap, fault injection)** are not among the five experiment issues and are excluded from pass-rate statistics. The runs with fault injection are labelled in `results/runs.md`.
@@ -49,5 +50,3 @@ Author: **Aasritha Kalluri**. I used Claude Code (Claude Sonnet 5.5) substantial
 ## Reproduce the scoring
 `python experiment/validation/validate.py` (hidden-test validation), `python experiment/seeded_prs/build_v2.py` / `build_v3.py` (seeds), `python experiment/seeded_prs/score.py <results.jsonl>` (reviewer experiments), `python results/aggregate.py` (results.csv), `python -m pytest workflow/tests -c /dev/null` (30 tests of the checks, tool policy and rules). The hidden tests are in `experiment/hidden_tests/` once released.
 
-## Still to do before submission
-Recording my voice over the silent demo video (`demo.mp4`, 4:45; the exact lines with start times are in `video/script.pdf`), the console figures for tokens and cost (the report uses the orchestrator's estimates and says so), and Submit.
