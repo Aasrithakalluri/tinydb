@@ -5,7 +5,7 @@ A maintainer labels an issue `autose` (or comments `/autose`); agents write the 
 - **Fork:** https://github.com/Aasrithakalluri/tinydb (upstream `msiemens/tinydb` is never touched)
 - **Pinned commit:** `edff96aeb2616402e9489d46e90a592c05565621` (`edff96a`); the fork's default branch is `master`, protected (changes only by pull request)
 - **Models:** Planner and Builder `claude-haiku-5-5`; Reviewer `claude-sonnet-5-5` (via the Claude Agent SDK)
-- **Report:** `report.pdf` (version 1) and `report_v2.pdf` (version 2: the three architecture views labelled explicitly, a Hindsight section, a requirements checklist; 5 body pages + 2 appendix pages, 7 in total; sources `report/report.html` and `report/report_v2.html`, rendered with headless Chrome). The assignment names the file `report.pdf`; the version to submit is chosen by renaming. **Video:** `demo.mp4` (still to record). Submission file: `2025204019_a3_AutoSE.txt`.
+- **Report:** `report.pdf` (version 1) and `report_v2.pdf` (version 2: the three architecture views labelled explicitly, a Hindsight section, a requirements checklist, an expanded Design decisions section; 6 body pages + 2 appendix pages, 8 in total; sources `report/report.html` and `report/report_v2.html`, rendered with headless Chrome). The assignment names the file `report.pdf`; the version to submit is chosen by renaming. **Video:** `demo.mp4` (still to record). Submission file: `2025204019_a3_AutoSE.txt`.
 
 ## How to trigger it
 | Action | Effect |
