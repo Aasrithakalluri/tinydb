@@ -837,3 +837,39 @@ def test_lambda_query():
     query.is_cacheable = lambda: False
     assert db.search(query) == [{'foo': 'bar'}]
     assert not db._query_cache
+
+
+def test_fr_04_ac1_json_reopen_order_is_ascending(tmp_path):
+    path = tmp_path / 'order.json'
+
+    db = TinyDB(path, storage=JSONStorage)
+    db.insert(Document({'v': 'c'}, 3))
+    db.insert(Document({'v': 'a'}, 1))
+    db.insert(Document({'v': 'b'}, 2))
+    db.close()
+
+    db = TinyDB(path, storage=JSONStorage)
+    assert [doc.doc_id for doc in db.all()] == [1, 2, 3]
+    db.close()
+
+
+def test_fr_04_ac2_json_reopen_after_remove_keeps_order(tmp_path):
+    path = tmp_path / 'remove.json'
+
+    db = TinyDB(path, storage=JSONStorage)
+    db.insert_multiple({'v': i} for i in range(3))
+    db.remove(doc_ids=[2])
+    db.close()
+
+    db = TinyDB(path, storage=JSONStorage)
+    assert [doc.doc_id for doc in db.all()] == [1, 3]
+    db.close()
+
+
+def test_fr_04_ac3_json_empty_file_reopen_is_empty_list(tmp_path):
+    path = tmp_path / 'empty.json'
+    path.write_text('')
+
+    db = TinyDB(path, storage=JSONStorage)
+    assert db.all() == []
+    db.close()
