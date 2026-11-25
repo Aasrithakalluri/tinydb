@@ -267,6 +267,15 @@ class TinyDB(TableBase):
         """
         return len(self.table(self.default_table_name))
 
+    def is_empty(self) -> bool:
+        """
+        Check whether the default table contains no documents.
+
+        :returns: ``True`` if the default table has no documents, ``False``
+            otherwise
+        """
+        return self.table(self.default_table_name).is_empty()
+
     def __iter__(self) -> Iterator[Document]:
         """
         Return an iterator for the default table's documents.

@@ -837,3 +837,14 @@ def test_lambda_query():
     query.is_cacheable = lambda: False
     assert db.search(query) == [{'foo': 'bar'}]
     assert not db._query_cache
+
+
+def test_is_empty_default_table():
+    db = TinyDB(storage=MemoryStorage)
+    assert db.is_empty() is True
+
+    doc_id = db.insert({'a': 1})
+    assert db.is_empty() is False
+
+    db.remove(doc_ids=[doc_id])
+    assert db.is_empty() is True

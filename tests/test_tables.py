@@ -197,3 +197,14 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
     assert len(table) == 1
     assert table.all() == [{'a': 1}]
     db.close()
+
+
+def test_is_empty(db):
+    table = db.table('is_empty_table')
+    assert table.is_empty() is True
+
+    doc_id = table.insert({'a': 1})
+    assert table.is_empty() is False
+
+    table.remove(doc_ids=[doc_id])
+    assert table.is_empty() is True
